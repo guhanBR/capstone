@@ -91,3 +91,18 @@ document.addEventListener('click', function (e) {
         container.classList.remove('show');
     }
 });
+
+// Close dropdown on Escape key or when clicking navbar links
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+        const container = document.querySelector('.account-dropdown-container');
+        if (container) container.classList.remove('show');
+    }
+});
+
+document.querySelectorAll('.nav-links a').forEach(link => {
+    link.addEventListener('click', function () {
+        const container = document.querySelector('.account-dropdown-container');
+        if (container) container.classList.remove('show');
+    });
+});

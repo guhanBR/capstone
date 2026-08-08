@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}About SparePro — Online Spare Parts Ordering System{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto; padding-bottom: 2rem;">
+    <!-- Page Header -->
+    <div style="margin-bottom: 2rem; border-bottom: 1px solid var(--surface-border); padding-bottom: 1.5rem;">
+        <span style="color: var(--secondary); font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">ABOUT SPAREPRO</span>
+        <h1 style="font-size: 2.2rem; font-weight: 800; color: var(--text-color); margin-top: 0.3rem;">
+            Online Spare Parts Ordering System for Motors and Pumps
+        </h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; margin-top: 0.5rem; line-height: 1.6;">
+            SparePro is a dedicated industrial e-commerce platform built to streamline the sourcing, stock verification, and ordering of high-performance electric motor and pump spare parts.
+        </p>
+    </div>
+
+    <!-- Core Information Cards -->
+    <div style="display: flex; flex-direction: column; gap: 1.75rem;">
+        <div class="card" style="padding: 1.75rem;">
+            <h3 style="font-size: 1.25rem; margin-bottom: 0.75rem; color: var(--text-color);">What SparePro Provides</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.7;">
+                SparePro bridges the gap between industrial maintenance workshops, repair technicians, plant engineers, and genuine spare part manufacturers. We eliminate component ambiguity by publishing precise technical specifications, shaft dimensions, frame sizes, and model cross-references for every catalog item.
+            </p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="card" style="padding: 1.5rem;">
+                <h3 style="font-size: 1.15rem; margin-bottom: 0.6rem; color: var(--secondary);">Motor Spare Parts</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.65;">
+                    Comprehensive stock of rotor shaft bearings (6203, 6204, 6205, 6306), motor cooling fans, terminal boards, junction box covers, centrifugal switches, and motor run/start capacitors (36 MFD to 150 MFD).
+                </p>
+            </div>
+
+            <div class="card" style="padding: 1.5rem;">
+                <h3 style="font-size: 1.15rem; margin-bottom: 0.6rem; color: var(--secondary);">Pump Spare Parts</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.65;">
+                    Heavy-duty mechanical shaft seals (carbon vs ceramic, silicon carbide), cast bronze and stainless steel impellers, precision SS-304/SS-316 drive shafts, EPDM flange gaskets, and Lovejoy flexible jaw couplings.
+                </p>
+            </div>
+        </div>
+
+        <div class="card" style="padding: 1.75rem;">
+            <h3 style="font-size: 1.25rem; margin-bottom: 0.75rem; color: var(--text-color);">Streamlined Ordering &amp; Stock Availability</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.7; margin-bottom: 1rem;">
+                With real-time database synchronization, users can instantly verify stock quantities, search by exact SKU or brand part numbers, compare technical parameters, and place orders with automated status updates.
+            </p>
+            <a href="{{ url_for('products.list_products') }}" class="btn btn-primary" style="display: inline-block; padding: 0.65rem 1.5rem; font-weight: 600;">
+                Explore Product Catalog
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

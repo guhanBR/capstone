@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}SparePro — Motor &amp; Pump Spare Parts Made Simple{% endblock %}
+
+{% block content %}
+<!-- HERO SECTION -->
+<section style="background: var(--surface); border: 1px solid var(--surface-border); border-radius: 12px; padding: 3.5rem 2.5rem; margin-bottom: 2.5rem; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+    <span style="color: var(--secondary); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; display: block; margin-bottom: 0.75rem;">SPAREPRO INDUSTRIAL SOLUTIONS</span>
+    <h1 style="font-size: 2.75rem; font-weight: 800; color: var(--text-color); margin-bottom: 1rem; line-height: 1.2; font-family: 'Outfit', sans-serif;">
+        Motor &amp; Pump Spare Parts Made Simple
+    </h1>
+    <p style="color: var(--text-muted); font-size: 1.15rem; max-width: 680px; margin: 0 auto 2rem; line-height: 1.6;">
+        Find reliable deep groove ball bearings, mechanical seals, impellers, capacitors, pump shafts, and motor cooling fans with real-time stock availability.
+    </p>
+    <div style="display: flex; gap: 1rem; justify-content: center; align-items: center; flex-wrap: wrap;">
+        <a href="{{ url_for('products.list_products') }}" class="btn btn-primary" style="padding: 0.85rem 2.25rem; font-size: 1rem; border-radius: 6px; font-weight: 600;">
+            Browse Spare Parts
+        </a>
+        <a href="{{ url_for('about') }}" class="btn btn-secondary" style="padding: 0.85rem 2rem; font-size: 1rem; border-radius: 6px; font-weight: 600;">
+            Learn About SparePro
+        </a>
+    </div>
+</section>
+
+<!-- POPULAR CATEGORIES -->
+<section style="margin-bottom: 3rem;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem;">
+        <div>
+            <h2 style="font-size: 1.65rem; font-weight: 800; color: var(--text-color);">Popular Categories</h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">Browse genuine component categories engineered for industrial motors and pumps.</p>
+        </div>
+        <a href="{{ url_for('products.list_products') }}" style="font-weight: 600; font-size: 0.9rem;">View All Categories →</a>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.25rem;">
+        {% for cat in popular_categories %}
+            <a href="{{ url_for('products.list_products', category=cat.id) }}" style="text-decoration: none; color: inherit;">
+                <div class="card" style="padding: 1.5rem 1rem; text-align: center; height: 100%; transition: transform 0.2s ease, border-color 0.2s ease; border-radius: 10px;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='var(--secondary)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='var(--surface-border)';">
+                    <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-color); margin-bottom: 0.4rem;">{{ cat.name }}</h3>
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">Explore catalog →</span>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- FEATURED PRODUCTS -->
+<section style="margin-bottom: 3rem;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem;">
+        <div>
+            <h2 style="font-size: 1.65rem; font-weight: 800; color: var(--text-color);">Featured Products</h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">High demand motor bearings, seals, and replacement components.</p>
+        </div>
+        <a href="{{ url_for('products.list_products') }}" style="font-weight: 600; font-size: 0.9rem;">Browse Shop Catalog →</a>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem;">
+        {% for product in featured_products %}
+            <div class="product-card" style="background: var(--surface); border: 1px solid var(--surface-border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; position: relative;">
+                <span class="status-badge badge-{{ product.stock_status|lower|replace(' ', '-') }}" style="position: absolute; top: 12px; right: 12px; z-index: 2; font-size: 0.72rem; padding: 0.2rem 0.5rem;">
+                    {{ product.stock_status }}
+                </span>
+
+                <div class="product-img-container" style="background-color: var(--surface-hover); aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; padding: 1.25rem; overflow: hidden; position: relative;">
+                    <img src="{{ product.image_url }}" alt="{{ product.name }}" style="max-height: 100%; max-width: 100%; object-fit: contain;" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div style="display: none; height: 100%; width: 100%; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.85rem; font-weight: 600;">Image unavailable</div>
+                </div>
+
+                <div style="padding: 1.25rem; display: flex; flex-direction: column; flex: 1;">
+                    <h3 style="font-size: 0.98rem; font-weight: 700; margin-bottom: 0.35rem; line-height: 1.35; font-family: 'Inter', sans-serif;">
+                        <a href="{{ url_for('products.product_detail', product_id=product.id) }}" style="color: var(--text-color);">{{ product.name }}</a>
+                    </h3>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.25rem;">SKU: {{ product.sku }}</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.85rem;">Brand: {{ product.brand }}</div>
+
+                    <div style="margin-top: auto; display: flex; align-items: center; justify-content: space-between; padding-top: 0.75rem; border-top: 1px solid var(--surface-border);">
+                        <span style="font-size: 1.2rem; font-weight: 800; color: var(--secondary);">₹{{ "{:,.2f}".format(product.effective_price) }}</span>
+
+                        {% if product.stock_quantity > 0 %}
+                            <button type="button" onclick="addToCartAjax({{ product.id }})" class="btn btn-secondary btn-sm" style="font-size: 0.82rem; padding: 0.4rem 0.85rem; border-color: var(--surface-border);">
+                                Add to Cart
+                            </button>
+                        {% else %}
+                            <button class="btn btn-secondary btn-sm" disabled style="font-size: 0.8rem; opacity: 0.6;">Out of Stock</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- WHY CHOOSE SPAREPRO -->
+<section style="margin-bottom: 2rem;">
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <h2 style="font-size: 1.75rem; font-weight: 800; color: var(--text-color);">Why Choose SparePro?</h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">Engineered for workshops, maintenance engineers, and industrial procurement.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem;">
+        <div class="card" style="padding: 1.5rem; text-align: center;">
+            <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--secondary);">Reliable Products</h3>
+            <p style="font-size: 0.88rem; color: var(--text-muted);">100% genuine bearings, mechanical seals, and motor parts from SKF, Kirloskar, ABB, Siemens, and premier manufacturers.</p>
+        </div>
+
+        <div class="card" style="padding: 1.5rem; text-align: center;">
+            <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--secondary);">Easy Ordering</h3>
+            <p style="font-size: 0.88rem; color: var(--text-muted);">Direct search by SKU, model number, dimensions, or component type with instant digital cart checkout.</p>
+        </div>
+
+        <div class="card" style="padding: 1.5rem; text-align: center;">
+            <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--secondary);">Stock Availability</h3>
+            <p style="font-size: 0.88rem; color: var(--text-muted);">Real-time inventory levels ensure transparent ordering and zero stockout surprises.</p>
+        </div>
+
+        <div class="card" style="padding: 1.5rem; text-align: center;">
+            <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--secondary);">Professional Support</h3>
+            <p style="font-size: 0.88rem; color: var(--text-muted);">Dedicated customer service team for technical compatibility verification and workshop bulk inquiries.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

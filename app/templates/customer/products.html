@@ -45,11 +45,14 @@
             <option value="out_of_stock" {% if current_availability == 'out_of_stock' %}selected{% endif %}>Out of Stock</option>
         </select>
 
-        <select name="sort" class="form-control" style="flex: 1; min-width: 140px;" onchange="this.form.submit()">
+        <select name="sort" class="form-control" style="flex: 1; min-width: 150px;" onchange="this.form.submit()">
             <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Newest First</option>
             <option value="price_asc" {% if current_sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
             <option value="price_desc" {% if current_sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
             <option value="name_asc" {% if current_sort == 'name_asc' %}selected{% endif %}>Name: A to Z</option>
+            <option value="name_desc" {% if current_sort == 'name_desc' %}selected{% endif %}>Name: Z to A</option>
+            <option value="best_selling" {% if current_sort == 'best_selling' %}selected{% endif %}>Best Selling</option>
+            <option value="highest_rated" {% if current_sort == 'highest_rated' %}selected{% endif %}>Highest Rated</option>
         </select>
     </div>
 
@@ -122,8 +125,9 @@
                             </span>
 
                             <!-- Centered Product Image Container -->
-                            <div style="background-color: var(--surface-hover); height: 180px; display: flex; align-items: center; justify-content: center; padding: 1rem;">
-                                <img src="{{ product.image_url }}" alt="{{ product.name }}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                            <div class="product-img-container" style="background-color: var(--surface-hover); aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; padding: 1rem; overflow: hidden; position: relative;">
+                                <img src="{{ product.image_url }}" alt="{{ product.name }}" style="max-height: 100%; max-width: 100%; object-fit: contain;" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div style="display: none; height: 100%; width: 100%; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.82rem; font-weight: 600;">Image unavailable</div>
                             </div>
 
                             <!-- Product Info -->
@@ -132,7 +136,7 @@
                                     <a href="{{ url_for('products.product_detail', product_id=product.id) }}" style="color: var(--text-color);">{{ product.name }}</a>
                                 </h3>
                                 <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.2rem;">SKU: {{ product.sku }}</div>
-                                <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.75rem;">{{ product.brand }}</div>
+                                <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.75rem;">Brand: {{ product.brand }}</div>
 
                                 <div style="margin-top: auto; display: flex; align-items: center; justify-content: space-between; padding-top: 0.5rem; border-top: 1px solid var(--surface-border);">
                                     <span style="font-size: 1.15rem; font-weight: 800; color: var(--secondary);">₹{{ "{:,.2f}".format(product.effective_price) }}</span>

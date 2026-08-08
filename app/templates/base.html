@@ -26,30 +26,27 @@
     <nav class="navbar">
         <div class="navbar-container">
             <!-- Brand Logo -->
-            <a href="{{ url_for('products.list_products') }}" class="brand-logo" style="text-decoration: none; display: flex; flex-direction: column;">
+            <a href="{{ url_for('index') }}" class="brand-logo" style="text-decoration: none; display: flex; flex-direction: column;">
                 <span style="font-size: 1.5rem; font-weight: 800; color: var(--text-color); font-family: 'Outfit', sans-serif; letter-spacing: -0.5px;">Spare<span style="color: var(--secondary);">Pro</span></span>
                 <span style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-top: -3px;">Motors &amp; Pumps Spare Parts</span>
             </a>
 
             <!-- Text Navigation Links -->
             <ul class="nav-links">
-                <li class="nav-item {% if request.endpoint == 'products.list_products' and not current_category %}active{% endif %}">
-                    <a href="{{ url_for('products.list_products') }}">Home</a>
+                <li class="nav-item {% if request.endpoint == 'index' %}active{% endif %}">
+                    <a href="{{ url_for('index') }}">Home</a>
                 </li>
                 <li class="nav-item {% if request.endpoint == 'products.list_products' %}active{% endif %}">
-                    <a href="{{ url_for('products.list_products') }}">Products</a>
+                    <a href="{{ url_for('products.list_products') }}">Shop</a>
                 </li>
-                <li class="nav-item">
-                    <a href="{{ url_for('products.list_products') }}">Categories</a>
+                <li class="nav-item {% if request.endpoint == 'orders.order_history' %}active{% endif %}">
+                    <a href="{% if current_user.is_authenticated %}{{ url_for('orders.order_history') }}{% else %}{{ url_for('auth.login') }}{% endif %}">Orders</a>
                 </li>
-                <li class="nav-item">
-                    <a href="{{ url_for('products.list_products') }}">Brands</a>
+                <li class="nav-item {% if request.endpoint == 'about' %}active{% endif %}">
+                    <a href="{{ url_for('about') }}">About</a>
                 </li>
-                <li class="nav-item">
-                    <a href="{{ url_for('products.list_products') }}">About</a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ url_for('products.list_products') }}">Contact</a>
+                <li class="nav-item {% if request.endpoint == 'contact' %}active{% endif %}">
+                    <a href="{{ url_for('contact') }}">Contact</a>
                 </li>
             </ul>
 
@@ -67,30 +64,41 @@
                     </button>
 
                     <div class="account-dropdown-menu" id="accountDropdownMenu">
-                        <div class="dropdown-header">
-                            <span>New customer?</span>
-                            <a href="{{ url_for('auth.register') }}" class="dropdown-signup-link">Sign Up</a>
-                        </div>
-                        <div class="dropdown-divider"></div>
-                        <a href="{% if current_user.is_authenticated %}{{ url_for('customer.profile') }}{% else %}{{ url_for('auth.login') }}{% endif %}" class="dropdown-item">My Profile</a>
-                        <a href="{% if current_user.is_authenticated %}{{ url_for('orders.order_history') }}{% else %}{{ url_for('auth.login') }}{% endif %}" class="dropdown-item">My Orders</a>
-                        <a href="{{ url_for('products.list_products') }}" class="dropdown-item">Wishlist</a>
-                        <a href="{% if current_user.is_authenticated %}{{ url_for('customer.dashboard') }}{% else %}{{ url_for('auth.login') }}{% endif %}" class="dropdown-item">Notifications</a>
-                        <a href="{% if current_user.is_authenticated %}{{ url_for('customer.profile') }}{% else %}{{ url_for('auth.login') }}{% endif %}" class="dropdown-item">Account Settings</a>
-                        <a href="{% if current_user.is_authenticated %}{{ url_for('customer.profile') }}{% else %}{{ url_for('auth.login') }}{% endif %}" class="dropdown-item">Saved Addresses</a>
-                        <a href="{% if current_user.is_authenticated %}{{ url_for('orders.order_history') }}{% else %}{{ url_for('auth.login') }}{% endif %}" class="dropdown-item">My Reviews</a>
-                        <div class="dropdown-divider"></div>
-                        <button type="button" class="dropdown-item" onclick="toggleTheme()">
-                            Light Mode / Dark Mode
-                        </button>
-                        <div class="dropdown-divider"></div>
                         {% if current_user.is_authenticated %}
+                            <div class="dropdown-header">
+                                <span style="font-weight: 700; color: var(--text-color); font-size: 0.88rem;">Hello, {{ current_user.name }}</span>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="{{ url_for('customer.profile') }}" class="dropdown-item">My Profile</a>
+                            <a href="{{ url_for('orders.order_history') }}" class="dropdown-item">My Orders</a>
+                            <a href="{{ url_for('products.list_products') }}" class="dropdown-item">Wishlist</a>
+                            <a href="{{ url_for('customer.dashboard') }}" class="dropdown-item">Notifications</a>
+                            <a href="{{ url_for('customer.profile') }}" class="dropdown-item">Account Settings</a>
+                            <a href="{{ url_for('customer.profile') }}" class="dropdown-item">Saved Addresses</a>
+                            <a href="{{ url_for('orders.order_history') }}" class="dropdown-item">My Reviews</a>
+                            <div class="dropdown-divider"></div>
+                            <button type="button" class="dropdown-item" onclick="toggleTheme()">
+                                Light Mode / Dark Mode
+                            </button>
+                            <div class="dropdown-divider"></div>
                             {% if current_user.is_admin %}
                                 <a href="{{ url_for('admin.dashboard') }}" class="dropdown-item" style="color: var(--secondary); font-weight: 600;">Admin Panel</a>
                             {% endif %}
                             <a href="{{ url_for('auth.logout') }}" class="dropdown-item text-danger">Logout</a>
                         {% else %}
-                            <a href="{{ url_for('auth.login') }}" class="dropdown-item">Sign In</a>
+                            <div class="dropdown-header">
+                                <span>New customer?</span>
+                                <a href="{{ url_for('auth.register') }}" class="dropdown-signup-link">Sign Up</a>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="{{ url_for('auth.login') }}" class="dropdown-item">Login</a>
+                            <a href="{{ url_for('auth.register') }}" class="dropdown-item">Sign Up</a>
+                            <a href="{{ url_for('products.list_products') }}" class="dropdown-item">Browse Products</a>
+                            <a href="{{ url_for('contact') }}" class="dropdown-item">Help &amp; Support</a>
+                            <div class="dropdown-divider"></div>
+                            <button type="button" class="dropdown-item" onclick="toggleTheme()">
+                                Light Mode / Dark Mode
+                            </button>
                         {% endif %}
                     </div>
                 </li>

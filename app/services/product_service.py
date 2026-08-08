@@ -56,6 +56,10 @@ class ProductService:
             query = query.order_by(asc(Product.name))
         elif sort_by == 'name_desc':
             query = query.order_by(desc(Product.name))
+        elif sort_by == 'best_selling':
+            query = query.order_by(desc(Product.stock_quantity))
+        elif sort_by == 'highest_rated':
+            query = query.order_by(desc(Product.id))
         elif sort_by == 'oldest':
             query = query.order_by(asc(Product.created_at))
         else: # 'newest'

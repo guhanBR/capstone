@@ -69,11 +69,51 @@ def create_app(config_name=None):
     app.register_blueprint(reports_bp, url_prefix='/reports')
     app.register_blueprint(api_bp, url_prefix='/api')
 
-    # Main index route
+    # Main Customer Routes: Home, About, Contact
     @app.route('/')
     def index():
-        from flask import redirect, url_for
-        return redirect(url_for('products.list_products'))
+        from app.models.category import Category
+        from app.models.product import Product
+        popular_categories = Category.query.filter_by(status='active').limit(6).all()
+        featured_products = Product.query.filter_by(status='active').order_by(Product.id.desc()).limit(4).all()
+        return render_template(
+            'customer/home.html',
+            popular_categories=popular_categories,
+            featured_products=featured_products
+        )
+
+    @app.route('/about/')
+    def about():
+        return render_template('customer/about.html')
+
+    @app.route('/contact/', methods=['GET', 'POST'])
+    def contact():
+        from flask import request, flash, redirect, url_for
+        from app.models.contact_message import ContactMessage
+
+        if request.method == 'POST':
+            name = request.form.get('name', '').strip()
+            email = request.form.get('email', '').strip()
+            phone = request.form.get('phone', '').strip()
+            subject = request.form.get('subject', '').strip()
+            message = request.form.get('message', '').strip()
+
+            if not name or not email or not subject or not message:
+                flash('Please fill in all required fields.', 'danger')
+            else:
+                msg = ContactMessage(
+                    name=name,
+                    email=email,
+                    phone=phone,
+                    subject=subject,
+                    message=message
+                )
+                db.session.add(msg)
+                db.session.commit()
+                flash('Thank you for contacting SparePro! Your message has been sent successfully.', 'success')
+                return redirect(url_for('contact'))
+
+        return render_template('customer/contact.html')
 
     # Custom Error Handlers
     @app.errorhandler(400)

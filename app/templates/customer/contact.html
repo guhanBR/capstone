@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}Contact Support — SparePro{% endblock %}
+
+{% block content %}
+<div style="max-width: 950px; margin: 0 auto; padding-bottom: 2rem;">
+    <!-- Page Title -->
+    <div style="margin-bottom: 2rem; border-bottom: 1px solid var(--surface-border); padding-bottom: 1.25rem;">
+        <span style="color: var(--secondary); font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">HELP &amp; SUPPORT</span>
+        <h1 style="font-size: 2.2rem; font-weight: 800; color: var(--text-color); margin-top: 0.3rem;">Contact Customer Support</h1>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">Have questions regarding spare part compatibility, bulk workshop orders, or active delivery tracking? Send us a message.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1.8fr 1.2fr; gap: 2rem;">
+        <!-- Contact Form -->
+        <div class="card" style="padding: 2rem;">
+            <h3 style="font-size: 1.2rem; margin-bottom: 1.25rem;">Send Inquiry</h3>
+
+            <form method="POST" action="{{ url_for('contact') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Your Name *</label>
+                        <input type="text" name="name" class="form-control" placeholder="Full name" value="{{ current_user.name if current_user.is_authenticated else '' }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Email Address *</label>
+                        <input type="email" name="email" class="form-control" placeholder="name@domain.com" value="{{ current_user.email if current_user.is_authenticated else '' }}" required>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <input type="text" name="phone" class="form-control" placeholder="10-digit mobile number" value="{{ current_user.phone if current_user.is_authenticated else '' }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Subject *</label>
+                        <input type="text" name="subject" class="form-control" placeholder="e.g., Impeller Bore Compatibility" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Message Details *</label>
+                    <textarea name="message" class="form-control" rows="5" placeholder="Provide equipment details, motor rating, or order ID..." required></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem; font-weight: 600;">
+                    Send Message
+                </button>
+            </form>
+        </div>
+
+        <!-- Support Info Card -->
+        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+            <div class="card" style="padding: 1.5rem;">
+                <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--secondary);">Customer Support</h3>
+                
+                <div style="font-size: 0.9rem; line-height: 1.8; color: var(--text-color);">
+                    <div style="margin-bottom: 0.75rem;">
+                        <strong style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; display: block;">Business Email</strong>
+                        support@sparepro.local
+                    </div>
+
+                    <div style="margin-bottom: 0.75rem;">
+                        <strong style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; display: block;">Support Helpline</strong>
+                        +91 (0422) 2800-SPAREPRO
+                    </div>
+
+                    <div>
+                        <strong style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; display: block;">Business Hours</strong>
+                        Monday – Saturday: 8:30 AM to 6:30 PM (IST)
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="padding: 1.5rem; background-color: var(--surface-hover);">
+                <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--text-color);">Technical Compatibility</h4>
+                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
+                    Need help matching a replacement mechanical seal or bearing code for your monoblock or submersible pump? Mention your motor frame size and shaft outer diameter in the message.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
