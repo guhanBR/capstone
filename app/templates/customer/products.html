@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Spare Parts Catalog — SparePro{% endblock %}
+
+{% block content %}
+<div class="catalog-header">
+    <h2 style="margin-bottom: 0.5rem;">Motors &amp; Pumps Spare Parts Catalog</h2>
+    <p style="color: var(--text-muted);">Explore high-quality industrial components, bearings, seals, impellers, capacitors &amp; shaft assemblies.</p>
+
+    <!-- Search & Filter Form -->
+    <form id="product-filter-form" method="GET" action="{{ url_for('products.list_products') }}" style="margin-top: 1.5rem;">
+        <div class="filter-bar">
+            <!-- Search Bar -->
+            <div class="search-input-group">
+                <input type="text" name="q" class="form-control" placeholder="Search by SKU, Brand, Model, Component name (e.g. 6203, 25mm seal)..." value="{{ current_search }}">
+                <button type="submit" class="btn btn-primary">🔍 Search</button>
+            </div>
+
+            <!-- Filter Controls -->
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                <select name="category" class="form-control" style="width: auto;">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if current_category == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+
+                <select name="brand" class="form-control" style="width: auto;">
+                    <option value="">All Brands</option>
+                    {% for b in brands %}
+                        <option value="{{ b }}" {% if current_brand == b %}selected{% endif %}>{{ b }}</option>
+                    {% endfor %}
+                </select>
+
+                <select name="availability" class="form-control" style="width: auto;">
+                    <option value="">All Availability</option>
+                    <option value="in_stock" {% if current_availability == 'in_stock' %}selected{% endif %}>In Stock</option>
+                    <option value="low_stock" {% if current_availability == 'low_stock' %}selected{% endif %}>Low Stock</option>
+                </select>
+
+                <select name="sort" class="form-control" style="width: auto;">
+                    <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Newest First</option>
+                    <option value="price_asc" {% if current_sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                    <option value="price_desc" {% if current_sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                    <option value="name_asc" {% if current_sort == 'name_asc' %}selected{% endif %}>Name: A to Z</option>
+                </select>
+                
+                {% if current_search or current_category or current_brand or current_availability %}
+                    <a href="{{ url_for('products.list_products') }}" class="btn btn-secondary" style="padding: 0.65rem 0.85rem;">Clear Filters</a>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Product Cards Grid -->
+{% if products %}
+    <div class="product-grid">
+        {% for product in products %}
+            <div class="product-card">
+                <div class="product-img-container">
+                    <span class="status-badge badge-{{ product.stock_status|lower|replace(' ', '-') }}" style="position: absolute; top: 10px; right: 10px;">
+                        {{ product.stock_status }}
+                    </span>
+                    <div style="font-size: 4rem;">⚙️</div>
+                </div>
+
+                <div class="product-info">
+                    <span style="font-size: 0.75rem; color: var(--secondary); font-weight: 700; text-transform: uppercase;">{{ product.category.name if product.category else 'Part' }}</span>
+                    <h3 class="product-title">
+                        <a href="{{ url_for('products.product_detail', product_id=product.id) }}">{{ product.name }}</a>
+                    </h3>
+                    <div class="product-meta">
+                        SKU: <strong>{{ product.sku }}</strong> | Brand: {{ product.brand }}
+                    </div>
+
+                    <div style="margin-bottom: 0.75rem; font-size: 0.85rem; color: var(--text-muted);">
+                        {% if product.review_count > 0 %}
+                            <span class="star-rating">★ {{ product.average_rating }}</span> ({{ product.review_count }} reviews)
+                        {% else %}
+                            <span style="color: var(--text-muted);">No reviews yet</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="product-price-row">
+                        <div>
+                            <span class="price">₹{{ "{:,.2f}".format(product.effective_price) }}</span>
+                            {% if product.discount_price and product.discount_price < product.price %}
+                                <span class="old-price">₹{{ "{:,.2f}".format(product.price) }}</span>
+                            {% endif %}
+                        </div>
+
+                        {% if product.stock_quantity > 0 %}
+                            <button type="button" onclick="addToCartAjax({{ product.id }})" class="btn btn-primary btn-sm">
+                                🛒 Add to Cart
+                            </button>
+                        {% else %}
+                            <button class="btn btn-secondary btn-sm" disabled>Out of Stock</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if pagination.pages > 1 %}
+        <div style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 2.5rem;">
+            {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                {% if page_num %}
+                    <a href="{{ url_for('products.list_products', page=page_num, q=current_search, category=current_category, brand=current_brand, sort=current_sort, availability=current_availability) }}"
+                       class="btn {% if page_num == pagination.page %}btn-primary{% else %}btn-secondary{% endif %} btn-sm">
+                        {{ page_num }}
+                    </a>
+                {% else %}
+                    <span style="padding: 0.5rem; color: var(--text-muted);">…</span>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+{% else %}
+    <!-- Empty State -->
+    <div class="card" style="text-align: center; padding: 4rem 2rem;">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">🔍</div>
+        <h3>No Spare Parts Found</h3>
+        <p style="color: var(--text-muted); max-width: 500px; margin: 0.5rem auto 1.5rem;">We couldn't find any motor or pump spare parts matching your current search criteria. Try modifying your search keywords or clearing active filters.</p>
+        <a href="{{ url_for('products.list_products') }}" class="btn btn-primary">Reset Search &amp; Filters</a>
+    </div>
+{% endif %}
+{% endblock %}

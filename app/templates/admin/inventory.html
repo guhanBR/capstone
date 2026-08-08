@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}Inventory &amp; Stock Control — SparePro Admin{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+    <!-- Sidebar -->
+    <div class="admin-sidebar">
+        <ul class="admin-menu">
+            <li class="admin-menu-item"><a href="{{ url_for('admin.dashboard') }}">📊 Dashboard</a></li>
+            <li class="admin-menu-item"><a href="{{ url_for('admin.products') }}">⚙️ Products</a></li>
+            <li class="admin-menu-item"><a href="{{ url_for('admin.categories') }}">📁 Categories</a></li>
+            <li class="admin-menu-item"><a href="{{ url_for('admin.orders') }}">📦 Orders</a></li>
+            <li class="admin-menu-item active"><a href="{{ url_for('admin.inventory') }}">🏭 Inventory</a></li>
+            <li class="admin-menu-item"><a href="{{ url_for('admin.customers') }}">👥 Customers</a></li>
+            <li class="admin-menu-item"><a href="{{ url_for('admin.reviews') }}">⭐ Reviews</a></li>
+            <li class="admin-menu-item"><a href="{{ url_for('reports.analytics_dashboard') }}">📈 Analytics &amp; Reports</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div>
+        <h2 style="margin-bottom: 1.5rem;">Inventory Control &amp; Audit Logs</h2>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+            <!-- Inventory Status Metrics -->
+            <div class="kpi-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 0;">
+                <div class="kpi-card">
+                    <span class="kpi-title">Total Valuation</span>
+                    <span class="kpi-value">₹{{ "{:,.2f}".format(summary.total_inventory_value) }}</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-title">Low Stock Parts</span>
+                    <span class="kpi-value" style="color: var(--warning);">{{ summary.low_stock_count }}</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-title">Out of Stock Parts</span>
+                    <span class="kpi-value" style="color: var(--danger);">{{ summary.out_of_stock_count }}</span>
+                </div>
+            </div>
+
+            <!-- Manual Adjustment Form -->
+            <div class="card">
+                <h3>Manual Stock Adjustment</h3>
+                <form method="POST" action="{{ url_for('admin.inventory') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+                    <div class="form-group">
+                        <label class="form-label">Select Product *</label>
+                        <select name="product_id" class="form-control" required>
+                            <option value="">Select Part</option>
+                            {% for p in products %}
+                                <option value="{{ p.id }}">{{ p.name }} (Current: {{ p.stock_quantity }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">New Stock Qty *</label>
+                            <input type="number" name="new_quantity" class="form-control" required min="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Type</label>
+                            <select name="transaction_type" class="form-control">
+                                <option value="Adjustment">Adjustment</option>
+                                <option value="Purchase">Purchase/Restock</option>
+                                <option value="Return">Customer Return</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Audit Notes</label>
+                        <input type="text" name="notes" class="form-control" placeholder="Reason for inventory update...">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block btn-sm">Save Adjustment</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Inventory Movement History Table -->
+        <div class="card">
+            <h3>Recent Inventory Movements</h3>
+            <div class="table-responsive" style="margin-top: 1rem;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date &amp; Time</th>
+                            <th>SKU</th>
+                            <th>Part Name</th>
+                            <th>Type</th>
+                            <th>Previous</th>
+                            <th>Qty Change</th>
+                            <th>New Stock</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in transactions %}
+                            <tr>
+                                <td>{{ t.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td><code>{{ t.product.sku if t.product else 'N/A' }}</code></td>
+                                <td><strong>{{ t.product.name if t.product else 'Deleted' }}</strong></td>
+                                <td><span class="status-badge badge-info">{{ t.transaction_type }}</span></td>
+                                <td>{{ t.previous_quantity }}</td>
+                                <td><strong>{{ t.quantity }}</strong></td>
+                                <td><strong style="color: var(--secondary);">{{ t.new_quantity }}</strong></td>
+                                <td>{{ t.notes or '-' }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

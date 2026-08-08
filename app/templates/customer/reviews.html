@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Write Product Review — SparePro{% endblock %}
+
+{% block content %}
+<div style="max-width: 550px; margin: 2rem auto;">
+    <div class="card">
+        <h3>Rate &amp; Review Spare Part</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Share your experience regarding performance, dimensions, material durability, and fitment.</p>
+
+        <div style="display: flex; gap: 1rem; align-items: center; background-color: var(--surface-hover); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
+            <div style="font-size: 3rem;">⚙️</div>
+            <div>
+                <strong style="font-size: 1.1rem; color: var(--text-color);">{{ product.name }}</strong>
+                <div style="color: var(--text-muted); font-size: 0.85rem;">SKU: {{ product.sku }} | Brand: {{ product.brand }}</div>
+            </div>
+        </div>
+
+        <form method="POST" action="{{ url_for('reviews.add_review', order_id=order.id, product_id=product.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+            <div class="form-group">
+                <label class="form-label">Rating (1 to 5 Stars)</label>
+                <select name="rating" class="form-control" required style="font-size: 1.1rem;">
+                    <option value="5" selected>★★★★★ (5 Stars - Excellent Fit &amp; Performance)</option>
+                    <option value="4">★★★★☆ (4 Stars - Good Quality)</option>
+                    <option value="3">★★★☆☆ (3 Stars - Average)</option>
+                    <option value="2">★★☆☆☆ (2 Stars - Below Expectations)</option>
+                    <option value="1">★☆☆☆☆ (1 Star - Poor / Defective)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Detailed Review Comments</label>
+                <textarea name="review_text" class="form-control" rows="5" placeholder="Write feedback regarding build quality, tolerance, sealing capability..." required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Submit Review</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

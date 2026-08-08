@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="description" content="SparePro - Online Spare Parts Ordering System for Motors and Pumps">
+    <title>{% block title %}SparePro — Motors &amp; Pumps Spare Parts{% endblock %}</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- CSS stylesheets -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/customer.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+
+    <!-- Early Theme Script to prevent flash of wrong theme -->
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="{{ url_for('products.list_products') }}" class="brand-logo">
+                <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="SparePro Logo" height="42">
+            </a>
+
+            <ul class="nav-links">
+                <li class="nav-item {% if request.endpoint == 'products.list_products' %}active{% endif %}">
+                    <a href="{{ url_for('products.list_products') }}">⚙️ Catalog</a>
+                </li>
+                
+                {% if current_user.is_authenticated %}
+                    {% if current_user.is_admin %}
+                        <li class="nav-item {% if 'admin' in request.endpoint %}active{% endif %}">
+                            <a href="{{ url_for('admin.dashboard') }}">📊 Admin Panel</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item {% if request.endpoint == 'customer.dashboard' %}active{% endif %}">
+                            <a href="{{ url_for('customer.dashboard') }}">👤 Dashboard</a>
+                        </li>
+                        <li class="nav-item {% if request.endpoint == 'orders.order_history' %}active{% endif %}">
+                            <a href="{{ url_for('orders.order_history') }}">📦 Orders</a>
+                        </li>
+                        <li class="nav-item {% if request.endpoint == 'cart.view_cart' %}active{% endif %}">
+                            <a href="{{ url_for('cart.view_cart') }}">
+                                🛒 Cart <span class="badge-count" id="nav-cart-count">{{ cart_count }}</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    <li class="nav-item">
+                        <a href="{{ url_for('auth.logout') }}">🚪 Logout</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item {% if request.endpoint == 'auth.login' %}active{% endif %}">
+                        <a href="{{ url_for('auth.login') }}">🔑 Login</a>
+                    </li>
+                    <li class="nav-item {% if request.endpoint == 'auth.register' %}active{% endif %}">
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-sm">Register</a>
+                    </li>
+                {% endif %}
+
+                <!-- Theme Toggle Button -->
+                <li class="nav-item">
+                    <button class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Light/Dark Theme">
+                        <span id="theme-icon">☀️</span>
+                        <span id="theme-text" class="nav-text" style="font-size:0.8rem; margin-left:4px;">Light Mode</span>
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-wrapper">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            <span>{{ message }}</span>
+                            <button onclick="this.parentElement.remove()" style="background:none;border:none;color:inherit;cursor:pointer;font-weight:bold;">✕</button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div>
+                <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="SparePro" height="35" style="margin-bottom:0.75rem;">
+                <p>Industrial Online Spare Parts Ordering System designed for high-performance motors, centrifugal pumps, submersible pumps, bearings, and mechanical seals.</p>
+            </div>
+            <div>
+                <h4>Categories</h4>
+                <ul style="list-style:none; padding:0; margin-top:0.5rem; line-height:1.8;">
+                    {% for cat in categories[:5] %}
+                        <li><a href="{{ url_for('products.list_products', category=cat.id) }}" style="color:var(--text-muted);">{{ cat.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div>
+                <h4>Support &amp; Account</h4>
+                <ul style="list-style:none; padding:0; margin-top:0.5rem; line-height:1.8;">
+                    <li><a href="{{ url_for('auth.login') }}" style="color:var(--text-muted);">Customer Login</a></li>
+                    <li><a href="{{ url_for('auth.register') }}" style="color:var(--text-muted);">Create Account</a></li>
+                    <li><a href="{{ url_for('products.list_products') }}" style="color:var(--text-muted);">View Product Catalog</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 <strong>SparePro</strong> — Online Spare Parts Ordering System for Motors &amp; Pumps. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- Core Scripts -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/products.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

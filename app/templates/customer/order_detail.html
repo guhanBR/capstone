@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}Order Details #{{ order.order_number }} — SparePro{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <div>
+        <h2>Order #{{ order.order_number }}</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Placed on {{ order.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+    </div>
+    <span class="status-badge badge-{{ order.order_status|lower }}" style="font-size: 1rem; padding: 0.5rem 1rem;">
+        Status: {{ order.order_status }}
+    </span>
+</div>
+
+<!-- Visual Tracking Timeline Step Progress Bar -->
+<div class="card" style="margin-bottom: 2rem; padding: 2rem 3rem;">
+    <h4 style="margin-bottom: 1.5rem;">Live Order Tracking</h4>
+    
+    <div class="timeline-container">
+        <!-- Progress bar width calculation -->
+        {% set progress_pct = 0 %}
+        {% if current_index >= 0 %}
+            {% set progress_pct = (current_index / (timeline_steps|length - 1)) * 100 %}
+        {% endif %}
+        <div class="timeline-progress" style="width: {{ progress_pct }}%;"></div>
+
+        {% for step in timeline_steps %}
+            {% set is_completed = loop.index0 <= current_index %}
+            {% set is_active = loop.index0 == current_index %}
+            <div style="position: relative; text-align: center;">
+                <div class="timeline-step {% if is_completed %}completed{% endif %} {% if is_active %}active{% endif %}">
+                    {% if is_completed %}✓{% else %}{{ loop.index }}{% endif %}
+                </div>
+                <div class="timeline-label">{{ step.name }}</div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+    <!-- Items Purchased Table -->
+    <div class="card">
+        <h3 style="margin-bottom: 1rem;">Ordered Spare Parts</h3>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Item Description</th>
+                        <th>SKU</th>
+                        <th>Price</th>
+                        <th>Qty</th>
+                        <th>Subtotal</th>
+                        <th>Review</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order.items %}
+                        <tr>
+                            <td><strong>{{ item.product_name }}</strong></td>
+                            <td><code>{{ item.sku }}</code></td>
+                            <td>₹{{ "{:,.2f}".format(item.unit_price) }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>₹{{ "{:,.2f}".format(item.subtotal) }}</td>
+                            <td>
+                                {% if order.order_status == 'Delivered' and item.product_id %}
+                                    <a href="{{ url_for('reviews.add_review', order_id=order.id, product_id=item.product_id) }}" class="btn btn-secondary btn-sm">⭐ Review</a>
+                                {% else %}
+                                    <span style="color: var(--text-muted); font-size: 0.8rem;">After delivery</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Summary Details Card -->
+    <div class="card">
+        <h3>Shipping &amp; Payment</h3>
+        
+        <div style="margin-top: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--surface-border);">
+            <strong style="color: var(--text-muted); font-size: 0.82rem; text-transform: uppercase;">Shipping Address</strong>
+            {% if order.shipping_address %}
+                <p style="margin-top: 0.3rem;">
+                    <strong>{{ order.shipping_address.full_name }}</strong><br>
+                    {{ order.shipping_address.formatted_address }}<br>
+                    📞 Phone: {{ order.shipping_address.phone }}
+                </p>
+            {% else %}
+                <p style="color: var(--text-muted);">Standard Workshop Delivery</p>
+            {% endif %}
+        </div>
+
+        <div style="margin-top: 1rem;">
+            <strong style="color: var(--text-muted); font-size: 0.82rem; text-transform: uppercase;">Payment Info</strong>
+            <p style="margin-top: 0.3rem;">
+                Method: <strong>{{ order.payment_method }}</strong><br>
+                Status: <span class="status-badge badge-{{ order.payment_status|lower }}">{{ order.payment_status }}</span>
+            </p>
+        </div>
+
+        <div style="margin-top: 1.5rem; border-top: 1px solid var(--surface-border); padding-top: 1rem;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem;">
+                <span>Subtotal:</span>
+                <span>₹{{ "{:,.2f}".format(order.subtotal) }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem;">
+                <span>Shipping Charge:</span>
+                <span>₹{{ "{:,.2f}".format(order.shipping_charge) }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: 800; color: var(--secondary); margin-top: 0.75rem;">
+                <span>Total Amount:</span>
+                <span>₹{{ "{:,.2f}".format(order.total_amount) }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

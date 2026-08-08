@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}Customer Dashboard — SparePro{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <h2>Welcome back, {{ current_user.name }}! 👋</h2>
+    <p style="color: var(--text-muted);">Manage your motor and pump spare parts orders, profile, and active deliveries.</p>
+</div>
+
+<!-- KPI Summary Cards -->
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <span class="kpi-title">Total Orders</span>
+        <span class="kpi-value">{{ total_orders }}</span>
+        <span class="kpi-sub">Lifetime history</span>
+    </div>
+    <div class="kpi-card">
+        <span class="kpi-title">Pending Orders</span>
+        <span class="kpi-value" style="color: var(--warning);">{{ pending_orders }}</span>
+        <span class="kpi-sub">In progress / transit</span>
+    </div>
+    <div class="kpi-card">
+        <span class="kpi-title">Completed Orders</span>
+        <span class="kpi-value" style="color: var(--success);">{{ completed_orders }}</span>
+        <span class="kpi-sub">Delivered</span>
+    </div>
+    <div class="kpi-card">
+        <span class="kpi-title">Total Spending</span>
+        <span class="kpi-value" style="color: var(--secondary);">₹{{ "{:,.2f}".format(total_spending) }}</span>
+        <span class="kpi-sub">Total spent</span>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+    <!-- Recent Orders Table -->
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3>Recent Orders</h3>
+            <a href="{{ url_for('orders.order_history') }}" class="btn btn-secondary btn-sm">View All Orders</a>
+        </div>
+
+        {% if recent_orders %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Order #</th>
+                            <th>Date</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in recent_orders %}
+                            <tr>
+                                <td><strong>{{ order.order_number }}</strong></td>
+                                <td>{{ order.created_at.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ order.items|length }} item(s)</td>
+                                <td>₹{{ "{:,.2f}".format(order.total_amount) }}</td>
+                                <td><span class="status-badge badge-{{ order.order_status|lower }}">{{ order.order_status }}</span></td>
+                                <td>
+                                    <a href="{{ url_for('orders.order_detail', order_number=order.order_number) }}" class="btn btn-secondary btn-sm">Details</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p style="color: var(--text-muted); text-align: center; padding: 2rem;">You haven't placed any orders yet. <a href="{{ url_for('products.list_products') }}">Browse Product Catalog</a></p>
+        {% endif %}
+    </div>
+
+    <!-- Recommended Spare Parts -->
+    <div class="card">
+        <h3 style="margin-bottom: 1rem;">Popular Motor &amp; Pump Parts</h3>
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+            {% for prod in recommended_products %}
+                <div style="display: flex; gap: 1rem; align-items: center; border-bottom: 1px solid var(--surface-border); padding-bottom: 0.75rem;">
+                    <div style="width: 50px; height: 50px; background-color: var(--surface-hover); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">⚙️</div>
+                    <div style="flex: 1;">
+                        <a href="{{ url_for('products.product_detail', product_id=prod.id) }}" style="font-weight: 600; color: var(--text-color); font-size: 0.9rem;">{{ prod.name }}</a>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">SKU: {{ prod.sku }} | ₹{{ "{:,.2f}".format(prod.effective_price) }}</div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div style="margin-top: 1rem;">
+            <a href="{{ url_for('products.list_products') }}" class="btn btn-primary btn-block btn-sm">Explore All Spare Parts</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

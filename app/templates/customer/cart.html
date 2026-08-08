@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}Shopping Cart — SparePro{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom: 1.5rem;">Shopping Cart</h2>
+
+{% if cart and cart.items %}
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+        <!-- Cart Items Table -->
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Part Details</th>
+                            <th>Unit Price</th>
+                            <th>Quantity</th>
+                            <th>Subtotal</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cart.items %}
+                            <tr>
+                                <td>
+                                    <div style="display: flex; gap: 0.75rem; align-items: center;">
+                                        <div style="font-size: 2rem;">⚙️</div>
+                                        <div>
+                                            <a href="{{ url_for('products.product_detail', product_id=item.product.id) }}" style="font-weight: 700; color: var(--text-color);">
+                                                {{ item.product.name }}
+                                            </a>
+                                            <div style="font-size: 0.8rem; color: var(--text-muted);">SKU: {{ item.product.sku }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>₹{{ "{:,.2f}".format(item.unit_price) }}</td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('cart.update_cart') }}" style="display: inline-flex;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        <input type="hidden" name="item_id" value="{{ item.id }}"/>
+                                        <div class="quantity-control">
+                                            <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.stock_quantity }}" style="width: 55px;" onchange="this.form.submit()">
+                                        </div>
+                                    </form>
+                                </td>
+                                <td><strong>₹{{ "{:,.2f}".format(item.subtotal) }}</strong></td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('cart.remove_item', item_id=item.id) }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        <button type="submit" class="btn btn-danger btn-sm" data-confirm="Remove item from cart?">✕</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; margin-top: 1.5rem;">
+                <form method="POST" action="{{ url_for('cart.clear_cart') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <button type="submit" class="btn btn-secondary btn-sm" data-confirm="Clear entire cart?">Clear Cart</button>
+                </form>
+                <a href="{{ url_for('products.list_products') }}" class="btn btn-secondary btn-sm">Continue Shopping</a>
+            </div>
+        </div>
+
+        <!-- Order Summary Card -->
+        <div class="card checkout-summary-card">
+            <h3>Order Summary</h3>
+            <div style="margin: 1.25rem 0; border-top: 1px solid var(--surface-border); border-bottom: 1px solid var(--surface-border); padding: 1rem 0;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem;">
+                    <span>Total Items:</span>
+                    <strong>{{ cart.total_items }}</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem;">
+                    <span>Subtotal:</span>
+                    <strong>₹{{ "{:,.2f}".format(cart.subtotal) }}</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem;">
+                    <span>Estimated Shipping:</span>
+                    {% if cart.subtotal >= 2000 %}
+                        <span style="color: var(--success); font-weight: 700;">FREE</span>
+                    {% else %}
+                        <span>₹100.00</span>
+                    {% endif %}
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: 800; margin-top: 1rem; color: var(--secondary);">
+                    <span>Grand Total:</span>
+                    <span>₹{{ "{:,.2f}".format(cart.subtotal + (0 if cart.subtotal >= 2000 else 100)) }}</span>
+                </div>
+            </div>
+
+            <a href="{{ url_for('orders.checkout') }}" class="btn btn-primary btn-block">Proceed to Checkout →</a>
+        </div>
+    </div>
+
+{% else %}
+    <!-- Empty Cart State -->
+    <div class="card" style="text-align: center; padding: 4rem 2rem;">
+        <div style="font-size: 5rem; margin-bottom: 1rem;">🛒</div>
+        <h3>Your Shopping Cart is Empty</h3>
+        <p style="color: var(--text-muted); margin: 0.5rem 0 1.5rem;">Browse our motor &amp; pump parts catalog to add items to your cart.</p>
+        <a href="{{ url_for('products.list_products') }}" class="btn btn-primary">Browse Product Catalog</a>
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 60" width="240" height="60">
+  <defs>
+    <linearGradient id="gearGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e87518" />
+      <stop offset="100%" stop-color="#f4a340" />
+    </linearGradient>
+  </defs>
+  <!-- Gear & Motor Symbol -->
+  <g transform="translate(10, 5)">
+    <!-- Outer Gear teeth -->
+    <path d="M 25,5 L 25,0 L 31,0 L 31,5 C 33,6 35,7 37,9 L 41,6 L 45,10 L 42,14 C 44,16 45,18 46,20 L 51,20 L 51,26 L 46,26 C 45,28 44,30 42,32 L 45,36 L 41,40 L 37,37 C 35,39 33,40 31,41 L 31,46 L 25,46 L 25,41 C 23,40 21,39 19,37 L 15,40 L 11,36 L 14,32 C 12,30 11,28 10,26 L 5,26 L 5,20 L 10,20 C 11,18 12,16 14,14 L 11,10 L 15,6 L 19,9 C 21,7 23,6 25,5 Z" fill="url(#gearGrad)"/>
+    <!-- Inner motor rotor center -->
+    <circle cx="28" cy="23" r="12" fill="#242424"/>
+    <!-- Stylized S inside logo -->
+    <path d="M 31,17 C 29,15 25,16 24,18 C 23,20 28,21 28,24 C 28,27 23,27 22,25" stroke="#f4a340" stroke-width="3" stroke-linecap="round" fill="none"/>
+  </g>
+  <!-- SparePro Typography -->
+  <text x="72" y="36" font-family="'Outfit', 'Inter', 'Segoe UI', sans-serif" font-weight="800" font-size="28" fill="var(--text-color, #ffffff)" letter-spacing="-0.5">Spare<tspan fill="#e87518">Pro</tspan></text>
+  <text x="73" y="49" font-family="'Inter', sans-serif" font-weight="600" font-size="9" fill="#a3a3a3" letter-spacing="1.5">MOTORS &amp; PUMPS SPARES</text>
+</svg>

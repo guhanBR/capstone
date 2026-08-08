@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout — SparePro{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom: 1.5rem;">Checkout &amp; Order Processing</h2>
+
+<form method="POST" action="{{ url_for('orders.checkout') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;" class="checkout-layout">
+        <div>
+            <!-- Shipping Address Selection -->
+            <div class="card" style="margin-bottom: 2rem;">
+                <h3>1. Select Shipping Address</h3>
+
+                {% if addresses %}
+                    <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+                        {% for addr in addresses %}
+                            <label style="border: 1px solid var(--surface-border); border-radius: 8px; padding: 1rem; display: flex; gap: 1rem; align-items: flex-start; cursor: pointer;">
+                                <input type="radio" name="address_id" value="{{ addr.id }}" {% if addr.is_default or loop.first %}checked{% endif %} style="margin-top: 4px;">
+                                <div>
+                                    <strong>{{ addr.full_name }}</strong> ({{ addr.phone }})
+                                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.2rem;">
+                                        {{ addr.address_line_1 }}{% if addr.address_line_2 %}, {{ addr.address_line_2 }}{% endif %},
+                                        {{ addr.city }}, {{ addr.state }} - {{ addr.postal_code }}
+                                    </p>
+                                </div>
+                            </label>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Inline New Address Form -->
+                <div style="margin-top: 1.5rem; border-top: 1px solid var(--surface-border); padding-top: 1.25rem;">
+                    <h4>{% if addresses %}Or Add a New Delivery Address:{% else %}Enter Shipping Address:{% endif %}</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" name="full_name" class="form-control" placeholder="Recipient Name">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone Number</label>
+                            <input type="text" name="phone" class="form-control" placeholder="Mobile Number">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Address Line 1</label>
+                        <input type="text" name="address_line_1" class="form-control" placeholder="Street, Building, Plot #">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Address Line 2</label>
+                        <input type="text" name="address_line_2" class="form-control" placeholder="Landmark / Industrial Zone">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">City</label>
+                            <input type="text" name="city" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">State</label>
+                            <input type="text" name="state" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Pincode</label>
+                            <input type="text" name="postal_code" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Method Selection -->
+            <div class="card">
+                <h3>2. Payment Method</h3>
+                <div style="margin-top: 1rem;">
+                    <label style="border: 1px solid var(--secondary); background-color: rgba(232, 117, 24, 0.08); border-radius: 8px; padding: 1rem; display: flex; gap: 1rem; align-items: center; cursor: pointer;">
+                        <input type="radio" name="payment_method" value="Cash on Delivery" checked>
+                        <div>
+                            <strong>💵 Cash on Delivery (COD)</strong>
+                            <p style="color: var(--text-muted); font-size: 0.85rem;">Pay in cash or UPI upon delivery of your spare parts order.</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Items Summary Sidebar -->
+        <div class="card checkout-summary-card">
+            <h3>Order Review</h3>
+            <div style="margin: 1rem 0; max-height: 250px; overflow-y: auto;">
+                {% for item in cart.items %}
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--surface-border); padding: 0.65rem 0; font-size: 0.88rem;">
+                        <div>
+                            <strong>{{ item.product.name }}</strong>
+                            <div style="color: var(--text-muted);">Qty: {{ item.quantity }} × ₹{{ "{:,.2f}".format(item.unit_price) }}</div>
+                        </div>
+                        <strong>₹{{ "{:,.2f}".format(item.subtotal) }}</strong>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div style="border-top: 1px solid var(--surface-border); padding-top: 1rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span>Subtotal:</span>
+                    <span>₹{{ "{:,.2f}".format(cart.subtotal) }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span>Shipping Fee:</span>
+                    {% if cart.subtotal >= 2000 %}
+                        <span style="color: var(--success); font-weight: 700;">FREE</span>
+                    {% else %}
+                        <span>₹100.00</span>
+                    {% endif %}
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 1.25rem; font-weight: 800; color: var(--secondary); margin-top: 0.75rem;">
+                    <span>Total Payable:</span>
+                    <span>₹{{ "{:,.2f}".format(cart.subtotal + (0 if cart.subtotal >= 2000 else 100)) }}</span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block" style="margin-top: 1.5rem; padding: 0.85rem;">
+                ✓ Confirm &amp; Place Order
+            </button>
+        </div>
+    </div>
+</form>
+{% endblock %}

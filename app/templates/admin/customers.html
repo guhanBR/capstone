@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Customers — SparePro Admin{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+    <!-- Sidebar -->
+    <div class="admin-sidebar">
+        <ul class="admin-menu">
+            <li class="admin-menu-item"><a href="{{ url_for('admin.dashboard') }}">📊 Dashboard</a></li>
+            <li class="admin-menu-item"><a href="{{ url_for('admin.products') }}">⚙️ Products</a></li>
+            <li class="admin-menu-item"><a href="{{ url_for('admin.categories') }}">📁 Categories</a></li>
+            <li class="admin-menu-item"><a href="{{ url_for('admin.orders') }}">📦 Orders</a></li>
+            <li class="admin-menu-item"><a href="{{ url_for('admin.inventory') }}">🏭 Inventory</a></li>
+            <li class="admin-menu-item active"><a href="{{ url_for('admin.customers') }}">👥 Customers</a></li>
+            <li class="admin-menu-item"><a href="{{ url_for('admin.reviews') }}">⭐ Reviews</a></li>
+            <li class="admin-menu-item"><a href="{{ url_for('reports.analytics_dashboard') }}">📈 Analytics &amp; Reports</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div>
+        <h2 style="margin-bottom: 1.5rem;">Registered Customer Accounts</h2>
+
+        <!-- Search Form -->
+        <div class="card" style="margin-bottom: 1.5rem; padding: 1rem;">
+            <form method="GET" action="{{ url_for('admin.customers') }}" style="display: flex; gap: 1rem;">
+                <input type="text" name="q" class="form-control" placeholder="Search customer by name, email, or phone..." value="{{ current_q }}">
+                <button type="submit" class="btn btn-primary btn-sm">Search</button>
+                <a href="{{ url_for('admin.customers') }}" class="btn btn-secondary btn-sm">Reset</a>
+            </form>
+        </div>
+
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Customer Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Total Orders</th>
+                            <th>Registered Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in customers %}
+                            <tr>
+                                <td><strong>{{ user.name }}</strong></td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.phone }}</td>
+                                <td><span class="badge-count">{{ user.orders|length }}</span></td>
+                                <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                                <td><span class="status-badge badge-{{ user.status|lower }}">{{ user.status }}</span></td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('admin.customer_toggle_status', user_id=user.id) }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        <button type="submit" class="btn btn-secondary btn-sm" data-confirm="Change customer status?">
+                                            {% if user.status == 'active' %}Deactivate{% else %}Activate{% endif %}
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if pagination.pages > 1 %}
+                <div style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.5rem;">
+                    {% for page_num in pagination.iter_pages() %}
+                        {% if page_num %}
+                            <a href="{{ url_for('admin.customers', page=page_num, q=current_q) }}" class="btn {% if page_num == pagination.page %}btn-primary{% else %}btn-secondary{% endif %} btn-sm">{{ page_num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

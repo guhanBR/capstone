@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Products — SparePro Admin{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+    <!-- Sidebar -->
+    <div class="admin-sidebar">
+        <ul class="admin-menu">
+            <li class="admin-menu-item"><a href="{{ url_for('admin.dashboard') }}">📊 Dashboard</a></li>
+            <li class="admin-menu-item active"><a href="{{ url_for('admin.products') }}">⚙️ Products</a></li>
+            <li class="admin-menu-item"><a href="{{ url_for('admin.categories') }}">📁 Categories</a></li>
+            <li class="admin-menu-item"><a href="{{ url_for('admin.orders') }}">📦 Orders</a></li>
+            <li class="admin-menu-item"><a href="{{ url_for('admin.inventory') }}">🏭 Inventory</a></li>
+            <li class="admin-menu-item"><a href="{{ url_for('admin.customers') }}">👥 Customers</a></li>
+            <li class="admin-menu-item"><a href="{{ url_for('admin.reviews') }}">⭐ Reviews</a></li>
+            <li class="admin-menu-item"><a href="{{ url_for('reports.analytics_dashboard') }}">📈 Analytics &amp; Reports</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h2>Product Catalog Management</h2>
+            <a href="{{ url_for('admin.product_create') }}" class="btn btn-primary btn-sm">+ Add New Product</a>
+        </div>
+
+        <!-- Filter & Search Bar -->
+        <div class="card" style="margin-bottom: 1.5rem; padding: 1rem;">
+            <form method="GET" action="{{ url_for('admin.products') }}" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <input type="text" name="q" class="form-control" placeholder="Search product name, SKU, brand..." value="{{ current_q }}" style="flex: 1; min-width: 200px;">
+                
+                <select name="category" class="form-control" style="width: auto;">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if current_category == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+
+                <select name="status" class="form-control" style="width: auto;">
+                    <option value="">All Statuses</option>
+                    <option value="active" {% if current_status == 'active' %}selected{% endif %}>Active</option>
+                    <option value="inactive" {% if current_status == 'inactive' %}selected{% endif %}>Inactive</option>
+                </select>
+
+                <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+                <a href="{{ url_for('admin.products') }}" class="btn btn-secondary btn-sm">Reset</a>
+            </form>
+        </div>
+
+        <!-- Products Table -->
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>SKU</th>
+                            <th>Product Name</th>
+                            <th>Brand / Model</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in products %}
+                            <tr>
+                                <td><code>{{ p.sku }}</code></td>
+                                <td><strong>{{ p.name }}</strong></td>
+                                <td>{{ p.brand }} {% if p.model_number %}({{ p.model_number }}){% endif %}</td>
+                                <td>{{ p.category.name if p.category else 'Uncategorized' }}</td>
+                                <td>₹{{ "{:,.2f}".format(p.price) }}</td>
+                                <td>
+                                    <span class="status-badge badge-{{ p.stock_status|lower|replace(' ', '-') }}">
+                                        {{ p.stock_quantity }} units
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="status-badge badge-{{ p.status|lower }}">{{ p.status }}</span>
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 0.4rem;">
+                                        <a href="{{ url_for('admin.product_edit', product_id=p.id) }}" class="btn btn-secondary btn-sm">Edit</a>
+                                        <form method="POST" action="{{ url_for('admin.product_toggle_status', product_id=p.id) }}">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            <button type="submit" class="btn btn-secondary btn-sm" data-confirm="Toggle product status?">
+                                                {% if p.status == 'active' %}Deactivate{% else %}Activate{% endif %}
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if pagination.pages > 1 %}
+                <div style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.5rem;">
+                    {% for page_num in pagination.iter_pages() %}
+                        {% if page_num %}
+                            <a href="{{ url_for('admin.products', page=page_num, q=current_q, category=current_category, status=current_status) }}" class="btn {% if page_num == pagination.page %}btn-primary{% else %}btn-secondary{% endif %} btn-sm">{{ page_num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

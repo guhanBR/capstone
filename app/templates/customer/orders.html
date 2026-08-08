@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}My Orders — SparePro{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom: 1.5rem;">My Orders History</h2>
+
+{% if orders %}
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Order Number</th>
+                        <th>Date</th>
+                        <th>Items</th>
+                        <th>Total Amount</th>
+                        <th>Payment Status</th>
+                        <th>Order Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                        <tr>
+                            <td><strong>{{ order.order_number }}</strong></td>
+                            <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>{{ order.items|length }} item(s)</td>
+                            <td><strong>₹{{ "{:,.2f}".format(order.total_amount) }}</strong></td>
+                            <td><span class="status-badge badge-{{ order.payment_status|lower }}">{{ order.payment_status }}</span></td>
+                            <td><span class="status-badge badge-{{ order.order_status|lower }}">{{ order.order_status }}</span></td>
+                            <td>
+                                <a href="{{ url_for('orders.order_detail', order_number=order.order_number) }}" class="btn btn-secondary btn-sm">Track Order</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% else %}
+    <div class="card" style="text-align: center; padding: 4rem 2rem;">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">📦</div>
+        <h3>No Orders Found</h3>
+        <p style="color: var(--text-muted); margin: 0.5rem 0 1.5rem;">You haven't placed any spare parts orders yet.</p>
+        <a href="{{ url_for('products.list_products') }}" class="btn btn-primary">Start Shopping</a>
+    </div>
+{% endif %}
+{% endblock %}

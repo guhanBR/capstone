@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if product %}Edit Product #{{ product.id }}{% else %}Add New Product{% endif %} — SparePro Admin{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+    <!-- Sidebar -->
+    <div class="admin-sidebar">
+        <ul class="admin-menu">
+            <li class="admin-menu-item"><a href="{{ url_for('admin.dashboard') }}">📊 Dashboard</a></li>
+            <li class="admin-menu-item active"><a href="{{ url_for('admin.products') }}">⚙️ Products</a></li>
+            <li class="admin-menu-item"><a href="{{ url_for('admin.categories') }}">📁 Categories</a></li>
+            <li class="admin-menu-item"><a href="{{ url_for('admin.orders') }}">📦 Orders</a></li>
+            <li class="admin-menu-item"><a href="{{ url_for('admin.inventory') }}">🏭 Inventory</a></li>
+            <li class="admin-menu-item"><a href="{{ url_for('admin.customers') }}">👥 Customers</a></li>
+            <li class="admin-menu-item"><a href="{{ url_for('admin.reviews') }}">⭐ Reviews</a></li>
+            <li class="admin-menu-item"><a href="{{ url_for('reports.analytics_dashboard') }}">📈 Analytics &amp; Reports</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h2>{% if product %}Edit Product: {{ product.name }}{% else %}Create New Motor / Pump Spare Part{% endif %}</h2>
+            <a href="{{ url_for('admin.products') }}" class="btn btn-secondary btn-sm">← Back to Products List</a>
+        </div>
+
+        <div class="card">
+            <form method="POST" action="{% if product %}{{ url_for('admin.product_edit', product_id=product.id) }}{% else %}{{ url_for('admin.product_create') }}{% endif %}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">SKU Code *</label>
+                        <input type="text" name="sku" class="form-control" value="{{ product.sku if product else '' }}" placeholder="e.g. BRG-6203-ZZ" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Category *</label>
+                        <select name="category_id" class="form-control" required>
+                            <option value="">Select Category</option>
+                            {% for cat in categories %}
+                                <option value="{{ cat.id }}" {% if product and product.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Brand Name *</label>
+                        <input type="text" name="brand" class="form-control" value="{{ product.brand if product else '' }}" placeholder="e.g. SKF, Kirloskar, Crompton" required>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Part / Product Name *</label>
+                        <input type="text" name="name" class="form-control" value="{{ product.name if product else '' }}" placeholder="e.g. 6203-2RS Deep Groove Ball Bearing" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Model Number</label>
+                        <input type="text" name="model_number" class="form-control" value="{{ product.model_number if product else '' }}" placeholder="e.g. 6203-2RS">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Detailed Description *</label>
+                    <textarea name="description" class="form-control" rows="3" required>{{ product.description if product else '' }}</textarea>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Technical Specifications</label>
+                        <textarea name="specifications" class="form-control" rows="3" placeholder="Inner diameter, outer diameter, seal type, rating...">{{ product.specifications if product else '' }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Equipment Compatibility</label>
+                        <textarea name="compatibility" class="form-control" rows="3" placeholder="Compatible pump models, motor HP ratings...">{{ product.compatibility if product else '' }}</textarea>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Price (₹) *</label>
+                        <input type="number" step="0.01" name="price" class="form-control" value="{{ product.price if product else '0.00' }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Discount Price (₹)</label>
+                        <input type="number" step="0.01" name="discount_price" class="form-control" value="{{ product.discount_price if product and product.discount_price else '' }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Stock Quantity *</label>
+                        <input type="number" name="stock_quantity" class="form-control" value="{{ product.stock_quantity if product else '10' }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Min Stock Threshold *</label>
+                        <input type="number" name="minimum_stock_level" class="form-control" value="{{ product.minimum_stock_level if product else '5' }}" required>
+                    </div>
+                </div>
+
+                <div class="form-group" style="max-width: 300px;">
+                    <label class="form-label">Product Status</label>
+                    <select name="status" class="form-control">
+                        <option value="active" {% if not product or product.status == 'active' %}selected{% endif %}>Active (Visible to customers)</option>
+                        <option value="inactive" {% if product and product.status == 'inactive' %}selected{% endif %}>Inactive (Hidden)</option>
+                    </select>
+                </div>
+
+                <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-primary">{% if product %}Save Product Changes{% else %}Create Product{% endif %}</button>
+                    <a href="{{ url_for('admin.products') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

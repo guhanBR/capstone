@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Login — SparePro Spare Parts System{% endblock %}
+
+{% block content %}
+<div style="max-width: 440px; margin: 3rem auto;">
+    <div class="card">
+        <div style="text-align: center; margin-bottom: 1.5rem;">
+            <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="SparePro" height="48" style="margin-bottom: 0.5rem;">
+            <h2>Account Login</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Sign in to access your motor &amp; pump spare parts orders</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('auth.login') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+            <div class="form-group">
+                <label class="form-label" for="email">Email Address</label>
+                <input type="email" id="email" name="email" class="form-control" placeholder="name@company.com" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; font-size: 0.88rem;">
+                <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer;">
+                    <input type="checkbox" name="remember" value="1"> Remember session
+                </label>
+                <a href="{{ url_for('auth.forgot_password') }}">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+        </form>
+
+        <div style="text-align: center; margin-top: 1.5rem; border-top: 1px solid var(--surface-border); padding-top: 1rem; font-size: 0.9rem; color: var(--text-muted);">
+            Don't have a SparePro account? <a href="{{ url_for('auth.register') }}">Register here</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
