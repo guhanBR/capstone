@@ -123,13 +123,7 @@
 
                             <!-- Centered Product Image Container -->
                             <div style="background-color: var(--surface-hover); height: 180px; display: flex; align-items: center; justify-content: center; padding: 1rem;">
-                                {% if product.image and product.image.startswith(('http://', 'https://')) %}
-                                    <img src="{{ product.image }}" alt="{{ product.name }}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
-                                {% elif product.image %}
-                                    <img src="{{ url_for('static', filename='images/products/' ~ product.image) }}" alt="{{ product.name }}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
-                                {% else %}
-                                    <span style="font-size: 0.85rem; color: var(--text-muted);">No Image</span>
-                                {% endif %}
+                                <img src="{{ product.image_url }}" alt="{{ product.name }}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
                             </div>
 
                             <!-- Product Info -->

@@ -25,66 +25,81 @@
     <!-- NAVBAR -->
     <nav class="navbar">
         <div class="navbar-container">
+            <!-- Brand Logo -->
             <a href="{{ url_for('products.list_products') }}" class="brand-logo" style="text-decoration: none; display: flex; flex-direction: column;">
-                <span style="font-size: 1.65rem; font-weight: 800; color: var(--text-color); font-family: 'Outfit', sans-serif; letter-spacing: -0.5px;">Spare<span style="color: var(--secondary);">Pro</span></span>
-                <span style="font-size: 0.68rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-top: -4px;">Motors &amp; Pumps Spare Parts</span>
+                <span style="font-size: 1.5rem; font-weight: 800; color: var(--text-color); font-family: 'Outfit', sans-serif; letter-spacing: -0.5px;">Spare<span style="color: var(--secondary);">Pro</span></span>
+                <span style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-top: -3px;">Motors &amp; Pumps Spare Parts</span>
             </a>
 
+            <!-- Text Navigation Links -->
             <ul class="nav-links">
-                <li class="nav-item"><a href="{{ url_for('products.list_products') }}">HOME</a></li>
-                <li class="nav-item {% if request.endpoint == 'products.list_products' %}active{% endif %}">
-                    <a href="{{ url_for('products.list_products') }}">SHOP</a>
+                <li class="nav-item {% if request.endpoint == 'products.list_products' and not current_category %}active{% endif %}">
+                    <a href="{{ url_for('products.list_products') }}">Home</a>
                 </li>
-                <li class="nav-item"><a href="{{ url_for('products.list_products') }}">CATEGORIES</a></li>
-                <li class="nav-item"><a href="{{ url_for('products.list_products') }}">BRANDS</a></li>
-                <li class="nav-item"><a href="{{ url_for('products.list_products') }}">ABOUT US</a></li>
-                <li class="nav-item"><a href="{{ url_for('products.list_products') }}">CONTACT</a></li>
+                <li class="nav-item {% if request.endpoint == 'products.list_products' %}active{% endif %}">
+                    <a href="{{ url_for('products.list_products') }}">Products</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('products.list_products') }}">Categories</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('products.list_products') }}">Brands</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('products.list_products') }}">About</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('products.list_products') }}">Contact</a>
+                </li>
             </ul>
 
             <!-- Navbar Quick Search -->
-            <form action="{{ url_for('products.list_products') }}" method="GET" style="display: flex; gap: 0; max-width: 260px;">
-                <input type="text" name="q" class="form-control" placeholder="Search products..." value="{{ current_search if current_search else '' }}" style="border-top-right-radius: 0; border-bottom-right-radius: 0; padding: 0.4rem 0.75rem; font-size: 0.85rem;">
+            <form action="{{ url_for('products.list_products') }}" method="GET" class="nav-search-form" style="display: flex; gap: 0; max-width: 240px;">
+                <input type="text" name="q" class="form-control" placeholder="Search..." value="{{ current_search if current_search else '' }}" style="border-top-right-radius: 0; border-bottom-right-radius: 0; padding: 0.4rem 0.75rem; font-size: 0.85rem;">
                 <button type="submit" class="btn btn-primary btn-sm" style="border-top-left-radius: 0; border-bottom-left-radius: 0; padding: 0.4rem 0.85rem;">Search</button>
             </form>
 
-            <ul class="nav-links" style="gap: 1rem;">
-                <li class="nav-item {% if request.endpoint == 'cart.view_cart' %}active{% endif %}">
-                    <a href="{{ url_for('cart.view_cart') }}" style="display: flex; align-items: center; gap: 0.3rem;">
-                        Cart <span class="badge-count" id="nav-cart-count">{{ cart_count }}</span>
-                    </a>
-                </li>
-                
-                {% if current_user.is_authenticated %}
-                    {% if current_user.is_admin %}
-                        <li class="nav-item {% if 'admin' in request.endpoint %}active{% endif %}">
-                            <a href="{{ url_for('admin.dashboard') }}">Admin Panel</a>
-                        </li>
-                    {% else %}
-                        <li class="nav-item {% if request.endpoint == 'customer.dashboard' %}active{% endif %}">
-                            <a href="{{ url_for('customer.dashboard') }}">Dashboard</a>
-                        </li>
-                        <li class="nav-item {% if request.endpoint == 'orders.order_history' %}active{% endif %}">
-                            <a href="{{ url_for('orders.order_history') }}">Orders</a>
-                        </li>
-                    {% endif %}
-                    
-                    <li class="nav-item">
-                        <a href="{{ url_for('auth.logout') }}">Logout</a>
-                    </li>
-                {% else %}
-                    <li class="nav-item {% if request.endpoint == 'auth.login' %}active{% endif %}">
-                        <a href="{{ url_for('auth.login') }}">Login</a>
-                    </li>
-                    <li class="nav-item {% if request.endpoint == 'auth.register' %}active{% endif %}">
-                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-sm" style="border-radius: 6px; padding: 0.45rem 1rem;">Register</a>
-                    </li>
-                {% endif %}
-
-                <!-- Theme Toggle Button -->
-                <li class="nav-item">
-                    <button class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Theme" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;">
-                        <span id="theme-text">Dark Mode</span>
+            <ul class="nav-links" style="gap: 1.25rem;">
+                <!-- Text-Based Account Dropdown -->
+                <li class="nav-item account-dropdown-container" style="position: relative;">
+                    <button type="button" class="account-dropdown-toggle" id="accountDropdownBtn" onclick="toggleAccountMenu(event)">
+                        Account <span style="font-size: 0.7rem; margin-left: 2px;">▼</span>
                     </button>
+
+                    <div class="account-dropdown-menu" id="accountDropdownMenu">
+                        <div class="dropdown-header">
+                            <span>New customer?</span>
+                            <a href="{{ url_for('auth.register') }}" class="dropdown-signup-link">Sign Up</a>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="{% if current_user.is_authenticated %}{{ url_for('customer.profile') }}{% else %}{{ url_for('auth.login') }}{% endif %}" class="dropdown-item">My Profile</a>
+                        <a href="{% if current_user.is_authenticated %}{{ url_for('orders.order_history') }}{% else %}{{ url_for('auth.login') }}{% endif %}" class="dropdown-item">My Orders</a>
+                        <a href="{{ url_for('products.list_products') }}" class="dropdown-item">Wishlist</a>
+                        <a href="{% if current_user.is_authenticated %}{{ url_for('customer.dashboard') }}{% else %}{{ url_for('auth.login') }}{% endif %}" class="dropdown-item">Notifications</a>
+                        <a href="{% if current_user.is_authenticated %}{{ url_for('customer.profile') }}{% else %}{{ url_for('auth.login') }}{% endif %}" class="dropdown-item">Account Settings</a>
+                        <a href="{% if current_user.is_authenticated %}{{ url_for('customer.profile') }}{% else %}{{ url_for('auth.login') }}{% endif %}" class="dropdown-item">Saved Addresses</a>
+                        <a href="{% if current_user.is_authenticated %}{{ url_for('orders.order_history') }}{% else %}{{ url_for('auth.login') }}{% endif %}" class="dropdown-item">My Reviews</a>
+                        <div class="dropdown-divider"></div>
+                        <button type="button" class="dropdown-item" onclick="toggleTheme()">
+                            Light Mode / Dark Mode
+                        </button>
+                        <div class="dropdown-divider"></div>
+                        {% if current_user.is_authenticated %}
+                            {% if current_user.is_admin %}
+                                <a href="{{ url_for('admin.dashboard') }}" class="dropdown-item" style="color: var(--secondary); font-weight: 600;">Admin Panel</a>
+                            {% endif %}
+                            <a href="{{ url_for('auth.logout') }}" class="dropdown-item text-danger">Logout</a>
+                        {% else %}
+                            <a href="{{ url_for('auth.login') }}" class="dropdown-item">Sign In</a>
+                        {% endif %}
+                    </div>
+                </li>
+
+                <!-- Cart Link with Text Quantity -->
+                <li class="nav-item {% if request.endpoint == 'cart.view_cart' %}active{% endif %}">
+                    <a href="{{ url_for('cart.view_cart') }}" style="font-weight: 600; white-space: nowrap;">
+                        Cart (<span id="nav-cart-count">{{ cart_count if cart_count else 0 }}</span>)
+                    </a>
                 </li>
             </ul>
         </div>

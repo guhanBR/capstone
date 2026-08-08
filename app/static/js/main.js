@@ -76,25 +76,18 @@ function initConfirmations() {
     });
 }
 
-// Fetch API Wrapper with CSRF header support
-async function apiFetch(url, options = {}) {
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-    const defaultHeaders = {
-        'Content-Type': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest'
-    };
-    if (csrfToken) {
-        defaultHeaders['X-CSRFToken'] = csrfToken;
-    }
-
-    options.headers = { ...defaultHeaders, ...options.headers };
-
-    try {
-        const response = await fetch(url, options);
-        const data = await response.json();
-        return { ok: response.ok, status: response.status, data };
-    } catch (err) {
-        console.error('Fetch error:', err);
-        return { ok: False, message: 'Network or server error.' };
+// Account Dropdown Toggle Handler
+function toggleAccountMenu(event) {
+    if (event) event.stopPropagation();
+    const container = document.querySelector('.account-dropdown-container');
+    if (container) {
+        container.classList.toggle('show');
     }
 }
+
+document.addEventListener('click', function (e) {
+    const container = document.querySelector('.account-dropdown-container');
+    if (container && !container.contains(e.target)) {
+        container.classList.remove('show');
+    }
+});

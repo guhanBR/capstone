@@ -69,14 +69,8 @@
                         {% for p in products %}
                             <tr>
                                 <td>
-                                    <div style="width: 40px; height: 40px; background: var(--surface-hover); border-radius: 6px; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 2px;">
-                                        {% if p.image and p.image.startswith(('http://', 'https://')) %}
-                                            <img src="{{ p.image }}" alt="{{ p.name }}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-                                        {% elif p.image %}
-                                            <img src="{{ url_for('static', filename='images/products/' ~ p.image) }}" alt="{{ p.name }}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-                                        {% else %}
-                                            <span></span>
-                                        {% endif %}
+                                    <div style="width: 48px; height: 48px; background: #ffffff; border: 1px solid var(--surface-border); border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 3px;">
+                                        <img src="{{ p.image_url }}" alt="{{ p.name }}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
                                     </div>
                                 </td>
                                 <td><code>{{ p.sku }}</code></td>

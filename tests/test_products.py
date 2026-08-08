@@ -31,3 +31,13 @@ def test_product_detail(client):
     res = client.get('/products/1')
     assert res.status_code == 200
     assert b'BRG-6203' in res.data
+    assert b'/static/images/products/' in res.data
+
+def test_product_image_url():
+    p1 = Product(image="bearing.svg")
+    p2 = Product(image="https://example.com/photo.jpg")
+    p3 = Product(image="")
+    assert p1.image_url == "/static/images/products/bearing.svg"
+    assert p2.image_url == "https://example.com/photo.jpg"
+    assert p3.image_url == "/static/images/products/placeholder.png"
+

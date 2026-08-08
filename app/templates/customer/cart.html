@@ -26,13 +26,7 @@
                                 <td>
                                     <div style="display: flex; gap: 0.75rem; align-items: center;">
                                         <div style="width: 48px; height: 48px; min-width: 48px; background: var(--surface-hover); border-radius: 6px; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 4px;">
-                                            {% if item.product.image and item.product.image.startswith(('http://', 'https://')) %}
-                                                <img src="{{ item.product.image }}" alt="{{ item.product.name }}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-                                            {% elif item.product.image %}
-                                                <img src="{{ url_for('static', filename='images/products/' ~ item.product.image) }}" alt="{{ item.product.name }}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-                                            {% else %}
-                                                <div style="font-size: 1.5rem;"></div>
-                                            {% endif %}
+                                            <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
                                         </div>
                                         <div>
                                             <a href="{{ url_for('products.product_detail', product_id=item.product.id) }}" style="font-weight: 700; color: var(--text-color);">
@@ -56,7 +50,7 @@
                                 <td>
                                     <form method="POST" action="{{ url_for('cart.remove_item', item_id=item.id) }}">
                                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                        <button type="submit" class="btn btn-danger btn-sm" data-confirm="Remove item from cart?">✕</button>
+                                        <button type="submit" class="btn btn-danger btn-sm" data-confirm="Remove item from cart?">Remove</button>
                                     </form>
                                 </td>
                             </tr>

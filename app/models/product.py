@@ -52,6 +52,14 @@ class Product(db.Model):
     def review_count(self):
         return len([r for r in self.reviews if r.status == 'approved'])
 
+    @property
+    def image_url(self):
+        if not self.image:
+            return '/static/images/products/placeholder.png'
+        if self.image.startswith(('http://', 'https://', '/')):
+            return self.image
+        return f'/static/images/products/{self.image}'
+
     def to_dict(self):
         return {
             'id': self.id,
@@ -71,6 +79,7 @@ class Product(db.Model):
             'minimum_stock_level': self.minimum_stock_level,
             'stock_status': self.stock_status,
             'image': self.image,
+            'image_url': self.image_url,
             'status': self.status,
             'rating': self.average_rating,
             'review_count': self.review_count,

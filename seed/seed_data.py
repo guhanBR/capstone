@@ -189,12 +189,12 @@ def seed():
         ]
 
         category_image_map = {
-            "Bearings": "bearing.svg",
-            "Mechanical Seals": "seal.svg",
-            "Capacitors": "capacitor.svg",
-            "Impellers": "impeller.svg",
-            "Pump Shafts": "shaft.svg",
-            "Motor Parts": "motor_part.svg",
+            "Bearings": "bearing.jpg",
+            "Mechanical Seals": "seal.jpg",
+            "Capacitors": "capacitor.jpg",
+            "Impellers": "impeller.jpg",
+            "Pump Shafts": "shaft.jpg",
+            "Motor Parts": "cooling_fan.jpg",
             "Gaskets": "gasket.svg",
             "Couplings": "coupling.svg",
             "Electrical Components": "electrical.svg",

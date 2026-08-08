@@ -14,15 +14,11 @@
 
 <div class="card" style="margin-bottom: 2rem;">
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem;">
-        <!-- Product Image Illustration -->
-        <div style="background-color: var(--surface-hover); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-align: center;">
-            {% if product.image and product.image.startswith(('http://', 'https://')) %}
-                <img src="{{ product.image }}" alt="{{ product.name }}" style="max-height: 250px; max-width: 100%; object-fit: contain; border-radius: 8px;">
-            {% elif product.image %}
-                <img src="{{ url_for('static', filename='images/products/' ~ product.image) }}" alt="{{ product.name }}" style="max-height: 250px; max-width: 100%; object-fit: contain; border-radius: 8px;">
-            {% else %}
-                <div style="font-size: 1rem; color: var(--text-muted); margin-bottom: 1rem;">No Image</div>
-            {% endif %}
+        <!-- Product Image Hero Box -->
+        <div style="background-color: var(--surface-hover); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-align: center; border: 1px solid var(--surface-border); box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+            <div style="width: 100%; max-height: 280px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                <img src="{{ product.image_url }}" alt="{{ product.name }}" style="max-height: 280px; max-width: 100%; object-fit: contain; border-radius: 8px; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+            </div>
             <span class="status-badge badge-{{ product.stock_status|lower|replace(' ', '-') }}" style="margin-top: 1.5rem;">
                 {{ product.stock_status }} ({{ product.stock_quantity }} units available)
             </span>
@@ -117,13 +113,7 @@
             {% for rel in related_products %}
                 <div class="product-card">
                     <div class="product-img-container" style="display: flex; align-items: center; justify-content: center; background: var(--surface-hover); height: 140px; padding: 0.75rem; border-radius: 8px;">
-                        {% if rel.image and rel.image.startswith(('http://', 'https://')) %}
-                            <img src="{{ rel.image }}" alt="{{ rel.name }}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
-                        {% elif rel.image %}
-                            <img src="{{ url_for('static', filename='images/products/' ~ rel.image) }}" alt="{{ rel.name }}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
-                        {% else %}
-                            <div style="font-size: 3rem;"></div>
-                        {% endif %}
+                        <img src="{{ rel.image_url }}" alt="{{ rel.name }}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
                     </div>
                     <div class="product-info">
                         <h4 class="product-title"><a href="{{ url_for('products.product_detail', product_id=rel.id) }}">{{ rel.name }}</a></h4>

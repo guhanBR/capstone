@@ -1,4 +1,7 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+import os
+import time
+from werkzeug.utils import secure_filename
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app
 from flask_login import login_required, current_user
 from app.utils.decorators import admin_required
 from app import db
@@ -16,6 +19,22 @@ from app.analytics import SalesAnalytics, InventoryAnalytics, ProductAnalytics
 from app.utils.helpers import log_audit
 
 admin_bp = Blueprint('admin', __name__)
+
+ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'}
+
+def allowed_image_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_IMAGE_EXTENSIONS
+
+def save_uploaded_product_image(file_storage):
+    if file_storage and file_storage.filename and allowed_image_file(file_storage.filename):
+        filename = secure_filename(file_storage.filename)
+        unique_filename = f"{int(time.time())}_{filename}"
+        target_dir = os.path.join(current_app.root_path, 'static', 'images', 'products')
+        os.makedirs(target_dir, exist_ok=True)
+        file_path = os.path.join(target_dir, unique_filename)
+        file_storage.save(file_path)
+        return unique_filename
+    return None
 
 @admin_bp.route('/dashboard')
 @login_required
@@ -99,6 +118,14 @@ def product_create():
 
     if request.method == 'POST':
         data = request.form.to_dict()
+        image_file = request.files.get('image_file')
+        if image_file and image_file.filename:
+            uploaded_name = save_uploaded_product_image(image_file)
+            if uploaded_name:
+                data['image'] = uploaded_name
+            else:
+                flash('Invalid image file format. Allowed: png, jpg, jpeg, gif, webp, svg.', 'warning')
+
         success, message, product = ProductService.create_product(data, current_user.id)
         if success:
             flash(message, 'success')
@@ -118,6 +145,14 @@ def product_edit(product_id):
 
     if request.method == 'POST':
         data = request.form.to_dict()
+        image_file = request.files.get('image_file')
+        if image_file and image_file.filename:
+            uploaded_name = save_uploaded_product_image(image_file)
+            if uploaded_name:
+                data['image'] = uploaded_name
+            else:
+                flash('Invalid image file format. Allowed: png, jpg, jpeg, gif, webp, svg.', 'warning')
+
         success, message, updated_product = ProductService.update_product(product_id, data, current_user.id)
         if success:
             flash(message, 'success')
