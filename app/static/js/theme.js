@@ -5,18 +5,14 @@
     function getSavedTheme() {
         const saved = localStorage.getItem(THEME_KEY);
         if (saved) return saved;
-        return 'dark'; // Default industrial dark theme
+        return 'light'; // Default clean light theme
     }
 
     function applyTheme(theme) {
         document.documentElement.setAttribute('data-theme', theme);
         localStorage.setItem(THEME_KEY, theme);
 
-        const icon = document.getElementById('theme-icon');
         const text = document.getElementById('theme-text');
-        if (icon) {
-            icon.textContent = theme === 'dark' ? '☀️' : '🌙';
-        }
         if (text) {
             text.textContent = theme === 'dark' ? 'Light Mode' : 'Dark Mode';
         }

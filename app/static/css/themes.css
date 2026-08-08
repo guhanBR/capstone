@@ -1,57 +1,57 @@
-/* Dark Mode Theme (Default Industrial Graphite) */
-[data-theme="dark"] {
-    --primary: #242424;
-    --primary-light: #333333;
-    --secondary: #e87518;
-    --secondary-hover: #d6640c;
-    --accent: #f4a340;
-    
-    --background: #121214;
-    --surface: #1e1e24;
-    --surface-hover: #282832;
-    --surface-border: #2d2d38;
-    
-    --text-color: #f4f4f6;
-    --text-muted: #9e9ea7;
-    --text-inverse: #121214;
-
-    --input-bg: #18181c;
-    --input-border: #333340;
-    --input-focus: #e87518;
-
-    --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
-    
-    --success: #2e7d32;
-    --warning: #f9a825;
-    --danger: #c62828;
-    --info: #0288d1;
-}
-
-/* Light Mode Theme */
+/* Light Mode Theme (Default E-Commerce Catalog) */
 [data-theme="light"] {
-    --primary: #242424;
-    --primary-light: #3a3a3a;
-    --secondary: #e87518;
-    --secondary-hover: #d6640c;
-    --accent: #f4a340;
+    --primary: #0f172a;
+    --primary-light: #334155;
+    --secondary: #e85d04;
+    --secondary-hover: #d00000;
+    --accent: #f97316;
     
-    --background: #f7f6f2;
+    --background: #f8fafc;
     --surface: #ffffff;
-    --surface-hover: #f0efe9;
-    --surface-border: #e2e0d8;
+    --surface-hover: #f1f5f9;
+    --surface-border: #e2e8f0;
     
-    --text-color: #1f1f23;
-    --text-muted: #6e6e76;
+    --text-color: #0f172a;
+    --text-muted: #64748b;
     --text-inverse: #ffffff;
 
     --input-bg: #ffffff;
-    --input-border: #d1cfc7;
-    --input-focus: #e87518;
+    --input-border: #cbd5e1;
+    --input-focus: #e85d04;
 
-    --card-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
     
-    --success: #2e7d32;
-    --warning: #f9a825;
-    --danger: #c62828;
-    --info: #0288d1;
+    --success: #166534;
+    --warning: #b45309;
+    --danger: #dc2626;
+    --info: #0284c7;
+}
+
+/* Dark Mode Theme */
+[data-theme="dark"] {
+    --primary: #0f172a;
+    --primary-light: #1e293b;
+    --secondary: #e85d04;
+    --secondary-hover: #f97316;
+    --accent: #fb923c;
+    
+    --background: #090d16;
+    --surface: #111827;
+    --surface-hover: #1f2937;
+    --surface-border: #374151;
+    
+    --text-color: #f9fafb;
+    --text-muted: #9ca3af;
+    --text-inverse: #090d16;
+
+    --input-bg: #111827;
+    --input-border: #374151;
+    --input-focus: #e85d04;
+
+    --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    
+    --success: #16a34a;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --info: #38bdf8;
 }

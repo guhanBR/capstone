@@ -64,7 +64,7 @@
                             <td>₹{{ "{:,.2f}".format(item.subtotal) }}</td>
                             <td>
                                 {% if order.order_status == 'Delivered' and item.product_id %}
-                                    <a href="{{ url_for('reviews.add_review', order_id=order.id, product_id=item.product_id) }}" class="btn btn-secondary btn-sm">⭐ Review</a>
+                                    <a href="{{ url_for('reviews.add_review', order_id=order.id, product_id=item.product_id) }}" class="btn btn-secondary btn-sm">Review</a>
                                 {% else %}
                                     <span style="color: var(--text-muted); font-size: 0.8rem;">After delivery</span>
                                 {% endif %}
