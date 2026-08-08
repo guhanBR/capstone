@@ -188,23 +188,64 @@ def seed():
             ("Water Pump Mechanical Seal Lubricant", "LUB-SEAL-GREASE", "Molykote", "LUB-100", "Food-grade silicone grease for O-rings & seals.", "100g Tube, Temp -40°C to 200°C", "Assembly lube for mechanical seals", 350.00, 310.00, 30, 8, "Fasteners & Hardware")
         ]
 
-        category_image_map = {
-            "Bearings": "bearing.jpg",
-            "Mechanical Seals": "seal.jpg",
-            "Capacitors": "capacitor.jpg",
-            "Impellers": "impeller.jpg",
-            "Pump Shafts": "shaft.jpg",
-            "Motor Parts": "cooling_fan.jpg",
-            "Gaskets": "gasket.svg",
-            "Couplings": "coupling.svg",
-            "Electrical Components": "electrical.svg",
-            "Fasteners & Hardware": "fasteners.svg"
+        sku_image_map = {
+            "BRG-6203-OPEN": "bearings/6203-bearing.jpg",
+            "BRG-6203-2RS": "bearings/6203-2rs.jpg",
+            "BRG-6203-ZZ": "bearings/6203-zz.jpg",
+            "BRG-6204-OPEN": "bearings/6204.jpg",
+            "BRG-6204-2RS": "bearings/6204-2rs.jpg",
+            "BRG-6205-OPEN": "bearings/6205.jpg",
+            "BRG-6306-OPEN": "bearings/6306.jpg",
+
+            "SEAL-25-STD": "mechanical-seals/seal-25mm.jpg",
+            "SEAL-25-PREM": "mechanical-seals/seal-25mm-prem.jpg",
+            "SEAL-25-CER": "mechanical-seals/seal-ceramic.jpg",
+            "SEAL-32-STD": "mechanical-seals/seal-32mm.jpg",
+            "SEAL-19-SUB": "mechanical-seals/seal-19mm-sub.jpg",
+
+            "CAP-36MFD-450": "capacitors/cap-36mfd.jpg",
+            "CAP-50MFD-450": "capacitors/cap-50mfd.jpg",
+            "CAP-72MFD-450": "capacitors/cap-72mfd.jpg",
+            "CAP-120-150": "capacitors/cap-150mfd.jpg",
+
+            "IMP-100-BRZ": "impellers/impeller-100mm-bronze.jpg",
+            "IMP-125-CI": "impellers/impeller-125mm-ci.jpg",
+            "IMP-140-SS": "impellers/impeller-140mm-ss.jpg",
+            "IMP-SUB-NORYL": "impellers/impeller-noryl.jpg",
+
+            "SFT-16-SS304": "pump-shafts/shaft-16mm.jpg",
+            "SFT-20-SS316": "pump-shafts/shaft-20mm.jpg",
+            "SFT-14-HEX": "pump-shafts/shaft-14mm-hex.jpg",
+
+            "FAN-MOTOR-1HP": "motor-parts/fan-1hp.jpg",
+            "FAN-MOTOR-3HP": "motor-parts/fan-3hp.jpg",
+            "TRM-BLK-6PIN": "motor-parts/terminal-block-6pin.jpg",
+            "JNC-BOX-CVR": "motor-parts/junction-box.jpg",
+            "CSW-1HP-2P": "motor-parts/centrifugal-switch.jpg",
+
+            "GSK-50MM-RUB": "gaskets/gasket-50mm.jpg",
+            "GSK-ORING-CAS": "gaskets/oring-casing.jpg",
+            "GSK-80MM-AF": "gaskets/gasket-80mm-af.jpg",
+
+            "CPL-L095-SET": "couplings/coupling-l095.jpg",
+            "CPL-L095-SPDR": "couplings/spider-insert-l095.jpg",
+            "CPL-PIN-F4": "couplings/pin-bush-f4.jpg",
+
+            "ELC-TOR-9-13A": "electrical-components/thermal-relay.jpg",
+            "ELC-CNT-18A": "electrical-components/ac-contactor.jpg",
+            "ELC-SPP-415V": "electrical-components/phase-preventer.jpg",
+
+            "FST-NUT-M12-SS": "fasteners/impeller-nut-m12.jpg",
+            "FST-BLT-M8-40": "fasteners/motor-bolts-m8.jpg",
+            "FST-KEY-6X6X30": "fasteners/shaft-key-6x6.jpg",
+            "FST-CIR-20MM": "fasteners/circlip-20mm.jpg",
+            "LUB-SEAL-GREASE": "fasteners/seal-grease.jpg"
         }
 
         products_list = []
         for name, sku, brand, model_no, desc, specs, compat, price, disc_price, stock, min_stock, cat_name in products_data:
             cat = cat_objs[cat_name]
-            img_file = category_image_map.get(cat_name, "placeholder.png")
+            img_file = sku_image_map.get(sku, "placeholder.png")
             p = Product(
                 category_id=cat.id,
                 name=name,

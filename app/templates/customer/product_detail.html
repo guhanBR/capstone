@@ -93,7 +93,7 @@
                 <div style="border-bottom: 1px solid var(--surface-border); padding-bottom: 1rem;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 0.3rem;">
                         <strong>{{ rev.user_name }}</strong>
-                        <span class="star-rating">{% for _ in range(rev.rating) %}★{% endfor %}</span>
+                        <span style="font-weight: 600; font-size: 0.85rem; color: var(--secondary);">Rating: {{ rev.rating }} / 5</span>
                     </div>
                     <span style="font-size: 0.75rem; color: var(--text-muted);">Verified Buyer • {{ rev.created_at.strftime('%Y-%m-%d') }}</span>
                     <p style="margin-top: 0.5rem; font-size: 0.92rem;">{{ rev.review_text }}</p>

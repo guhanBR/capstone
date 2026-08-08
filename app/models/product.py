@@ -58,6 +58,8 @@ class Product(db.Model):
             return '/static/images/products/placeholder.png'
         if self.image.startswith(('http://', 'https://', '/')):
             return self.image
+        if self.image.startswith('static/'):
+            return f'/{self.image}'
         return f'/static/images/products/{self.image}'
 
     def to_dict(self):
