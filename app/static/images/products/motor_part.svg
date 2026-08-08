@@ -1,0 +1,31 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300' width='100%' height='100%'>
+  <defs>
+    <linearGradient id='fanGrad' x1='0%' y1='0%' x2='100%' y2='100%'>
+      <stop offset='0%' stop-color='#38bdf8'/>
+      <stop offset='100%' stop-color='#0284c7'/>
+    </linearGradient>
+    <filter id='shadow'>
+      <feDropShadow dx='0' dy='8' stdDeviation='8' flood-color='#000000' flood-opacity='0.4'/>
+    </filter>
+  </defs>
+  <rect width='100%' height='100%' fill='#181c24' rx='16'/>
+  <g transform='translate(200, 150)' filter='url(#shadow)'>
+    <!-- Motor Fan Blades -->
+    <circle r='95' fill='#0f172a' stroke='#0284c7' stroke-width='2'/>
+    
+    <g fill='url(#fanGrad)'>
+      <path d='M-12,-20 C-25,-70 25,-85 12,-20 Z' transform='rotate(0)'/>
+      <path d='M-12,-20 C-25,-70 25,-85 12,-20 Z' transform='rotate(45)'/>
+      <path d='M-12,-20 C-25,-70 25,-85 12,-20 Z' transform='rotate(90)'/>
+      <path d='M-12,-20 C-25,-70 25,-85 12,-20 Z' transform='rotate(135)'/>
+      <path d='M-12,-20 C-25,-70 25,-85 12,-20 Z' transform='rotate(180)'/>
+      <path d='M-12,-20 C-25,-70 25,-85 12,-20 Z' transform='rotate(225)'/>
+      <path d='M-12,-20 C-25,-70 25,-85 12,-20 Z' transform='rotate(270)'/>
+      <path d='M-12,-20 C-25,-70 25,-85 12,-20 Z' transform='rotate(315)'/>
+    </g>
+
+    <!-- Center Fan Hub -->
+    <circle r='32' fill='#1e293b' stroke='#38bdf8' stroke-width='3'/>
+    <circle r='16' fill='#181c24' stroke='#0284c7' stroke-width='2'/>
+  </g>
+</svg>

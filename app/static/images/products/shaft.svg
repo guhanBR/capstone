@@ -1,0 +1,28 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300' width='100%' height='100%'>
+  <defs>
+    <linearGradient id='shaftGrad' x1='0%' y1='0%' x2='0%' y2='100%'>
+      <stop offset='0%' stop-color='#475569'/>
+      <stop offset='30%' stop-color='#f8fafc'/>
+      <stop offset='70%' stop-color='#cbd5e1'/>
+      <stop offset='100%' stop-color='#334155'/>
+    </linearGradient>
+    <filter id='shadow'>
+      <feDropShadow dx='0' dy='8' stdDeviation='8' flood-color='#000000' flood-opacity='0.4'/>
+    </filter>
+  </defs>
+  <rect width='100%' height='100%' fill='#181c24' rx='16'/>
+  <g transform='translate(200, 150)' filter='url(#shadow)'>
+    <!-- Main Stepped Shaft Body horizontally -->
+    <!-- Left Drive End -->
+    <rect x='-150' y='-20' width='50' height='40' rx='4' fill='url(#shaftGrad)' stroke='#64748b'/>
+    <rect x='-135' y='-22' width='20' height='44' fill='#38bdf8' opacity='0.3'/>
+    <!-- Center Bearing Journal -->
+    <rect x='-100' y='-35' width='70' height='70' rx='6' fill='url(#shaftGrad)' stroke='#94a3b8'/>
+    <!-- Middle Main Shaft -->
+    <rect x='-30' y='-45' width='130' height='90' rx='8' fill='url(#shaftGrad)' stroke='#cbd5e1'/>
+    <!-- Keyway Slot -->
+    <rect x='10' y='-48' width='50' height='10' rx='3' fill='#0f172a'/>
+    <!-- Right Extension -->
+    <rect x='100' y='-25' width='50' height='50' rx='4' fill='url(#shaftGrad)' stroke='#64748b'/>
+  </g>
+</svg>

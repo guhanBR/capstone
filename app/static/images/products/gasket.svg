@@ -1,0 +1,28 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300' width='100%' height='100%'>
+  <defs>
+    <linearGradient id='gasketGrad' x1='0%' y1='0%' x2='100%' y2='100%'>
+      <stop offset='0%' stop-color='#ef4444'/>
+      <stop offset='100%' stop-color='#991b1b'/>
+    </linearGradient>
+    <filter id='shadow'>
+      <feDropShadow dx='0' dy='8' stdDeviation='8' flood-color='#000000' flood-opacity='0.4'/>
+    </filter>
+  </defs>
+  <rect width='100%' height='100%' fill='#181c24' rx='16'/>
+  <g transform='translate(200, 150)' filter='url(#shadow)'>
+    <!-- Flange Gasket Outer Ring -->
+    <circle r='100' fill='url(#gasketGrad)' stroke='#b91c1c' stroke-width='3'/>
+    <!-- Center Opening -->
+    <circle r='55' fill='#181c24' stroke='#dc2626' stroke-width='2'/>
+    
+    <!-- Bolt Holes -->
+    <circle cx='0' cy='-78' r='9' fill='#181c24' stroke='#fca5a5' stroke-width='2'/>
+    <circle cx='78' cy='0' r='9' fill='#181c24' stroke='#fca5a5' stroke-width='2'/>
+    <circle cx='0' cy='78' r='9' fill='#181c24' stroke='#fca5a5' stroke-width='2'/>
+    <circle cx='-78' cy='0' r='9' fill='#181c24' stroke='#fca5a5' stroke-width='2'/>
+    <circle cx='55' cy='-55' r='9' fill='#181c24' stroke='#fca5a5' stroke-width='2'/>
+    <circle cx='55' cy='55' r='9' fill='#181c24' stroke='#fca5a5' stroke-width='2'/>
+    <circle cx='-55' cy='55' r='9' fill='#181c24' stroke='#fca5a5' stroke-width='2'/>
+    <circle cx='-55' cy='-55' r='9' fill='#181c24' stroke='#fca5a5' stroke-width='2'/>
+  </g>
+</svg>

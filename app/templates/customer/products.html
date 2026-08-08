@@ -58,11 +58,17 @@
     <div class="product-grid">
         {% for product in products %}
             <div class="product-card">
-                <div class="product-img-container">
-                    <span class="status-badge badge-{{ product.stock_status|lower|replace(' ', '-') }}" style="position: absolute; top: 10px; right: 10px;">
+                <div class="product-img-container" style="display: flex; align-items: center; justify-content: center; background: var(--surface-hover); height: 200px; padding: 1rem; border-radius: 8px; position: relative;">
+                    <span class="status-badge badge-{{ product.stock_status|lower|replace(' ', '-') }}" style="position: absolute; top: 10px; right: 10px; z-index: 2;">
                         {{ product.stock_status }}
                     </span>
-                    <div style="font-size: 4rem;">⚙️</div>
+                    {% if product.image and product.image.startswith(('http://', 'https://')) %}
+                        <img src="{{ product.image }}" alt="{{ product.name }}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                    {% elif product.image %}
+                        <img src="{{ url_for('static', filename='images/products/' ~ product.image) }}" alt="{{ product.name }}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                    {% else %}
+                        <div style="font-size: 4rem;">⚙️</div>
+                    {% endif %}
                 </div>
 
                 <div class="product-info">

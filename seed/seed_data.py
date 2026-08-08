@@ -188,9 +188,23 @@ def seed():
             ("Water Pump Mechanical Seal Lubricant", "LUB-SEAL-GREASE", "Molykote", "LUB-100", "Food-grade silicone grease for O-rings & seals.", "100g Tube, Temp -40°C to 200°C", "Assembly lube for mechanical seals", 350.00, 310.00, 30, 8, "Fasteners & Hardware")
         ]
 
+        category_image_map = {
+            "Bearings": "bearing.svg",
+            "Mechanical Seals": "seal.svg",
+            "Capacitors": "capacitor.svg",
+            "Impellers": "impeller.svg",
+            "Pump Shafts": "shaft.svg",
+            "Motor Parts": "motor_part.svg",
+            "Gaskets": "gasket.svg",
+            "Couplings": "coupling.svg",
+            "Electrical Components": "electrical.svg",
+            "Fasteners & Hardware": "fasteners.svg"
+        }
+
         products_list = []
         for name, sku, brand, model_no, desc, specs, compat, price, disc_price, stock, min_stock, cat_name in products_data:
             cat = cat_objs[cat_name]
+            img_file = category_image_map.get(cat_name, "placeholder.png")
             p = Product(
                 category_id=cat.id,
                 name=name,
@@ -204,6 +218,7 @@ def seed():
                 discount_price=disc_price,
                 stock_quantity=stock,
                 minimum_stock_level=min_stock,
+                image=img_file,
                 status="active"
             )
             db.session.add(p)

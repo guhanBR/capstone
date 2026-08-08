@@ -98,12 +98,18 @@
                     </div>
                 </div>
 
-                <div class="form-group" style="max-width: 300px;">
-                    <label class="form-label">Product Status</label>
-                    <select name="status" class="form-control">
-                        <option value="active" {% if not product or product.status == 'active' %}selected{% endif %}>Active (Visible to customers)</option>
-                        <option value="inactive" {% if product and product.status == 'inactive' %}selected{% endif %}>Inactive (Hidden)</option>
-                    </select>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Product Image Filename / URL</label>
+                        <input type="text" name="image" class="form-control" value="{{ product.image if product else 'placeholder.png' }}" placeholder="e.g. bearing.svg or https://example.com/image.jpg">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Product Status</label>
+                        <select name="status" class="form-control">
+                            <option value="active" {% if not product or product.status == 'active' %}selected{% endif %}>Active (Visible to customers)</option>
+                            <option value="inactive" {% if product and product.status == 'inactive' %}selected{% endif %}>Inactive (Hidden)</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">

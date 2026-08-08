@@ -1,0 +1,30 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300' width='100%' height='100%'>
+  <defs>
+    <linearGradient id='bronze' x1='0%' y1='0%' x2='100%' y2='100%'>
+      <stop offset='0%' stop-color='#f59e0b'/>
+      <stop offset='50%' stop-color='#b45309'/>
+      <stop offset='100%' stop-color='#78350f'/>
+    </linearGradient>
+    <filter id='shadow'>
+      <feDropShadow dx='0' dy='8' stdDeviation='8' flood-color='#000000' flood-opacity='0.4'/>
+    </filter>
+  </defs>
+  <rect width='100%' height='100%' fill='#181c24' rx='16'/>
+  <g transform='translate(200, 150)' filter='url(#shadow)'>
+    <!-- Outer Shroud -->
+    <circle r='100' fill='url(#bronze)' stroke='#d97706' stroke-width='3'/>
+    
+    <!-- Curved Vanes -->
+    <path d='M0,-30 Q40,-40 85,-35 Q70,10 60,65 Q10,40 -30,0 Z' fill='#b45309' opacity='0.8' stroke='#f59e0b' stroke-width='2'/>
+    <path d='M-30,0 Q-40,-40 -35,-85 Q10,-70 65,-60 Q40,-10 0,30 Z' fill='#b45309' opacity='0.8' stroke='#f59e0b' stroke-width='2' transform='rotate(72)'/>
+    <path d='M-30,0 Q-40,-40 -35,-85 Q10,-70 65,-60 Q40,-10 0,30 Z' fill='#b45309' opacity='0.8' stroke='#f59e0b' stroke-width='2' transform='rotate(144)'/>
+    <path d='M-30,0 Q-40,-40 -35,-85 Q10,-70 65,-60 Q40,-10 0,30 Z' fill='#b45309' opacity='0.8' stroke='#f59e0b' stroke-width='2' transform='rotate(216)'/>
+    <path d='M-30,0 Q-40,-40 -35,-85 Q10,-70 65,-60 Q40,-10 0,30 Z' fill='#b45309' opacity='0.8' stroke='#f59e0b' stroke-width='2' transform='rotate(288)'/>
+    
+    <!-- Eye Inlet Hub -->
+    <circle r='40' fill='#78350f' stroke='#f59e0b' stroke-width='3'/>
+    <circle r='22' fill='#181c24' stroke='#d97706' stroke-width='2'/>
+    <!-- Keyway Notch -->
+    <rect x='-4' y='-25' width='8' height='8' fill='#f59e0b'/>
+  </g>
+</svg>

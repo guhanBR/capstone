@@ -1,0 +1,25 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300' width='100%' height='100%'>
+  <defs>
+    <linearGradient id='boltGrad' x1='0%' y1='0%' x2='100%' y2='0%'>
+      <stop offset='0%' stop-color='#94a3b8'/>
+      <stop offset='50%' stop-color='#f8fafc'/>
+      <stop offset='100%' stop-color='#475569'/>
+    </linearGradient>
+    <filter id='shadow'>
+      <feDropShadow dx='0' dy='8' stdDeviation='8' flood-color='#000000' flood-opacity='0.4'/>
+    </filter>
+  </defs>
+  <rect width='100%' height='100%' fill='#181c24' rx='16'/>
+  <g transform='translate(200, 150)' filter='url(#shadow)'>
+    <!-- Hex Head Bolt -->
+    <polygon points='-40,-90 0,-115 40,-90 40,-50 0,-25 -40,-50' fill='url(#boltGrad)' stroke='#475569' stroke-width='2'/>
+    <!-- Threaded Shaft -->
+    <rect x='-20' y='-30' width='40' height='110' fill='url(#boltGrad)' stroke='#334155'/>
+    <!-- Threads -->
+    <line x1='-20' y1='-10' x2='20' y2='-5' stroke='#334155' stroke-width='4'/>
+    <line x1='-20' y1='10' x2='20' y2='15' stroke='#334155' stroke-width='4'/>
+    <line x1='-20' y1='30' x2='20' y2='35' stroke='#334155' stroke-width='4'/>
+    <line x1='-20' y1='50' x2='20' y2='55' stroke='#334155' stroke-width='4'/>
+    <line x1='-20' y1='70' x2='20' y2='75' stroke='#334155' stroke-width='4'/>
+  </g>
+</svg>

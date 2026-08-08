@@ -1,0 +1,30 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300' width='100%' height='100%'>
+  <defs>
+    <linearGradient id='sealGrad' x1='0%' y1='0%' x2='100%' y2='100%'>
+      <stop offset='0%' stop-color='#f97316'/>
+      <stop offset='100%' stop-color='#c2410c'/>
+    </linearGradient>
+    <linearGradient id='springGrad' x1='0%' y1='0%' x2='100%' y2='0%'>
+      <stop offset='0%' stop-color='#94a3b8'/>
+      <stop offset='50%' stop-color='#f8fafc'/>
+      <stop offset='100%' stop-color='#475569'/>
+    </linearGradient>
+    <filter id='shadow'>
+      <feDropShadow dx='0' dy='8' stdDeviation='8' flood-color='#000000' flood-opacity='0.4'/>
+    </filter>
+  </defs>
+  <rect width='100%' height='100%' fill='#181c24' rx='16'/>
+  <g transform='translate(200, 150)' filter='url(#shadow)'>
+    <!-- Outer Rubber Bellows Body -->
+    <rect x='-85' y='-70' width='170' height='140' rx='20' fill='#27272a' stroke='#3f3f46' stroke-width='3'/>
+    <path d='M-85,-40 C-60,-50 -60,-20 -85,-10 C-60,0 -60,30 -85,40' fill='none' stroke='#f97316' stroke-width='8'/>
+    <path d='M85,-40 C60,-50 60,-20 85,-10 C60,0 60,30 85,40' fill='none' stroke='#f97316' stroke-width='8'/>
+    
+    <!-- Coiled Spring -->
+    <path d='M-60,-50 L60,-50 L-50,-25 L50,-25 L-50,0 L50,0 L-50,25 L50,25 L-60,50 L60,50' fill='none' stroke='url(#springGrad)' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/>
+    
+    <!-- Ceramic Face Collar -->
+    <rect x='-45' y='-55' width='90' height='110' rx='12' fill='url(#sealGrad)' stroke='#ea580c' stroke-width='2'/>
+    <circle r='30' fill='#181c24' stroke='#f97316' stroke-width='4'/>
+  </g>
+</svg>
