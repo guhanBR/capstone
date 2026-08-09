@@ -1,24 +1,215 @@
 {% extends 'base.html' %}
 
-{% block title %}Order Details #{{ order.order_number }} — SparePro{% endblock %}
+{% block title %}Order #{{ order.order_number }} — SparePro{% endblock %}
 
 {% block content %}
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+
+{% set just_confirmed = request.args.get('confirmed') == '1' %}
+
+{% if just_confirmed %}
+<!-- ═══════════════════════════════════════════════════════════
+     ORDER PLACED SUCCESS BANNER
+════════════════════════════════════════════════════════════ -->
+<div class="order-confirmed-banner" id="order-confirmed-banner">
+    <div class="order-confirmed-icon">✓</div>
+    <h1 class="order-confirmed-title">Order Placed!</h1>
+    <p class="order-confirmed-sub">Your order has been placed successfully.</p>
+
+    <div class="order-confirmed-details">
+        <div class="order-confirmed-row">
+            <span>Order ID</span>
+            <strong>#{{ order.order_number }}</strong>
+        </div>
+        <div class="order-confirmed-row">
+            <span>Date</span>
+            <strong>{{ order.created_at.strftime('%d %b %Y, %I:%M %p') }}</strong>
+        </div>
+        <div class="order-confirmed-row">
+            <span>Status</span>
+            <strong class="status-badge badge-pending" style="font-size: 0.85rem;">{{ order.order_status }}</strong>
+        </div>
+        <div class="order-confirmed-row">
+            <span>Total Paid</span>
+            <strong style="color: var(--secondary); font-size: 1.1rem;">₹{{ "{:,.2f}".format(order.total_amount) }}</strong>
+        </div>
+    </div>
+
+    <!-- Order Items Quick Summary -->
+    <div class="order-confirmed-items">
+        {% for item in order.items %}
+        <div class="order-confirmed-item">
+            <span class="order-confirmed-item-name">{{ item.product_name }}</span>
+            <span class="order-confirmed-item-meta">Qty {{ item.quantity }} &times; ₹{{ "{:,.2f}".format(item.unit_price) }}</span>
+            <span class="order-confirmed-item-total">₹{{ "{:,.2f}".format(item.subtotal) }}</span>
+        </div>
+        {% endfor %}
+
+        <div class="order-confirmed-totals">
+            <div class="order-confirmed-row">
+                <span>Subtotal</span>
+                <span>₹{{ "{:,.2f}".format(order.subtotal) }}</span>
+            </div>
+            <div class="order-confirmed-row">
+                <span>Shipping</span>
+                {% if order.shipping_charge == 0 %}
+                    <span style="color: var(--success); font-weight: 700;">FREE</span>
+                {% else %}
+                    <span>₹{{ "{:,.2f}".format(order.shipping_charge) }}</span>
+                {% endif %}
+            </div>
+            <div class="order-confirmed-row order-confirmed-total-row">
+                <span>Total</span>
+                <strong style="color: var(--secondary);">₹{{ "{:,.2f}".format(order.total_amount) }}</strong>
+            </div>
+        </div>
+    </div>
+
+    <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.5rem;">
+        Your order is now being processed.<br>You can track it from your Orders page.
+    </p>
+
+    <div class="order-confirmed-actions">
+        <a href="{{ url_for('orders.order_history') }}" class="btn btn-primary" id="view-orders-btn">
+            View My Orders
+        </a>
+        <a href="{{ url_for('products.list_products') }}" class="btn btn-secondary" id="continue-shopping-btn">
+            Continue Shopping
+        </a>
+    </div>
+</div>
+
+<style>
+.order-confirmed-banner {
+    max-width: 560px;
+    margin: 2.5rem auto;
+    background: var(--surface);
+    border: 1px solid var(--surface-border);
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+    text-align: center;
+    animation: confirmFadeIn 0.45s ease;
+}
+@keyframes confirmFadeIn {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.order-confirmed-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--secondary), var(--accent));
+    color: #fff;
+    font-size: 2.2rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.2rem auto;
+    box-shadow: 0 6px 20px rgba(232,117,24,0.30);
+    animation: iconPop 0.5s cubic-bezier(.36,.07,.19,.97) 0.2s both;
+}
+@keyframes iconPop {
+    0%   { transform: scale(0.4); opacity: 0; }
+    70%  { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); }
+}
+.order-confirmed-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-color);
+    margin-bottom: 0.35rem;
+}
+.order-confirmed-sub {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+}
+.order-confirmed-details {
+    background: var(--surface-hover);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    text-align: left;
+}
+.order-confirmed-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.35rem 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--surface-border);
+}
+.order-confirmed-row:last-child { border-bottom: none; }
+.order-confirmed-items {
+    background: var(--surface-hover);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    text-align: left;
+}
+.order-confirmed-item {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 0.5rem 1rem;
+    align-items: center;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid var(--surface-border);
+    font-size: 0.88rem;
+}
+.order-confirmed-item:last-child { border-bottom: none; }
+.order-confirmed-item-name { font-weight: 600; color: var(--text-color); }
+.order-confirmed-item-meta { color: var(--text-muted); font-size: 0.8rem; }
+.order-confirmed-item-total { font-weight: 700; color: var(--text-color); text-align: right; }
+.order-confirmed-totals {
+    margin-top: 0.75rem;
+    border-top: 2px solid var(--surface-border);
+    padding-top: 0.5rem;
+}
+.order-confirmed-total-row {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-top: 0.25rem;
+    color: var(--text-color) !important;
+}
+.order-confirmed-actions {
+    display: flex;
+    gap: 0.85rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+@media (max-width: 576px) {
+    .order-confirmed-banner { padding: 1.75rem 1rem; margin: 1.5rem 0.5rem; }
+    .order-confirmed-title  { font-size: 1.6rem; }
+    .order-confirmed-item   { grid-template-columns: 1fr; gap: 0.15rem; }
+    .order-confirmed-actions { flex-direction: column; }
+    .order-confirmed-actions .btn { width: 100%; }
+}
+</style>
+
+<hr style="margin: 2.5rem 0; border: none; border-top: 1px solid var(--surface-border);">
+<h3 style="margin-bottom: 1.5rem; color: var(--text-muted); font-size: 1rem; text-transform: uppercase; letter-spacing: 0.5px;">Order Details</h3>
+{% endif %}
+
+<!-- ═══════════════════════════════════════════════════════════
+     STANDARD ORDER DETAIL (shown always, full details)
+════════════════════════════════════════════════════════════ -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
     <div>
         <h2>Order #{{ order.order_number }}</h2>
         <p style="color: var(--text-muted); font-size: 0.9rem;">Placed on {{ order.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
     </div>
     <span class="status-badge badge-{{ order.order_status|lower }}" style="font-size: 1rem; padding: 0.5rem 1rem;">
-        Status: {{ order.order_status }}
+        {{ order.order_status }}
     </span>
 </div>
 
 <!-- Visual Tracking Timeline Step Progress Bar -->
 <div class="card" style="margin-bottom: 2rem; padding: 2rem 3rem;">
     <h4 style="margin-bottom: 1.5rem;">Live Order Tracking</h4>
-    
+
     <div class="timeline-container">
-        <!-- Progress bar width calculation -->
         {% set progress_pct = 0 %}
         {% if current_index >= 0 %}
             {% set progress_pct = (current_index / (timeline_steps|length - 1)) * 100 %}
@@ -79,7 +270,7 @@
     <!-- Summary Details Card -->
     <div class="card">
         <h3>Shipping &amp; Payment</h3>
-        
+
         <div style="margin-top: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--surface-border);">
             <strong style="color: var(--text-muted); font-size: 0.82rem; text-transform: uppercase;">Shipping Address</strong>
             {% if order.shipping_address %}
@@ -108,12 +299,26 @@
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem;">
                 <span>Shipping Charge:</span>
-                <span>₹{{ "{:,.2f}".format(order.shipping_charge) }}</span>
+                {% if order.shipping_charge == 0 %}
+                    <span style="color: var(--success); font-weight: 700;">FREE</span>
+                {% else %}
+                    <span>₹{{ "{:,.2f}".format(order.shipping_charge) }}</span>
+                {% endif %}
             </div>
             <div style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: 800; color: var(--secondary); margin-top: 0.75rem;">
                 <span>Total Amount:</span>
                 <span>₹{{ "{:,.2f}".format(order.total_amount) }}</span>
             </div>
+        </div>
+
+        <!-- Action links at bottom of card -->
+        <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.6rem;">
+            <a href="{{ url_for('orders.order_history') }}" class="btn btn-secondary btn-sm btn-block" style="text-align: center;">
+                View All Orders
+            </a>
+            <a href="{{ url_for('products.list_products') }}" class="btn btn-secondary btn-sm btn-block" style="text-align: center;">
+                Continue Shopping
+            </a>
         </div>
     </div>
 </div>

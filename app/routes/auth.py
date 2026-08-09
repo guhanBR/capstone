@@ -13,6 +13,7 @@ def login():
         return redirect(url_for('customer.dashboard'))
 
     if request.method == 'POST':
+        from flask import session
         email = request.form.get('email')
         password = request.form.get('password')
         remember = True if request.form.get('remember') else False
@@ -22,6 +23,9 @@ def login():
             login_user(user, remember=remember)
             flash(message, 'success')
             next_page = request.args.get('next')
+            # If buy_now session is active, always go to buy_now checkout after login
+            if session.get('buy_now'):
+                return redirect(url_for('orders.checkout', mode='buy_now'))
             if next_page:
                 return redirect(next_page)
             if user.is_admin:
@@ -39,6 +43,7 @@ def register():
         return redirect(url_for('customer.dashboard'))
 
     if request.method == 'POST':
+        from flask import session
         name = request.form.get('name')
         email = request.form.get('email')
         phone = request.form.get('phone')
@@ -53,11 +58,15 @@ def register():
         if success:
             login_user(user)
             flash('Registration successful! Welcome to SparePro.', 'success')
+            # If buy_now session is active, go to buy_now checkout after registration
+            if session.get('buy_now'):
+                return redirect(url_for('orders.checkout', mode='buy_now'))
             return redirect(url_for('customer.dashboard'))
         else:
             flash(message, 'danger')
 
     return render_template('auth/register.html')
+
 
 
 @auth_bp.route('/logout')

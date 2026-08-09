@@ -18,6 +18,7 @@ def list_products():
     sort_by = request.args.get('sort', 'newest').strip()
 
     per_page = current_app.config['ITEMS_PER_PAGE']
+    max_db_price = ProductService.get_max_price()
 
     pagination = ProductService.get_products(
         category_id=category_id,
@@ -35,8 +36,12 @@ def list_products():
     categories = Category.query.filter_by(status='active').all()
     brands = ProductService.get_brands()
 
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.args.get('ajax') == '1'
+
+    template_name = 'customer/_product_grid.html' if is_ajax else 'customer/products.html'
+
     return render_template(
-        'customer/products.html',
+        template_name,
         pagination=pagination,
         products=pagination.items,
         categories=categories,
@@ -47,7 +52,8 @@ def list_products():
         current_sort=sort_by,
         current_min_price=min_price,
         current_max_price=max_price,
-        current_availability=availability
+        current_availability=availability,
+        max_db_price=max_db_price
     )
 
 

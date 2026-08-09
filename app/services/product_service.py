@@ -23,11 +23,17 @@ class ProductService:
         if brand:
             query = query.filter(Product.brand == brand)
 
-        if min_price is not None:
-            query = query.filter(Product.price >= float(min_price))
+        if min_price is not None and min_price != '':
+            try:
+                query = query.filter(Product.price >= float(min_price))
+            except (ValueError, TypeError):
+                pass
 
-        if max_price is not None:
-            query = query.filter(Product.price <= float(max_price))
+        if max_price is not None and max_price != '':
+            try:
+                query = query.filter(Product.price <= float(max_price))
+            except (ValueError, TypeError):
+                pass
 
         if availability == 'in_stock':
             query = query.filter(Product.stock_quantity > 0)
@@ -72,6 +78,14 @@ class ProductService:
     def get_brands():
         brands = db.session.query(Product.brand).filter(Product.status == 'active').distinct().all()
         return [b[0] for b in brands if b[0]]
+
+    @staticmethod
+    def get_max_price():
+        import math
+        max_p = db.session.query(db.func.max(Product.price)).filter(Product.status == 'active').scalar()
+        if max_p is not None and float(max_p) > 0:
+            return float(math.ceil(float(max_p)))
+        return 10000.0
 
     @staticmethod
     def create_product(data, admin_id):

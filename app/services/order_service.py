@@ -121,6 +121,89 @@ class OrderService:
             return False, f"Failed to place order: {str(e)}", None
 
     @staticmethod
+    def create_buy_now_order(user_id, address_id, product_id, quantity, payment_method='Cash on Delivery'):
+        address = db.session.get(Address, address_id)
+        if not address or address.user_id != user_id:
+            return False, "Invalid shipping address selected.", None
+
+        if quantity <= 0:
+            return False, "Quantity must be greater than zero.", None
+
+        product = db.session.get(Product, product_id)
+        if not product or product.status != 'active':
+            return False, "This product is no longer available.", None
+
+        if product.stock_quantity <= 0:
+            return False, f"'{product.name}' is currently out of stock.", None
+
+        if product.stock_quantity < quantity:
+            return False, f"Only {product.stock_quantity} units are currently available. Please reduce the quantity.", None
+
+        unit_price = product.effective_price
+        subtotal = unit_price * quantity
+        shipping_charge = 0.0 if subtotal >= 2000 else 100.0
+        discount = 0.0
+        total_amount = subtotal + shipping_charge - discount
+        order_num = generate_order_number()
+
+        try:
+            order = Order(
+                user_id=user_id,
+                order_number=order_num,
+                address_id=address.id,
+                subtotal=subtotal,
+                discount=discount,
+                shipping_charge=shipping_charge,
+                total_amount=total_amount,
+                payment_method=payment_method,
+                payment_status='Pending' if payment_method == 'Cash on Delivery' else 'Paid',
+                order_status=ORDER_STATUS_PENDING
+            )
+            db.session.add(order)
+            db.session.flush()
+
+            order_item = OrderItem(
+                order_id=order.id,
+                product_id=product.id,
+                product_name=product.name,
+                sku=product.sku,
+                quantity=quantity,
+                unit_price=unit_price,
+                subtotal=subtotal
+            )
+            db.session.add(order_item)
+
+            prev_stock = product.stock_quantity
+            new_stock = prev_stock - quantity
+            product.stock_quantity = new_stock
+
+            inv_trans = InventoryTransaction(
+                product_id=product.id,
+                transaction_type=INVENTORY_TYPE_SALE,
+                quantity=quantity,
+                previous_quantity=prev_stock,
+                new_quantity=new_stock,
+                reference_type='Order',
+                reference_id=order.id,
+                notes=f"Buy Now Order {order.order_number} placed by user #{user_id}"
+            )
+            db.session.add(inv_trans)
+
+            notif = Notification(
+                user_id=user_id,
+                title="Order Placed Successfully",
+                message=f"Your order {order.order_number} for ₹{total_amount:,.2f} has been placed.",
+                type="success"
+            )
+            db.session.add(notif)
+
+            db.session.commit()
+            return True, "Order placed successfully!", order
+        except Exception as e:
+            db.session.rollback()
+            return False, f"Failed to place order: {str(e)}", None
+
+    @staticmethod
     def update_order_status(order_id, new_status, admin_id):
         order = db.session.get(Order, order_id)
         if not order:

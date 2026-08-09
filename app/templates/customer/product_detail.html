@@ -50,25 +50,66 @@
 
             <p style="color: var(--text-color); margin-bottom: 1.5rem; line-height: 1.7;">{{ product.description }}</p>
 
-            <!-- Add to Cart Form -->
+            <!-- Add to Cart / Buy Now Actions -->
             {% if product.stock_quantity > 0 %}
-                <form method="POST" action="{{ url_for('cart.add_to_cart') }}" style="display: flex; gap: 1rem; align-items: center; margin-bottom: 2rem;">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                    <input type="hidden" name="product_id" value="{{ product.id }}"/>
-
-                    <div class="quantity-control">
-                        <button type="button" onclick="const input = this.nextElementSibling; if(parseInt(input.value) > 1) input.value = parseInt(input.value) - 1;">-</button>
-                        <input type="number" name="quantity" value="1" min="1" max="{{ product.stock_quantity }}" readonly>
-                        <button type="button" onclick="const input = this.previousElementSibling; if(parseInt(input.value) < {{ product.stock_quantity }}) input.value = parseInt(input.value) + 1;">+</button>
+                <div style="margin-bottom: 2rem;">
+                    <!-- Shared quantity control -->
+                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                        <span style="color: var(--text-muted); font-size: 0.9rem; min-width: 65px;">Quantity:</span>
+                        <div class="quantity-control">
+                            <button type="button" id="qty-dec" onclick="changeQty(-1)">-</button>
+                            <input type="number" id="product-qty" value="1" min="1" max="{{ product.stock_quantity }}" readonly>
+                            <button type="button" id="qty-inc" onclick="changeQty(1)">+</button>
+                        </div>
+                        <span id="qty-stock-hint" style="font-size: 0.8rem; color: var(--text-muted);">{{ product.stock_quantity }} available</span>
                     </div>
 
-                    <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem;">Add to Cart</button>
-                </form>
+                    <!-- Two action buttons side by side -->
+                    <div style="display: flex; gap: 0.85rem; flex-wrap: wrap;">
+                        <!-- Add to Cart: secondary, AJAX -->
+                        <button type="button"
+                                id="btn-add-to-cart"
+                                class="btn btn-secondary"
+                                style="flex: 1; min-width: 130px; padding: 0.75rem 1rem;"
+                                onclick="addToCartFromDetail()">
+                            Add to Cart
+                        </button>
+
+                        <!-- Buy Now: primary, POST form submit -->
+                        <form id="buy-now-form" method="POST" action="{{ url_for('cart.buy_now') }}" style="flex: 1; min-width: 130px;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <input type="hidden" name="product_id" value="{{ product.id }}"/>
+                            <input type="hidden" name="quantity" id="buy-now-qty" value="1"/>
+                            <button type="submit" id="btn-buy-now" class="btn btn-primary btn-block" style="padding: 0.75rem 1rem; width: 100%;">
+                                Buy Now
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <script>
+                const STOCK_MAX = {{ product.stock_quantity }};
+
+                function changeQty(delta) {
+                    const input = document.getElementById('product-qty');
+                    const buyNowQty = document.getElementById('buy-now-qty');
+                    let current = parseInt(input.value) || 1;
+                    current = Math.min(Math.max(current + delta, 1), STOCK_MAX);
+                    input.value = current;
+                    if (buyNowQty) buyNowQty.value = current;
+                }
+
+                function addToCartFromDetail() {
+                    const qty = parseInt(document.getElementById('product-qty').value) || 1;
+                    addToCartAjax({{ product.id }}, qty);
+                }
+                </script>
             {% else %}
                 <div class="alert alert-warning" style="margin-bottom: 2rem;">
                     This item is currently out of stock. Contact admin or check back soon.
                 </div>
             {% endif %}
+
 
             <!-- Technical Specifications & Compatibility -->
             <div style="border-top: 1px solid var(--surface-border); padding-top: 1.5rem;">

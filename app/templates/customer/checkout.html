@@ -1,12 +1,23 @@
 {% extends 'base.html' %}
 
-{% block title %}Checkout — SparePro{% endblock %}
+{% block title %}{% if is_buy_now %}Buy Now Checkout{% else %}Checkout{% endif %} — SparePro{% endblock %}
 
 {% block content %}
-<h2 style="margin-bottom: 1.5rem;">Checkout &amp; Order Processing</h2>
+<h2 style="margin-bottom: 1.5rem;">
+    {% if is_buy_now %}
+        Quick Checkout
+    {% else %}
+        Checkout &amp; Order Processing
+    {% endif %}
+</h2>
 
-<form method="POST" action="{{ url_for('orders.checkout') }}">
+{% if is_buy_now %}
+<form method="POST" action="{{ url_for('orders.checkout', mode='buy_now') }}" id="checkout-form">
+{% else %}
+<form method="POST" action="{{ url_for('orders.checkout') }}" id="checkout-form">
+{% endif %}
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <input type="hidden" name="checkout_nonce" value="{{ checkout_nonce }}"/>
 
     <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;" class="checkout-layout">
         <div>
@@ -86,20 +97,50 @@
 
         <!-- Order Items Summary Sidebar -->
         <div class="card checkout-summary-card">
-            <h3>Order Review</h3>
-            <div style="margin: 1rem 0; max-height: 250px; overflow-y: auto;">
-                {% for item in cart.items %}
-                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--surface-border); padding: 0.65rem 0; font-size: 0.88rem;">
-                        <div>
-                            <strong>{{ item.product.name }}</strong>
-                            <div style="color: var(--text-muted);">Qty: {{ item.quantity }} × ₹{{ "{:,.2f}".format(item.unit_price) }}</div>
-                        </div>
-                        <strong>₹{{ "{:,.2f}".format(item.subtotal) }}</strong>
-                    </div>
-                {% endfor %}
-            </div>
+            {% if is_buy_now %}
+                <h3>Quick Purchase Summary</h3>
+                <div style="margin: 1rem 0; padding: 0.75rem; background: rgba(232, 117, 24, 0.07); border-radius: 8px; border-left: 3px solid var(--secondary);">
+                    <div style="font-size: 0.8rem; color: var(--secondary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">Buy Now Order</div>
 
-            <div style="border-top: 1px solid var(--surface-border); padding-top: 1rem;">
+                    <!-- Product Image -->
+                    {% if cart.product.image_url %}
+                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                        <div style="width: 56px; height: 56px; min-width: 56px; background: var(--surface-hover); border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 4px;">
+                            <img src="{{ cart.product.image_url }}" alt="{{ cart.product.name }}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                        </div>
+                        <div>
+                            <strong style="font-size: 0.9rem;">{{ cart.product.name }}</strong>
+                            <div style="color: var(--text-muted); font-size: 0.78rem;">SKU: {{ cart.product.sku }}</div>
+                            <div style="color: var(--text-muted); font-size: 0.78rem;">Brand: {{ cart.product.brand }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div style="display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 0.3rem;">
+                        <span>Unit Price:</span>
+                        <span>₹{{ "{:,.2f}".format(cart.product.effective_price) }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.88rem;">
+                        <span>Quantity:</span>
+                        <span>{{ cart.quantity }}</span>
+                    </div>
+                </div>
+            {% else %}
+                <h3>Order Review</h3>
+                <div style="margin: 1rem 0; max-height: 250px; overflow-y: auto;">
+                    {% for item in cart.items %}
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--surface-border); padding: 0.65rem 0; font-size: 0.88rem;">
+                            <div>
+                                <strong>{{ item.product.name }}</strong>
+                                <div style="color: var(--text-muted);">Qty: {{ item.quantity }} × ₹{{ "{:,.2f}".format(item.unit_price) }}</div>
+                            </div>
+                            <strong>₹{{ "{:,.2f}".format(item.subtotal) }}</strong>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div style="border-top: 1px solid var(--surface-border); padding-top: 1rem; margin-top: 0.5rem;">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                     <span>Subtotal:</span>
                     <span>₹{{ "{:,.2f}".format(cart.subtotal) }}</span>
@@ -118,10 +159,44 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-block" style="margin-top: 1.5rem; padding: 0.85rem;">
-                ✓ Confirm &amp; Place Order
+            <button type="submit" id="place-order-btn" class="btn btn-primary btn-block" style="margin-top: 1.5rem; padding: 0.85rem;">
+                ✓ {% if is_buy_now %}Place Order{% else %}Confirm &amp; Place Order{% endif %}
             </button>
         </div>
     </div>
 </form>
+
+<script>
+(function () {
+    const form = document.getElementById('checkout-form');
+    const btn  = document.getElementById('place-order-btn');
+    if (!form || !btn) return;
+
+    let submitted = false;
+
+    form.addEventListener('submit', function (e) {
+        // Prevent double-submission (e.g. fast double-click)
+        if (submitted) {
+            e.preventDefault();
+            return;
+        }
+        submitted = true;
+
+        // Change button to Processing state AFTER allowing submission
+        // Use requestAnimationFrame so the browser registers the submit first
+        requestAnimationFrame(function () {
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
+        });
+    });
+
+    // If the page reloaded with an error (flash message present), re-enable the button
+    // so the customer can fix their details and try again.
+    const hasError = document.querySelector('.alert-danger, .alert-warning');
+    if (hasError) {
+        btn.disabled = false;
+        submitted = false;
+    }
+})();
+</script>
 {% endblock %}

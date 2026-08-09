@@ -130,3 +130,39 @@ def clear_cart():
         db.session.commit()
         flash('Shopping cart cleared.', 'info')
     return redirect(url_for('cart.view_cart'))
+
+
+@cart_bp.route('/buy-now', methods=['POST'])
+def buy_now():
+    from flask import session
+    product_id = request.form.get('product_id', type=int)
+    quantity = request.form.get('quantity', 1, type=int)
+
+    if not product_id or quantity <= 0:
+        flash('Invalid product selection or quantity.', 'danger')
+        return redirect(url_for('products.list_products'))
+
+    product = Product.query.filter_by(id=product_id, status='active').first()
+    if not product:
+        flash('This product is no longer available.', 'danger')
+        return redirect(url_for('products.list_products'))
+
+    if product.stock_quantity <= 0:
+        flash(f"'{product.name}' is currently out of stock.", 'warning')
+        return redirect(url_for('products.product_detail', product_id=product.id))
+
+    if quantity > product.stock_quantity:
+        flash(f"Only {product.stock_quantity} units are currently available. Please reduce the quantity.", 'warning')
+        return redirect(url_for('products.product_detail', product_id=product.id))
+
+    session['buy_now'] = {
+        'product_id': product.id,
+        'quantity': quantity
+    }
+
+    if not current_user.is_authenticated:
+        flash('Please login to proceed with Buy Now checkout.', 'info')
+        return redirect(url_for('auth.login', next=url_for('orders.checkout', mode='buy_now')))
+
+    return redirect(url_for('orders.checkout', mode='buy_now'))
+

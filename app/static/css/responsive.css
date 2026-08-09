@@ -75,4 +75,9 @@
     .card {
         padding: 1rem;
     }
+
+    /* Stack Buy Now / Add to Cart buttons on very small screens */
+    .product-card .product-actions-row {
+        flex-direction: column;
+    }
 }

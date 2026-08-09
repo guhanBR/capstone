@@ -73,17 +73,31 @@
                     <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.25rem;">SKU: {{ product.sku }}</div>
                     <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.85rem;">Brand: {{ product.brand }}</div>
 
-                    <div style="margin-top: auto; display: flex; align-items: center; justify-content: space-between; padding-top: 0.75rem; border-top: 1px solid var(--surface-border);">
-                        <span style="font-size: 1.2rem; font-weight: 800; color: var(--secondary);">₹{{ "{:,.2f}".format(product.effective_price) }}</span>
+                    <div style="margin-top: auto; padding-top: 0.75rem; border-top: 1px solid var(--surface-border);">
+                        <span style="font-size: 1.2rem; font-weight: 800; color: var(--secondary); display: block; margin-bottom: 0.6rem;">₹{{ "{:,.2f}".format(product.effective_price) }}</span>
 
                         {% if product.stock_quantity > 0 %}
-                            <button type="button" onclick="addToCartAjax({{ product.id }})" class="btn btn-secondary btn-sm" style="font-size: 0.82rem; padding: 0.4rem 0.85rem; border-color: var(--surface-border);">
-                                Add to Cart
-                            </button>
+                            <div style="display: flex; gap: 0.4rem;">
+                                <button type="button"
+                                        onclick="addToCartAjax({{ product.id }})"
+                                        class="btn btn-secondary btn-sm"
+                                        style="flex: 1; font-size: 0.78rem; padding: 0.38rem 0.5rem; border-color: var(--surface-border);">
+                                    Add to Cart
+                                </button>
+                                <form method="POST" action="{{ url_for('cart.buy_now') }}" style="flex: 1;">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                    <input type="hidden" name="product_id" value="{{ product.id }}"/>
+                                    <input type="hidden" name="quantity" value="1"/>
+                                    <button type="submit" class="btn btn-primary btn-sm" style="width: 100%; font-size: 0.78rem; padding: 0.38rem 0.5rem;">
+                                        Buy Now
+                                    </button>
+                                </form>
+                            </div>
                         {% else %}
-                            <button class="btn btn-secondary btn-sm" disabled style="font-size: 0.8rem; opacity: 0.6;">Out of Stock</button>
+                            <button class="btn btn-secondary btn-sm" disabled style="width: 100%; font-size: 0.8rem; opacity: 0.6;">Out of Stock</button>
                         {% endif %}
                     </div>
+
                 </div>
             </div>
         {% endfor %}
