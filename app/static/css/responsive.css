@@ -29,6 +29,42 @@
         z-index: 999;
         box-shadow: 4px 0 15px rgba(0,0,0,0.5);
     }
+
+    /* Account page — sidebar stacks above content */
+    .account-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .account-sidebar {
+        position: static;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0;
+        padding: 0.5rem;
+    }
+
+    .account-sidebar-title {
+        display: none;
+    }
+
+    .account-sidebar-link {
+        border-left: none;
+        border-bottom: 3px solid transparent;
+        padding: 0.5rem 1rem;
+        font-size: 0.88rem;
+        border-radius: 6px;
+    }
+
+    .account-sidebar-link.active {
+        border-left: none;
+        border-bottom-color: var(--secondary);
+        border-radius: 6px 6px 0 0;
+    }
+
+    /* Wishlist grid responsive */
+    .wishlist-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
 }
 
 @media (max-width: 768px) {

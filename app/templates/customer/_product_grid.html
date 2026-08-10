@@ -43,8 +43,17 @@
                                 </form>
                             </div>
                         {% else %}
-                            <button class="btn btn-secondary btn-sm btn-block" disabled style="font-size: 0.78rem; opacity: 0.6; width: 100%;">Out of Stock</button>
+                            <button class="btn btn-secondary btn-sm btn-block" disabled style="font-size: 0.78rem; opacity: 0.6; width: 100%; margin-bottom: 0.4rem;">Out of Stock</button>
                         {% endif %}
+
+                        <div style="display: flex; gap: 0.4rem; margin-top: 0.4rem;">
+                            <form method="POST" action="{{ url_for('customer.wishlist_add', product_id=product.id) }}" style="width: 100%;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <button type="submit" class="btn btn-secondary btn-sm" style="width: 100%; font-size: 0.78rem; padding: 0.35rem 0.5rem; border-color: var(--surface-border);">
+                                    Add to Wishlist
+                                </button>
+                            </form>
+                        </div>
                     </div>
 
                 </div>

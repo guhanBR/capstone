@@ -69,17 +69,30 @@
                                 <span style="font-weight: 700; color: var(--text-color); font-size: 0.88rem;">Hello, {{ current_user.name }}</span>
                             </div>
                             <div class="dropdown-divider"></div>
-                            <a href="{{ url_for('customer.profile') }}" class="dropdown-item">My Profile</a>
+
+                            <div class="dropdown-section-label">Account</div>
+                            <a href="{{ url_for('customer.profile', section='profile') }}" class="dropdown-item">My Profile</a>
                             <a href="{{ url_for('orders.order_history') }}" class="dropdown-item">My Orders</a>
-                            <a href="{{ url_for('products.list_products') }}" class="dropdown-item">Wishlist</a>
-                            <a href="{{ url_for('customer.dashboard') }}" class="dropdown-item">Notifications</a>
-                            <a href="{{ url_for('customer.profile') }}" class="dropdown-item">Account Settings</a>
-                            <a href="{{ url_for('customer.profile') }}" class="dropdown-item">Saved Addresses</a>
-                            <a href="{{ url_for('orders.order_history') }}" class="dropdown-item">My Reviews</a>
+                            <a href="{{ url_for('customer.wishlist') }}" class="dropdown-item">Wishlist</a>
+                            <a href="{{ url_for('customer.my_reviews') }}" class="dropdown-item">My Reviews</a>
+
                             <div class="dropdown-divider"></div>
+                            <div class="dropdown-section-label">Activity</div>
+                            <a href="{{ url_for('customer.notifications') }}" class="dropdown-item dropdown-item-notif">
+                                Notifications
+                                {% if unread_notifications > 0 %}
+                                    <span class="dropdown-notif-badge">{{ unread_notifications }}</span>
+                                {% endif %}
+                            </a>
+
+                            <div class="dropdown-divider"></div>
+                            <div class="dropdown-section-label">Settings</div>
+                            <a href="{{ url_for('customer.profile', section='settings') }}" class="dropdown-item">Account Settings</a>
+                            <a href="{{ url_for('customer.profile', section='addresses') }}" class="dropdown-item">Saved Addresses</a>
                             <button type="button" class="dropdown-item" onclick="toggleTheme()">
                                 Light Mode / Dark Mode
                             </button>
+
                             <div class="dropdown-divider"></div>
                             {% if current_user.is_admin %}
                                 <a href="{{ url_for('admin.dashboard') }}" class="dropdown-item" style="color: var(--secondary); font-weight: 600;">Admin Panel</a>

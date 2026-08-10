@@ -141,9 +141,10 @@ def create_app(config_name=None):
             return jsonify({'success': False, 'message': 'Internal Server Error'}), 500
         return render_template('errors/500.html'), 500
 
-    # Inject global context variables (e.g. cart count, categories)
+    # Inject global context variables (e.g. cart count, categories, current time)
     @app.context_processor
     def inject_globals():
+        from datetime import datetime
         from flask_login import current_user
         from app.models.category import Category
         from app.models.notification import Notification
@@ -159,7 +160,8 @@ def create_app(config_name=None):
         return dict(
             categories=categories,
             cart_count=cart_count,
-            unread_notifications=unread_notifications
+            unread_notifications=unread_notifications,
+            now=datetime.utcnow()
         )
 
     # Ensure upload directory exists

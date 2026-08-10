@@ -197,6 +197,367 @@ a:hover {
     background-color: rgba(239, 68, 68, 0.1);
 }
 
+/* Dropdown section labels */
+.account-dropdown-menu .dropdown-section-label {
+    padding: 0.4rem 1rem 0.2rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+}
+
+/* Notification item with badge */
+.account-dropdown-menu .dropdown-item-notif {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dropdown-notif-badge {
+    background-color: var(--secondary);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ─── ACCOUNT PAGE LAYOUT ─── */
+.account-layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.account-sidebar {
+    background-color: var(--surface);
+    border: 1px solid var(--surface-border);
+    border-radius: 12px;
+    padding: 1rem 0;
+    position: sticky;
+    top: 90px;
+}
+
+.account-sidebar-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+    padding: 0.5rem 1.25rem 0.25rem;
+}
+
+.account-sidebar-link {
+    display: block;
+    padding: 0.6rem 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-color);
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    transition: all 0.15s ease;
+}
+
+.account-sidebar-link:hover {
+    background-color: var(--surface-hover);
+    color: var(--secondary);
+}
+
+.account-sidebar-link.active {
+    border-left-color: var(--secondary);
+    color: var(--secondary);
+    background-color: var(--surface-hover);
+    font-weight: 600;
+}
+
+.account-content-panel {
+    min-width: 0;
+}
+
+.account-section-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--surface-border);
+    color: var(--text-color);
+}
+
+/* ─── WISHLIST ITEMS ─── */
+.wishlist-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.5rem;
+}
+
+.wishlist-card {
+    background-color: var(--surface);
+    border: 1px solid var(--surface-border);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.wishlist-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--secondary);
+}
+
+.wishlist-card-img {
+    height: 160px;
+    background-color: var(--surface-hover);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.wishlist-card-img img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.wishlist-card-body {
+    padding: 1rem 1.25rem 1.25rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.wishlist-card-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+/* ─── NOTIFICATION ITEMS ─── */
+.notif-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.notif-item {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--surface-border);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+    transition: background-color 0.15s ease;
+    cursor: default;
+}
+
+.notif-item:last-child {
+    border-bottom: none;
+}
+
+.notif-item.unread {
+    background-color: rgba(232, 117, 24, 0.06);
+}
+
+.notif-item:hover {
+    background-color: var(--surface-hover);
+}
+
+.notif-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--secondary);
+    flex-shrink: 0;
+    margin-top: 6px;
+}
+
+.notif-dot.read {
+    background-color: var(--surface-border);
+}
+
+.notif-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.notif-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-color);
+    margin-bottom: 0.2rem;
+}
+
+.notif-item.read .notif-title {
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.notif-message {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 0.3rem;
+}
+
+.notif-time {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    opacity: 0.75;
+}
+
+.notif-mark-read-btn {
+    font-size: 0.75rem;
+    color: var(--secondary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    white-space: nowrap;
+    flex-shrink: 0;
+    align-self: center;
+    text-decoration: underline;
+    opacity: 0.8;
+}
+
+.notif-mark-read-btn:hover {
+    opacity: 1;
+}
+
+/* ─── REVIEW CARDS ─── */
+.review-card {
+    background-color: var(--surface);
+    border: 1px solid var(--surface-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.review-product-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 0.35rem;
+}
+
+.review-stars {
+    color: var(--warning);
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    letter-spacing: 1px;
+}
+
+.review-text {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-bottom: 0.75rem;
+    line-height: 1.6;
+}
+
+.review-date {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+.review-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+/* Edit review inline form */
+.review-edit-form {
+    display: none;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--surface-border);
+}
+
+.review-edit-form.open {
+    display: block;
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: var(--text-muted);
+}
+
+.empty-state p {
+    font-size: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+/* Address cards */
+.address-card {
+    border: 1px solid var(--surface-border);
+    border-radius: 10px;
+    padding: 1.1rem 1.25rem;
+    margin-bottom: 1rem;
+    position: relative;
+    background-color: var(--surface);
+    transition: border-color 0.2s ease;
+}
+
+.address-card.is-default {
+    border-color: var(--secondary);
+}
+
+.address-card-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-bottom: 0.1rem;
+}
+
+.address-card-detail {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+.address-card-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.85rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Inline edit form */
+.address-edit-form {
+    display: none;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--surface-border);
+}
+
+.address-edit-form.open {
+    display: block;
+}
+
+/* Page header row */
+.page-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.75rem;
+}
+
+.page-header-row h1 {
+    font-size: 1.6rem;
+    margin: 0;
+}
+
+
 /* MAIN CONTENT */
 .main-wrapper {
     flex: 1;

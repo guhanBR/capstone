@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Notifications — SparePro{% endblock %}
+
+{% block content %}
+<div class="page-header-row">
+    <h1>Notifications</h1>
+    {% if notifications %}
+    <form method="POST" action="{{ url_for('customer.notification_mark_all_read') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <button type="submit" class="btn btn-secondary btn-sm">Mark All as Read</button>
+    </form>
+    {% endif %}
+</div>
+
+<div class="card" style="padding:0; overflow:hidden;">
+    {% if notifications %}
+    <div class="notif-list">
+        {% for notif in notifications %}
+        <div class="notif-item {% if not notif.is_read %}unread{% else %}read{% endif %}">
+            <div class="notif-dot {% if notif.is_read %}read{% endif %}"></div>
+
+            <div class="notif-body">
+                <div class="notif-title">{{ notif.title }}</div>
+                <div class="notif-message">{{ notif.message }}</div>
+                <div class="notif-time">
+                    {% set delta = (now - notif.created_at).total_seconds() if notif.created_at else 0 %}
+                    {% if delta < 60 %}
+                        Just now
+                    {% elif delta < 3600 %}
+                        {{ (delta // 60)|int }} min ago
+                    {% elif delta < 86400 %}
+                        {{ (delta // 3600)|int }} hour{{ 's' if (delta // 3600)|int != 1 else '' }} ago
+                    {% elif delta < 172800 %}
+                        Yesterday
+                    {% else %}
+                        {{ notif.created_at.strftime('%d %b %Y') }}
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if not notif.is_read %}
+            <form method="POST" action="{{ url_for('customer.notification_mark_read', notif_id=notif.id) }}"
+                  style="align-self:center;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <button type="submit" class="notif-mark-read-btn">Mark read</button>
+            </form>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>You have no notifications yet.</p>
+        <a href="{{ url_for('products.list_products') }}" class="btn btn-secondary btn-sm">Browse Products</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Inject current server time for client-side use if needed
+// Time calculations are done server-side via Jinja2
+</script>
+{% endblock %}

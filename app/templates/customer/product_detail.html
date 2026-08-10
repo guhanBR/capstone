@@ -65,7 +65,7 @@
                     </div>
 
                     <!-- Two action buttons side by side -->
-                    <div style="display: flex; gap: 0.85rem; flex-wrap: wrap;">
+                    <div style="display: flex; gap: 0.85rem; flex-wrap: wrap; margin-bottom: 0.85rem;">
                         <!-- Add to Cart: secondary, AJAX -->
                         <button type="button"
                                 id="btn-add-to-cart"
@@ -85,6 +85,14 @@
                             </button>
                         </form>
                     </div>
+
+                    <!-- Add to Wishlist -->
+                    <form method="POST" action="{{ url_for('customer.wishlist_add', product_id=product.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <button type="submit" class="btn btn-secondary" style="width: 100%; padding: 0.65rem 1rem; border-color: var(--surface-border);">
+                            Add to Wishlist
+                        </button>
+                    </form>
                 </div>
 
                 <script>
@@ -105,9 +113,15 @@
                 }
                 </script>
             {% else %}
-                <div class="alert alert-warning" style="margin-bottom: 2rem;">
+                <div class="alert alert-warning" style="margin-bottom: 1rem;">
                     This item is currently out of stock. Contact admin or check back soon.
                 </div>
+                <form method="POST" action="{{ url_for('customer.wishlist_add', product_id=product.id) }}" style="margin-bottom: 2rem;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <button type="submit" class="btn btn-secondary" style="width: 100%; padding: 0.65rem 1rem; border-color: var(--surface-border);">
+                        Add to Wishlist
+                    </button>
+                </form>
             {% endif %}
 
 

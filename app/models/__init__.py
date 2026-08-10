@@ -8,6 +8,7 @@ from app.models.review import Review
 from app.models.inventory import InventoryTransaction
 from app.models.notification import Notification
 from app.models.audit_log import AuditLog
+from app.models.wishlist import Wishlist
 
 __all__ = [
     'User',
@@ -21,5 +22,6 @@ __all__ = [
     'Review',
     'InventoryTransaction',
     'Notification',
-    'AuditLog'
+    'AuditLog',
+    'Wishlist'
 ]

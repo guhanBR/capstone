@@ -1,107 +1,207 @@
 {% extends 'base.html' %}
 
-{% block title %}My Profile &amp; Addresses — SparePro{% endblock %}
+{% block title %}My Account — SparePro{% endblock %}
 
 {% block content %}
-<h2 style="margin-bottom: 1.5rem;">My Profile &amp; Addresses</h2>
+<div class="page-header-row">
+    <h1>My Account</h1>
+</div>
 
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-    <!-- Profile Info & Change Password -->
-    <div>
-        <div class="card" style="margin-bottom: 2rem;">
-            <h3>Update Profile</h3>
-            <form method="POST" action="{{ url_for('customer.profile') }}">
+<div class="account-layout">
+
+    <!-- LEFT SIDEBAR NAV -->
+    <aside class="account-sidebar">
+        <div class="account-sidebar-title">Account</div>
+        <a href="{{ url_for('customer.profile', section='profile') }}"
+           class="account-sidebar-link {% if active_section == 'profile' %}active{% endif %}">
+            My Profile
+        </a>
+        <a href="{{ url_for('customer.profile', section='settings') }}"
+           class="account-sidebar-link {% if active_section == 'settings' %}active{% endif %}">
+            Account Settings
+        </a>
+        <a href="{{ url_for('customer.profile', section='addresses') }}"
+           class="account-sidebar-link {% if active_section == 'addresses' %}active{% endif %}">
+            Saved Addresses
+        </a>
+    </aside>
+
+    <!-- RIGHT CONTENT PANEL -->
+    <div class="account-content-panel">
+
+        <!-- ── PROFILE SECTION ── -->
+        {% if active_section == 'profile' %}
+        <div class="account-section-title">My Profile</div>
+        <div class="card">
+            <form method="POST" action="{{ url_for('customer.profile', section='profile') }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <input type="hidden" name="action" value="update_profile"/>
 
                 <div class="form-group">
                     <label class="form-label">Full Name</label>
-                    <input type="text" name="name" class="form-control" value="{{ current_user.name }}" required>
+                    <input type="text" name="name" class="form-control" value="{{ current_user.name }}" required placeholder="Your full name">
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Email Address (Read-only)</label>
-                    <input type="email" class="form-control" value="{{ current_user.email }}" disabled>
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-control" value="{{ current_user.email }}" disabled
+                           style="opacity: 0.65; cursor: not-allowed;">
+                    <small style="color: var(--text-muted); font-size: 0.78rem;">Email cannot be changed. Contact support if needed.</small>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Phone Number</label>
-                    <input type="text" name="phone" class="form-control" value="{{ current_user.phone }}" required>
+                    <input type="text" name="phone" class="form-control" value="{{ current_user.phone }}" required placeholder="10-digit mobile number">
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-sm">Save Changes</button>
+                <div style="display:flex; align-items:center; gap:1rem; margin-top:0.5rem;">
+                    <button type="submit" class="btn btn-primary btn-sm">Save Changes</button>
+                    <span style="font-size:0.8rem; color:var(--text-muted);">Member since {{ current_user.created_at.strftime('%b %Y') if current_user.created_at else 'N/A' }}</span>
+                </div>
             </form>
         </div>
 
+        <!-- ── SETTINGS SECTION ── -->
+        {% elif active_section == 'settings' %}
+        <div class="account-section-title">Account Settings</div>
         <div class="card">
-            <h3>Change Password</h3>
-            <form method="POST" action="{{ url_for('customer.profile') }}">
+            <h3 style="font-size:1rem; margin-bottom:1.25rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Security — Change Password</h3>
+            <form method="POST" action="{{ url_for('customer.profile', section='settings') }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <input type="hidden" name="action" value="change_password"/>
 
                 <div class="form-group">
                     <label class="form-label">Current Password</label>
-                    <input type="password" name="old_password" class="form-control" required>
+                    <input type="password" name="old_password" class="form-control" required placeholder="Enter current password">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">New Password</label>
-                    <input type="password" name="new_password" class="form-control" minlength="6" required>
+                    <input type="password" name="new_password" class="form-control" minlength="6" required placeholder="Min. 6 characters">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Confirm New Password</label>
-                    <input type="password" name="confirm_password" class="form-control" required>
+                    <input type="password" name="confirm_password" class="form-control" required placeholder="Re-enter new password">
                 </div>
 
-                <button type="submit" class="btn btn-secondary btn-sm">Update Password</button>
+                <button type="submit" class="btn btn-primary btn-sm">Change Password</button>
             </form>
         </div>
-    </div>
 
-    <!-- Saved Addresses & Add Address -->
-    <div>
-        <div class="card" style="margin-bottom: 2rem;">
-            <h3>Saved Delivery Addresses</h3>
-            {% if addresses %}
-                <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
-                    {% for addr in addresses %}
-                        <div style="border: 1px solid var(--surface-border); border-radius: 8px; padding: 1rem; position: relative;">
-                            {% if addr.is_default %}
-                                <span class="status-badge badge-active" style="position: absolute; top: 10px; right: 10px;">Default</span>
-                            {% endif %}
-                            <strong>{{ addr.full_name }}</strong> ({{ addr.phone }})
-                            <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.3rem;">
-                                {{ addr.address_line_1 }}{% if addr.address_line_2 %}, {{ addr.address_line_2 }}{% endif %}<br>
-                                {{ addr.city }}, {{ addr.state }} - {{ addr.postal_code }}<br>
-                                {{ addr.country }}
-                            </p>
-                            <form method="POST" action="{{ url_for('customer.delete_address', address_id=addr.id) }}" style="margin-top: 0.5rem;">
-                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                <button type="submit" class="btn btn-danger btn-sm" data-confirm="Delete this address?">Delete</button>
-                            </form>
-                        </div>
-                    {% endfor %}
+        <!-- ── ADDRESSES SECTION ── -->
+        {% elif active_section == 'addresses' %}
+        <div class="account-section-title">Saved Addresses</div>
+
+        <!-- Existing addresses -->
+        {% if addresses %}
+            {% for addr in addresses %}
+            <div class="address-card {% if addr.is_default %}is-default{% endif %}">
+                {% if addr.is_default %}
+                    <span class="status-badge badge-active" style="position:absolute; top:12px; right:12px;">Default</span>
+                {% endif %}
+                <div class="address-card-name">{{ addr.full_name }}</div>
+                <div class="address-card-detail">
+                    {{ addr.address_line_1 }}{% if addr.address_line_2 %}, {{ addr.address_line_2 }}{% endif %}<br>
+                    {{ addr.city }}, {{ addr.state }} — {{ addr.postal_code }}<br>
+                    {{ addr.country }}<br>
+                    Phone: {{ addr.phone }}
                 </div>
-            {% else %}
-                <p style="color: var(--text-muted); padding: 1rem 0;">No shipping addresses saved yet.</p>
-            {% endif %}
-        </div>
+                <div class="address-card-actions">
+                    <button type="button" class="btn btn-secondary btn-sm"
+                            onclick="toggleAddressEdit({{ addr.id }})">Edit</button>
 
-        <div class="card">
-            <h3>Add New Shipping Address</h3>
-            <form method="POST" action="{{ url_for('customer.profile') }}">
+                    {% if not addr.is_default %}
+                    <form method="POST" action="{{ url_for('customer.set_default_address', address_id=addr.id) }}" style="display:inline;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <button type="submit" class="btn btn-secondary btn-sm">Set as Default</button>
+                    </form>
+                    {% endif %}
+
+                    <form method="POST" action="{{ url_for('customer.delete_address', address_id=addr.id) }}" style="display:inline;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <button type="submit" class="btn btn-danger btn-sm"
+                                data-confirm="Delete this address?">Delete</button>
+                    </form>
+                </div>
+
+                <!-- Inline Edit Form -->
+                <div class="address-edit-form" id="edit-form-{{ addr.id }}">
+                    <form method="POST" action="{{ url_for('customer.profile', section='addresses') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <input type="hidden" name="action" value="edit_address"/>
+                        <input type="hidden" name="address_id" value="{{ addr.id }}"/>
+
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:0.5rem;">
+                            <div class="form-group">
+                                <label class="form-label">Recipient Name</label>
+                                <input type="text" name="full_name" class="form-control" value="{{ addr.full_name }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Phone</label>
+                                <input type="text" name="phone" class="form-control" value="{{ addr.phone }}" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Address Line 1</label>
+                            <input type="text" name="address_line_1" class="form-control" value="{{ addr.address_line_1 }}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Address Line 2 (Optional)</label>
+                            <input type="text" name="address_line_2" class="form-control" value="{{ addr.address_line_2 or '' }}">
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem;">
+                            <div class="form-group">
+                                <label class="form-label">City</label>
+                                <input type="text" name="city" class="form-control" value="{{ addr.city }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">State</label>
+                                <input type="text" name="state" class="form-control" value="{{ addr.state }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Pincode</label>
+                                <input type="text" name="postal_code" class="form-control" value="{{ addr.postal_code }}" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Country</label>
+                            <input type="text" name="country" class="form-control" value="{{ addr.country }}" required>
+                        </div>
+
+                        <div style="display:flex; gap:0.5rem;">
+                            <button type="submit" class="btn btn-primary btn-sm">Save Changes</button>
+                            <button type="button" class="btn btn-secondary btn-sm"
+                                    onclick="toggleAddressEdit({{ addr.id }})">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p style="color:var(--text-muted); margin-bottom:1.5rem;">You have no saved addresses yet.</p>
+        {% endif %}
+
+        <!-- Add New Address Form -->
+        <div class="card" style="margin-top:1.5rem;">
+            <h3 style="font-size:0.95rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); margin-bottom:1.25rem;">+ Add New Address</h3>
+            <form method="POST" action="{{ url_for('customer.profile', section='addresses') }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <input type="hidden" name="action" value="add_address"/>
 
-                <div class="form-group">
-                    <label class="form-label">Recipient Name</label>
-                    <input type="text" name="full_name" class="form-control" placeholder="e.g. Workshop Storekeeper" required>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Phone Number</label>
-                    <input type="text" name="phone" class="form-control" placeholder="10-digit mobile number" required>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Recipient Name</label>
+                        <input type="text" name="full_name" class="form-control" placeholder="e.g. Workshop Storekeeper" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <input type="text" name="phone" class="form-control" placeholder="10-digit mobile number" required>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -114,7 +214,7 @@
                     <input type="text" name="address_line_2" class="form-control" placeholder="Landmark / Industrial Area">
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem;">
                     <div class="form-group">
                         <label class="form-label">City</label>
                         <input type="text" name="city" class="form-control" required>
@@ -123,28 +223,40 @@
                         <label class="form-label">State</label>
                         <input type="text" name="state" class="form-control" required>
                     </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                     <div class="form-group">
-                        <label class="form-label">Pincode / Postal Code</label>
+                        <label class="form-label">Pincode</label>
                         <input type="text" name="postal_code" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Country</label>
-                        <input type="text" name="country" class="form-control" value="India" required>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                        <input type="checkbox" name="is_default" value="1"> Make this my default shipping address
+                    <label class="form-label">Country</label>
+                    <input type="text" name="country" class="form-control" value="India" required>
+                </div>
+
+                <div class="form-group">
+                    <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.9rem;">
+                        <input type="checkbox" name="is_default" value="1">
+                        Make this my default address
                     </label>
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-sm">Save Address</button>
             </form>
         </div>
-    </div>
-</div>
+        {% endif %}
+
+    </div><!-- /account-content-panel -->
+</div><!-- /account-layout -->
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleAddressEdit(id) {
+    const form = document.getElementById('edit-form-' + id);
+    if (form) {
+        form.classList.toggle('open');
+    }
+}
+</script>
 {% endblock %}
