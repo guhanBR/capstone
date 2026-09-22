@@ -189,57 +189,67 @@ def seed():
         ]
 
         sku_image_map = {
+            # Bearings — AI-generated realistic photos (PNG)
             "BRG-6203-OPEN": "bearings/6203-bearing.jpg",
-            "BRG-6203-2RS": "bearings/6203-2rs.jpg",
-            "BRG-6203-ZZ": "bearings/6203-zz.jpg",
+            "BRG-6203-2RS":  "bearings/6203-2rs.jpg",
+            "BRG-6203-ZZ":   "bearings/6203-zz.jpg",
             "BRG-6204-OPEN": "bearings/6204.jpg",
-            "BRG-6204-2RS": "bearings/6204-2rs.jpg",
+            "BRG-6204-2RS":  "bearings/6204-2rs.jpg",
             "BRG-6205-OPEN": "bearings/6205.jpg",
-            "BRG-6306-OPEN": "bearings/6306.jpg",
+            "BRG-6306-OPEN": "bearings/6306.svg",
 
-            "SEAL-25-STD": "mechanical-seals/seal-25mm.jpg",
-            "SEAL-25-PREM": "mechanical-seals/seal-25mm-prem.jpg",
-            "SEAL-25-CER": "mechanical-seals/seal-ceramic.jpg",
-            "SEAL-32-STD": "mechanical-seals/seal-32mm.jpg",
-            "SEAL-19-SUB": "mechanical-seals/seal-19mm-sub.jpg",
+            # Mechanical Seals
+            "SEAL-25-STD":  "mechanical-seals/seal-25mm.svg",
+            "SEAL-25-PREM": "mechanical-seals/seal-25mm-prem.svg",
+            "SEAL-25-CER":  "mechanical-seals/seal-ceramic.svg",
+            "SEAL-32-STD":  "mechanical-seals/seal-32mm.svg",
+            "SEAL-19-SUB":  "mechanical-seals/seal-19mm-sub.svg",
 
-            "CAP-36MFD-450": "capacitors/cap-36mfd.jpg",
-            "CAP-50MFD-450": "capacitors/cap-50mfd.jpg",
-            "CAP-72MFD-450": "capacitors/cap-72mfd.jpg",
-            "CAP-120-150": "capacitors/cap-150mfd.jpg",
+            # Capacitors
+            "CAP-36MFD-450": "capacitors/cap-36mfd.svg",
+            "CAP-50MFD-450": "capacitors/cap-50mfd.svg",
+            "CAP-72MFD-450": "capacitors/cap-72mfd.svg",
+            "CAP-120-150":   "capacitors/cap-150mfd.svg",
 
-            "IMP-100-BRZ": "impellers/impeller-100mm-bronze.jpg",
-            "IMP-125-CI": "impellers/impeller-125mm-ci.jpg",
-            "IMP-140-SS": "impellers/impeller-140mm-ss.jpg",
-            "IMP-SUB-NORYL": "impellers/impeller-noryl.jpg",
+            # Impellers
+            "IMP-100-BRZ":   "impellers/impeller-100mm-bronze.svg",
+            "IMP-125-CI":    "impellers/impeller-125mm-ci.svg",
+            "IMP-140-SS":    "impellers/impeller-140mm-ss.svg",
+            "IMP-SUB-NORYL": "impellers/impeller-noryl.svg",
 
-            "SFT-16-SS304": "pump-shafts/shaft-16mm.jpg",
-            "SFT-20-SS316": "pump-shafts/shaft-20mm.jpg",
-            "SFT-14-HEX": "pump-shafts/shaft-14mm-hex.jpg",
+            # Pump Shafts
+            "SFT-16-SS304": "pump-shafts/shaft-16mm.svg",
+            "SFT-20-SS316": "pump-shafts/shaft-20mm.svg",
+            "SFT-14-HEX":   "pump-shafts/shaft-14mm-hex.svg",
 
-            "FAN-MOTOR-1HP": "motor-parts/fan-1hp.jpg",
-            "FAN-MOTOR-3HP": "motor-parts/fan-3hp.jpg",
-            "TRM-BLK-6PIN": "motor-parts/terminal-block-6pin.jpg",
-            "JNC-BOX-CVR": "motor-parts/junction-box.jpg",
-            "CSW-1HP-2P": "motor-parts/centrifugal-switch.jpg",
+            # Motor Parts
+            "FAN-MOTOR-1HP": "motor-parts/fan-1hp.svg",
+            "FAN-MOTOR-3HP": "motor-parts/fan-3hp.svg",
+            "TRM-BLK-6PIN":  "motor-parts/terminal-block-6pin.svg",
+            "JNC-BOX-CVR":   "motor-parts/junction-box.svg",
+            "CSW-1HP-2P":    "motor-parts/centrifugal-switch.svg",
 
-            "GSK-50MM-RUB": "gaskets/gasket-50mm.jpg",
-            "GSK-ORING-CAS": "gaskets/oring-casing.jpg",
-            "GSK-80MM-AF": "gaskets/gasket-80mm-af.jpg",
+            # Gaskets
+            "GSK-50MM-RUB":  "gaskets/gasket-50mm.svg",
+            "GSK-ORING-CAS": "gaskets/oring-casing.svg",
+            "GSK-80MM-AF":   "gaskets/gasket-80mm-af.svg",
 
-            "CPL-L095-SET": "couplings/coupling-l095.jpg",
-            "CPL-L095-SPDR": "couplings/spider-insert-l095.jpg",
-            "CPL-PIN-F4": "couplings/pin-bush-f4.jpg",
+            # Couplings
+            "CPL-L095-SET":  "couplings/coupling-l095.svg",
+            "CPL-L095-SPDR": "couplings/spider-insert-l095.svg",
+            "CPL-PIN-F4":    "couplings/pin-bush-f4.svg",
 
-            "ELC-TOR-9-13A": "electrical-components/thermal-relay.jpg",
-            "ELC-CNT-18A": "electrical-components/ac-contactor.jpg",
-            "ELC-SPP-415V": "electrical-components/phase-preventer.jpg",
+            # Electrical Components
+            "ELC-TOR-9-13A": "electrical-components/thermal-relay.svg",
+            "ELC-CNT-18A":   "electrical-components/ac-contactor.svg",
+            "ELC-SPP-415V":  "electrical-components/phase-preventer.svg",
 
-            "FST-NUT-M12-SS": "fasteners/impeller-nut-m12.jpg",
-            "FST-BLT-M8-40": "fasteners/motor-bolts-m8.jpg",
-            "FST-KEY-6X6X30": "fasteners/shaft-key-6x6.jpg",
-            "FST-CIR-20MM": "fasteners/circlip-20mm.jpg",
-            "LUB-SEAL-GREASE": "fasteners/seal-grease.jpg"
+            # Fasteners & Hardware
+            "FST-NUT-M12-SS":  "fasteners/impeller-nut-m12.svg",
+            "FST-BLT-M8-40":   "fasteners/motor-bolts-m8.svg",
+            "FST-KEY-6X6X30":  "fasteners/shaft-key-6x6.svg",
+            "FST-CIR-20MM":    "fasteners/circlip-20mm.svg",
+            "LUB-SEAL-GREASE": "fasteners/seal-grease.svg",
         }
 
         products_list = []

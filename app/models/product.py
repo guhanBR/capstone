@@ -17,7 +17,7 @@ class Product(db.Model):
     discount_price = db.Column(db.Numeric(10, 2), nullable=True)
     stock_quantity = db.Column(db.Integer, nullable=False, default=0)
     minimum_stock_level = db.Column(db.Integer, nullable=False, default=5)
-    image = db.Column(db.String(255), default='placeholder.png')
+    image = db.Column(db.String(255), nullable=True, default=None)
     status = db.Column(db.String(20), nullable=False, default='active')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -54,12 +54,18 @@ class Product(db.Model):
 
     @property
     def image_url(self):
+        """Return a URL for this product's image.
+        Supports: absolute URLs, /static/ paths, subdirectory paths like
+        'bearings/6203.jpg' or 'bearings/6203.svg', and bare filenames.
+        Returns a professional placeholder SVG path when no image is set.
+        """
         if not self.image:
-            return '/static/images/products/placeholder.png'
+            return '/static/images/products/placeholder.svg'
         if self.image.startswith(('http://', 'https://', '/')):
             return self.image
         if self.image.startswith('static/'):
             return f'/{self.image}'
+        # Subdirectory path like 'bearings/6203.svg' or bare 'bearing.jpg'
         return f'/static/images/products/{self.image}'
 
     def to_dict(self):

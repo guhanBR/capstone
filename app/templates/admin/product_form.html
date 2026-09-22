@@ -99,30 +99,66 @@
                 </div>
 
                 <!-- Product Image Management Section -->
-                <div style="border: 1px dashed var(--surface-border); padding: 1.25rem; border-radius: 8px; margin-bottom: 1.25rem; background: var(--surface-hover);">
-                    <h4 style="font-size: 0.95rem; margin-bottom: 1rem; color: var(--secondary);">Product Image Upload &amp; Settings</h4>
-                    
-                    <div style="display: grid; grid-template-columns: 120px 1fr 1fr; gap: 1.5rem; align-items: start;">
-                        <!-- Preview Thumbnail -->
-                        <div>
-                            <label class="form-label" style="font-size: 0.8rem;">Current Preview</label>
-                            <div style="width: 100px; height: 100px; border: 1px solid var(--surface-border); border-radius: 8px; background: #ffffff; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 4px;">
-                                <img id="image-preview" src="{% if product %}{{ product.image_url }}{% else %}/static/images/products/placeholder.png{% endif %}" alt="Preview" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                <div style="border: 1px solid var(--surface-border); border-radius: 10px; margin-bottom: 1.25rem; overflow: hidden;">
+                    <div style="background: var(--surface-hover); padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--surface-border);">
+                        <h4 style="font-size: 0.95rem; margin: 0; color: var(--secondary);">Product Image</h4>
+                    </div>
+                    <div style="padding: 1.25rem;">
+                        <div style="display: grid; grid-template-columns: 160px 1fr; gap: 1.5rem; align-items: start;">
+                            <!-- Image Preview Box -->
+                            <div>
+                                <label class="form-label" style="font-size: 0.8rem; margin-bottom: 0.5rem; display: block;">Current Image</label>
+                                <div id="image-preview-box" style="width: 150px; height: 150px; border: 2px solid var(--surface-border); border-radius: 10px; background: #ffffff; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 6px; position: relative;">
+                                    <img id="image-preview"
+                                         src="{% if product and product.image %}{{ product.image_url }}{% else %}/static/images/products/placeholder.svg{% endif %}"
+                                         alt="Product Image Preview"
+                                         style="max-width: 100%; max-height: 100%; object-fit: contain;"
+                                         onerror="this.src='/static/images/products/placeholder.svg'">
+                                </div>
+                                {% if product and product.image %}
+                                    <div style="margin-top: 0.6rem;">
+                                        <span style="font-size: 0.72rem; color: var(--text-muted); display: block; word-break: break-all;">{{ product.image }}</span>
+                                    </div>
+                                {% endif %}
                             </div>
-                        </div>
 
-                        <!-- File Upload -->
-                        <div class="form-group">
-                            <label class="form-label">Upload New Product Image File</label>
-                            <input type="file" name="image_file" id="image_file_input" class="form-control" accept="image/*" onchange="previewSelectedImage(this)">
-                            <small style="color: var(--text-muted); display: block; margin-top: 0.4rem; font-size: 0.78rem;">Upload PNG, JPG, WEBP, or SVG file (Max: 16MB)</small>
-                        </div>
+                            <!-- Upload Controls -->
+                            <div>
+                                <div class="form-group" style="margin-bottom: 1rem;">
+                                    <label class="form-label">Upload New Image</label>
+                                    <input type="file" name="image_file" id="image_file_input" class="form-control"
+                                           accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                                           onchange="previewSelectedImage(this)">
+                                    <small style="color: var(--text-muted); display: block; margin-top: 0.4rem; font-size: 0.78rem;">
+                                        Accepted formats: JPG, JPEG, PNG, WEBP &nbsp;|&nbsp; Max size: 16 MB
+                                    </small>
+                                </div>
 
-                        <!-- Filename / External URL Input -->
-                        <div class="form-group">
-                            <label class="form-label">Or Image Filename / External URL</label>
-                            <input type="text" name="image" id="image_url_input" class="form-control" value="{{ product.image if product else 'placeholder.png' }}" placeholder="e.g. bearing.svg or https://..." onchange="updatePreviewFromUrl(this.value)">
-                            <small style="color: var(--text-muted); display: block; margin-top: 0.4rem; font-size: 0.78rem;">Custom image URL or static filename fallback</small>
+                                <div class="form-group" style="margin-bottom: 1rem;">
+                                    <label class="form-label">Or use existing filename / external URL</label>
+                                    <input type="text" name="image" id="image_url_input" class="form-control"
+                                           value="{{ product.image if product and product.image else '' }}"
+                                           placeholder="e.g. bearings/6203-bearing.jpg  or  https://..."
+                                           onchange="updatePreviewFromUrl(this.value)">
+                                    <small style="color: var(--text-muted); display: block; margin-top: 0.4rem; font-size: 0.78rem;">
+                                        Relative path from <code>static/images/products/</code> or full URL
+                                    </small>
+                                </div>
+
+                                {% if product and product.image %}
+                                <div style="padding: 0.75rem; background: rgba(255,100,80,0.08); border: 1px solid rgba(255,100,80,0.25); border-radius: 8px;">
+                                    <p style="margin: 0 0 0.6rem; font-size: 0.85rem; color: var(--text-muted);">Remove the current image and show a placeholder instead:</p>
+                                    <form method="POST"
+                                          action="{{ url_for('admin.product_remove_image', product_id=product.id) }}"
+                                          onsubmit="return confirm('Remove this product image? The product will show a placeholder until you upload a new one. (The product itself will NOT be deleted.)')">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        <button type="submit" class="btn btn-danger btn-sm">
+                                            Remove Image
+                                        </button>
+                                    </form>
+                                </div>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -140,21 +176,35 @@
                     <a href="{{ url_for('admin.products') }}" class="btn btn-secondary">Cancel</a>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
 
 <script>
 function previewSelectedImage(input) {
     if (input.files && input.files[0]) {
+        const file = input.files[0];
+        // Client-side format validation
+        const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+        if (!allowed.includes(file.type)) {
+            alert('Invalid file type. Only JPG, JPEG, PNG, and WEBP images are allowed.');
+            input.value = '';
+            return;
+        }
         const reader = new FileReader();
         reader.onload = function(e) {
             document.getElementById('image-preview').src = e.target.result;
         };
-        reader.readAsDataURL(input.files[0]);
+        reader.readAsDataURL(file);
     }
 }
 
 function updatePreviewFromUrl(val) {
     val = val.trim();
-    if (!val) return;
+    if (!val) {
+        document.getElementById('image-preview').src = '/static/images/products/placeholder.svg';
+        return;
+    }
     const imgPreview = document.getElementById('image-preview');
     if (val.startsWith('http://') || val.startsWith('https://') || val.startsWith('/')) {
         imgPreview.src = val;
@@ -163,7 +213,4 @@ function updatePreviewFromUrl(val) {
     }
 }
 </script>
-        </div>
-    </div>
-</div>
 {% endblock %}

@@ -39,5 +39,5 @@ def test_product_image_url():
     p3 = Product(image="")
     assert p1.image_url == "/static/images/products/bearing.svg"
     assert p2.image_url == "https://example.com/photo.jpg"
-    assert p3.image_url == "/static/images/products/placeholder.png"
+    assert p3.image_url == "/static/images/products/placeholder.svg"
 

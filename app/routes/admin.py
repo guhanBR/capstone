@@ -1,7 +1,9 @@
 import os
+import uuid
+import mimetypes
 import time
 from werkzeug.utils import secure_filename
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app, make_response
 from flask_login import login_required, current_user
 from app.utils.decorators import admin_required
 from app import db
@@ -20,21 +22,75 @@ from app.utils.helpers import log_audit
 
 admin_bp = Blueprint('admin', __name__)
 
-ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'}
+# Only allow safe, non-executable image formats
+ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
+
+# Corresponding safe MIME types
+ALLOWED_MIME_TYPES = {
+    'image/jpeg', 'image/png', 'image/webp'
+}
 
 def allowed_image_file(filename):
+    """Check file extension is in allowlist."""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_IMAGE_EXTENSIONS
 
+def validate_mime_type(file_storage):
+    """Validate MIME type of uploaded file."""
+    mime = mimetypes.guess_type(file_storage.filename)[0]
+    if mime and mime in ALLOWED_MIME_TYPES:
+        return True
+    # If mimetypes can't guess, allow if extension is valid (fallback)
+    return False
+
 def save_uploaded_product_image(file_storage):
-    if file_storage and file_storage.filename and allowed_image_file(file_storage.filename):
-        filename = secure_filename(file_storage.filename)
-        unique_filename = f"{int(time.time())}_{filename}"
-        target_dir = os.path.join(current_app.root_path, 'static', 'images', 'products')
-        os.makedirs(target_dir, exist_ok=True)
-        file_path = os.path.join(target_dir, unique_filename)
-        file_storage.save(file_path)
-        return unique_filename
-    return None
+    """Save a valid uploaded product image and return the stored path.
+    Saves to static/uploads/products/ with a UUID-based safe filename.
+    Returns the relative path from static/ root, e.g. 'uploads/products/abc123.jpg'
+    Returns None if validation fails.
+    """
+    if not file_storage or not file_storage.filename:
+        return None
+    
+    if not allowed_image_file(file_storage.filename):
+        return None
+    
+    # MIME type validation
+    if not validate_mime_type(file_storage):
+        # Fall back to extension-only check for safety
+        ext = file_storage.filename.rsplit('.', 1)[1].lower()
+        if ext not in ALLOWED_IMAGE_EXTENSIONS:
+            return None
+    
+    ext = file_storage.filename.rsplit('.', 1)[1].lower()
+    # Use UUID to prevent filename guessing and path traversal
+    unique_filename = f"{uuid.uuid4().hex}.{ext}"
+    
+    target_dir = os.path.join(current_app.root_path, 'static', 'uploads', 'products')
+    os.makedirs(target_dir, exist_ok=True)
+    
+    file_path = os.path.join(target_dir, unique_filename)
+    file_storage.save(file_path)
+    
+    # Return relative path from static folder
+    return f'uploads/products/{unique_filename}'
+
+def delete_product_image_file(image_path):
+    """Safely delete a product image file from disk.
+    Only deletes files in the uploads/products/ directory (admin-uploaded files).
+    Never deletes seeded/static product images.
+    """
+    if not image_path:
+        return
+    # Only delete files that are in the uploads directory (not seeded images)
+    if not image_path.startswith('uploads/'):
+        return
+    abs_path = os.path.join(current_app.root_path, 'static', image_path)
+    if os.path.isfile(abs_path):
+        try:
+            os.remove(abs_path)
+        except OSError:
+            pass  # Log silently, don't crash
+
 
 @admin_bp.route('/dashboard')
 @login_required
@@ -120,11 +176,11 @@ def product_create():
         data = request.form.to_dict()
         image_file = request.files.get('image_file')
         if image_file and image_file.filename:
-            uploaded_name = save_uploaded_product_image(image_file)
-            if uploaded_name:
-                data['image'] = uploaded_name
+            uploaded_path = save_uploaded_product_image(image_file)
+            if uploaded_path:
+                data['image'] = uploaded_path
             else:
-                flash('Invalid image file format. Allowed: png, jpg, jpeg, gif, webp, svg.', 'warning')
+                flash('Invalid image format. Only JPG, JPEG, PNG, and WEBP files are allowed.', 'warning')
 
         success, message, product = ProductService.create_product(data, current_user.id)
         if success:
@@ -134,6 +190,7 @@ def product_create():
             flash(message, 'danger')
 
     return render_template('admin/product_form.html', product=None, categories=categories)
+
 
 
 @admin_bp.route('/products/edit/<int:product_id>', methods=['GET', 'POST'])
@@ -146,21 +203,51 @@ def product_edit(product_id):
     if request.method == 'POST':
         data = request.form.to_dict()
         image_file = request.files.get('image_file')
+        
         if image_file and image_file.filename:
-            uploaded_name = save_uploaded_product_image(image_file)
-            if uploaded_name:
-                data['image'] = uploaded_name
+            uploaded_path = save_uploaded_product_image(image_file)
+            if uploaded_path:
+                # Delete old image if it was admin-uploaded
+                old_image = product.image
+                data['image'] = uploaded_path
+                delete_product_image_file(old_image)
             else:
-                flash('Invalid image file format. Allowed: png, jpg, jpeg, gif, webp, svg.', 'warning')
+                flash('Invalid image format. Only JPG, JPEG, PNG, and WEBP files are allowed.', 'warning')
 
         success, message, updated_product = ProductService.update_product(product_id, data, current_user.id)
         if success:
             flash(message, 'success')
-            return redirect(url_for('admin.products'))
+            # Redirect with no-cache header so the browser always re-fetches
+            # the product list (prevents back-button showing stale admin form)
+            resp = make_response(redirect(url_for('admin.products')))
+            resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate'
+            return resp
         else:
             flash(message, 'danger')
 
     return render_template('admin/product_form.html', product=product, categories=categories)
+
+
+@admin_bp.route('/products/remove-image/<int:product_id>', methods=['POST'])
+@login_required
+@admin_required
+def product_remove_image(product_id):
+    """Remove a product's image, leaving the product intact with a placeholder."""
+    product = Product.query.get_or_404(product_id)
+    old_image = product.image
+    
+    # Delete file if it was admin-uploaded
+    delete_product_image_file(old_image)
+    
+    product.image = None
+    db.session.commit()
+    db.session.expire_all()  # Flush identity map after image removal
+    log_audit(current_user.id, 'UPDATE', 'Product', product.id, f"Removed image from product {product.name}")
+    flash(f"Image removed from '{product.name}'. A placeholder will be shown until a new image is uploaded.", 'info')
+    resp = make_response(redirect(url_for('admin.product_edit', product_id=product_id)))
+    resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate'
+    return resp
+
 
 
 @admin_bp.route('/products/toggle-status/<int:product_id>', methods=['POST'])

@@ -10,8 +10,9 @@
 
                 <!-- Centered Product Image Container -->
                 <div class="product-img-container" style="background-color: var(--surface-hover); aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; padding: 1rem; overflow: hidden; position: relative;">
-                    <img src="{{ product.image_url }}" alt="{{ product.name }}" style="max-height: 100%; max-width: 100%; object-fit: contain;" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <div style="display: none; height: 100%; width: 100%; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.82rem; font-weight: 600;">Image unavailable</div>
+                    <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy"
+                         style="max-height: 100%; max-width: 100%; object-fit: contain;"
+                         onerror="this.onerror=null; this.src='/static/images/products/placeholder.svg';">
                 </div>
 
                 <!-- Product Info -->

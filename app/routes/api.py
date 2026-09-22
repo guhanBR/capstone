@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, make_response
 from flask_login import current_user, login_required
 from app import db
 from app.models.product import Product
@@ -16,6 +16,9 @@ def get_products():
     search = request.args.get('q', '')
     page = request.args.get('page', 1, type=int)
 
+    # Expire identity map to ensure we read fresh data from DB
+    db.session.expire_all()
+
     pagination = ProductService.get_products(
         category_id=category_id,
         search_query=search,
@@ -24,21 +27,27 @@ def get_products():
         per_page=12
     )
 
-    return jsonify({
+    resp = make_response(jsonify({
         'success': True,
         'data': [p.to_dict() for p in pagination.items],
         'total': pagination.total,
         'pages': pagination.pages,
         'current_page': pagination.page
-    })
+    }))
+    resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate'
+    return resp
 
 
 @api_bp.route('/products/<int:product_id>', methods=['GET'])
 def get_product(product_id):
+    # Expire identity map to ensure we read fresh data from DB
+    db.session.expire_all()
     product = Product.query.filter_by(id=product_id, status='active').first()
     if not product:
         return jsonify({'success': False, 'message': 'Product not found'}), 404
-    return jsonify({'success': True, 'data': product.to_dict()})
+    resp = make_response(jsonify({'success': True, 'data': product.to_dict()}))
+    resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate'
+    return resp
 
 
 @api_bp.route('/categories', methods=['GET'])

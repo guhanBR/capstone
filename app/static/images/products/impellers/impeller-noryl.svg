@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <defs>
+    <radialGradient id="bg_16" cx="35%" cy="35%" r="75%">
+      <stop offset="0%" stop-color="#1d3b2a"/>
+      <stop offset="100%" stop-color="#0d2b1a"/>
+    </radialGradient>
+    <filter id="glow_16">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="400" height="400" fill="url(#bg_16)"/>
+  
+  <!-- Subtle grid pattern -->
+  <pattern id="grid_16" width="20" height="20" patternUnits="userSpaceOnUse">
+    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#66bb6a" stroke-width="0.3" opacity="0.15"/>
+  </pattern>
+  <rect width="400" height="400" fill="url(#grid_16)"/>
+  
+  <!-- Top accent bar -->
+  <rect x="0" y="0" width="400" height="4" fill="#66bb6a"/>
+  
+  <!-- Icon area with circle backdrop -->
+  <circle cx="200" cy="155" r="90" fill="#66bb6a" opacity="0.08"/>
+  <circle cx="200" cy="155" r="75" fill="#66bb6a" opacity="0.06"/>
+  
+  <!-- Category icon (scaled to center) -->
+  <g transform="translate(120, 75) scale(1.0)" filter="url(#glow_16)">
+    
+        <circle cx="80" cy="80" r="42" fill="none" stroke="#66bb6a" stroke-width="3"/>
+        <circle cx="80" cy="80" r="12" fill="#66bb6a"/>
+        <path d="M80 40 C90 55 90 65 80 68 C70 65 70 55 80 40 Z" fill="#66bb6a" opacity="0.85"/>
+        <path d="M80 120 C90 105 90 95 80 92 C70 95 70 105 80 120 Z" fill="#66bb6a" opacity="0.85"/>
+        <path d="M40 80 C55 90 65 90 68 80 C65 70 55 70 40 80 Z" fill="#66bb6a" opacity="0.85"/>
+        <path d="M120 80 C105 90 95 90 92 80 C95 70 105 70 120 80 Z" fill="#66bb6a" opacity="0.85"/>
+        <path d="M51 51 C60 62 62 72 56 76 C50 70 48 60 51 51 Z" fill="#66bb6a" opacity="0.7"/>
+        <path d="M109 109 C100 98 98 88 104 84 C110 90 112 100 109 109 Z" fill="#66bb6a" opacity="0.7"/>
+    
+  </g>
+  
+  <!-- Bottom info panel -->
+  <rect x="0" y="280" width="400" height="120" fill="#66bb6a" opacity="0.12"/>
+  <line x1="20" y1="284" x2="380" y2="284" stroke="#66bb6a" stroke-width="1.5" opacity="0.5"/>
+  
+  <!-- Product name -->
+  <text x="200" y="318" text-anchor="middle" fill="#e8f5e9" 
+        font-family="Arial, sans-serif" font-size="18" font-weight="700">Noryl Borewell Impel…</text>
+  
+  <!-- Model number -->
+  <text x="200" y="343" text-anchor="middle" fill="#66bb6a" 
+        font-family="Arial, sans-serif" font-size="14" font-weight="600">IMP-SUB-4</text>
+  
+  <!-- Spec line -->
+  <text x="200" y="365" text-anchor="middle" fill="#e8f5e9" 
+        font-family="Arial, sans-serif" font-size="11" opacity="0.7">4-inch | Hex Drive</text>
+  
+  <!-- Brand badge area -->
+  <rect x="160" y="378" width="80" height="16" rx="8" fill="#66bb6a" opacity="0.3"/>
+  
+  <!-- Bottom accent bar -->
+  <rect x="0" y="396" width="400" height="4" fill="#66bb6a"/>
+</svg>

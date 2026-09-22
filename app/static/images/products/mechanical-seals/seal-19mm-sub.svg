@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <defs>
+    <radialGradient id="bg_79" cx="35%" cy="35%" r="75%">
+      <stop offset="0%" stop-color="#1d293b"/>
+      <stop offset="100%" stop-color="#0a1628"/>
+    </radialGradient>
+    <filter id="glow_79">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="400" height="400" fill="url(#bg_79)"/>
+  
+  <!-- Subtle grid pattern -->
+  <pattern id="grid_79" width="20" height="20" patternUnits="userSpaceOnUse">
+    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#26c6da" stroke-width="0.3" opacity="0.15"/>
+  </pattern>
+  <rect width="400" height="400" fill="url(#grid_79)"/>
+  
+  <!-- Top accent bar -->
+  <rect x="0" y="0" width="400" height="4" fill="#26c6da"/>
+  
+  <!-- Icon area with circle backdrop -->
+  <circle cx="200" cy="155" r="90" fill="#26c6da" opacity="0.08"/>
+  <circle cx="200" cy="155" r="75" fill="#26c6da" opacity="0.06"/>
+  
+  <!-- Category icon (scaled to center) -->
+  <g transform="translate(120, 75) scale(1.0)" filter="url(#glow_79)">
+    
+        <circle cx="80" cy="80" r="42" fill="none" stroke="#26c6da" stroke-width="5"/>
+        <circle cx="80" cy="80" r="30" fill="#1a3a40" stroke="#26c6da" stroke-width="3"/>
+        <rect x="65" y="65" width="30" height="30" rx="4" fill="#26c6da" opacity="0.7"/>
+        <line x1="80" y1="38" x2="80" y2="55" stroke="#26c6da" stroke-width="4"/>
+        <line x1="80" y1="105" x2="80" y2="122" stroke="#26c6da" stroke-width="4"/>
+        <line x1="38" y1="80" x2="55" y2="80" stroke="#26c6da" stroke-width="4"/>
+        <line x1="105" y1="80" x2="122" y2="80" stroke="#26c6da" stroke-width="4"/>
+    
+  </g>
+  
+  <!-- Bottom info panel -->
+  <rect x="0" y="280" width="400" height="120" fill="#26c6da" opacity="0.12"/>
+  <line x1="20" y1="284" x2="380" y2="284" stroke="#26c6da" stroke-width="1.5" opacity="0.5"/>
+  
+  <!-- Product name -->
+  <text x="200" y="318" text-anchor="middle" fill="#e0f2f1" 
+        font-family="Arial, sans-serif" font-size="18" font-weight="700">19mm Submersible Seal</text>
+  
+  <!-- Model number -->
+  <text x="200" y="343" text-anchor="middle" fill="#26c6da" 
+        font-family="Arial, sans-serif" font-size="14" font-weight="600">MS-19</text>
+  
+  <!-- Spec line -->
+  <text x="200" y="365" text-anchor="middle" fill="#e0f2f1" 
+        font-family="Arial, sans-serif" font-size="11" opacity="0.7">Dual Spring | Borewell</text>
+  
+  <!-- Brand badge area -->
+  <rect x="160" y="378" width="80" height="16" rx="8" fill="#26c6da" opacity="0.3"/>
+  
+  <!-- Bottom accent bar -->
+  <rect x="0" y="396" width="400" height="4" fill="#26c6da"/>
+</svg>

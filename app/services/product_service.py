@@ -139,6 +139,7 @@ class ProductService:
 
     @staticmethod
     def update_product(product_id, data, admin_id):
+        # Always fetch fresh from DB — bypass any identity-map cache
         product = db.session.get(Product, product_id)
         if not product:
             return False, "Product not found.", None
@@ -147,11 +148,25 @@ class ProductService:
         if not valid:
             return False, errors[0], None
 
+        # Business rule: discount price must be less than regular price
         try:
+            new_price = float(data['price'])
+            new_discount = float(data['discount_price']) if data.get('discount_price') else None
+            if new_discount is not None and new_discount >= new_price:
+                return False, "Discount price must be less than the regular price.", None
+            if new_price < 0:
+                return False, "Price cannot be negative.", None
+        except (ValueError, TypeError):
+            return False, "Invalid price values.", None
+
+        try:
+            from datetime import datetime
             old_price = float(product.price)
             old_stock = product.stock_quantity
+            # Always read the submitted stock (even if unchanged, to ensure it is written)
             new_stock = int(data.get('stock_quantity', 0))
 
+            # ── Core field updates ──────────────────────────────────────────
             product.category_id = int(data['category_id'])
             product.name = data['name'].strip()
             product.sku = data['sku'].strip()
@@ -160,21 +175,23 @@ class ProductService:
             product.description = data.get('description', '').strip()
             product.specifications = data.get('specifications', '').strip()
             product.compatibility = data.get('compatibility', '').strip()
-            product.price = float(data['price'])
-            product.discount_price = float(data['discount_price']) if data.get('discount_price') else None
+            product.price = new_price
+            product.discount_price = new_discount
             product.minimum_stock_level = int(data.get('minimum_stock_level', 5))
+            # Always assign stock_quantity regardless of change
+            product.stock_quantity = new_stock
             if data.get('image'):
                 product.image = data['image']
             product.status = data.get('status', 'active')
+            # Force updated_at so next query sees a fresh timestamp
+            product.updated_at = datetime.utcnow()
 
-            # Log stock changes if manually adjusted in product edit form
+            # Log inventory transaction if stock actually changed
             if old_stock != new_stock:
-                product.stock_quantity = new_stock
                 diff = new_stock - old_stock
-                trans_type = 'Adjustment' if diff >= 0 else 'Adjustment'
                 inv_trans = InventoryTransaction(
                     product_id=product.id,
-                    transaction_type=trans_type,
+                    transaction_type='Adjustment',
                     quantity=abs(diff),
                     previous_quantity=old_stock,
                     new_quantity=new_stock,
@@ -184,7 +201,13 @@ class ProductService:
                 db.session.add(inv_trans)
 
             db.session.commit()
-            log_audit(admin_id, 'UPDATE', 'Product', product.id, f"Updated product {product.name}. Price: {old_price}->{product.price}, Stock: {old_stock}->{new_stock}")
+
+            # Expire the identity map so ANY subsequent query in this same process
+            # re-reads from the database rather than the in-memory ORM cache.
+            db.session.expire_all()
+
+            log_audit(admin_id, 'UPDATE', 'Product', product.id,
+                      f"Updated product {product.name}. Price: {old_price}->{new_price}, Stock: {old_stock}->{new_stock}")
             return True, "Product updated successfully!", product
         except Exception as e:
             db.session.rollback()

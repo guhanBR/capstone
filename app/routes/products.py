@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, current_app
+from flask import Blueprint, render_template, request, current_app, make_response
 from app.services.product_service import ProductService
 from app.models.product import Product
 from app.models.category import Category
@@ -40,7 +40,7 @@ def list_products():
 
     template_name = 'customer/_product_grid.html' if is_ajax else 'customer/products.html'
 
-    return render_template(
+    rendered = render_template(
         template_name,
         pagination=pagination,
         products=pagination.items,
@@ -55,6 +55,12 @@ def list_products():
         current_availability=availability,
         max_db_price=max_db_price
     )
+    resp = make_response(rendered)
+    # Ensure browsers always re-fetch product data from the server
+    # so admin changes (price, stock, image, etc.) are immediately visible
+    resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate'
+    resp.headers['Pragma'] = 'no-cache'
+    return resp
 
 
 @products_bp.route('/<int:product_id>')
@@ -71,9 +77,15 @@ def product_detail(product_id):
     # Approved reviews
     reviews = Review.query.filter_by(product_id=product.id, status='approved').order_by(Review.created_at.desc()).all()
 
-    return render_template(
+    rendered = render_template(
         'customer/product_detail.html',
         product=product,
         related_products=related_products,
         reviews=reviews
     )
+    resp = make_response(rendered)
+    # Force browser to re-fetch product detail every time so admin changes
+    # (price, stock, description, image) are immediately visible on next load
+    resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate'
+    resp.headers['Pragma'] = 'no-cache'
+    return resp
