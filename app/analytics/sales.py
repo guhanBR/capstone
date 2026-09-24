@@ -12,9 +12,12 @@ class SalesAnalytics:
                 'total_sales': 0.0,
                 'total_orders': 0,
                 'average_order_value': 0.0,
-                'sales_by_status': {},
+                'sales_by_status': [],
+                'daily_sales': [],
+                'monthly_sales': [],
                 'daily_sales_df': pd.DataFrame(),
-                'monthly_sales_df': pd.DataFrame()
+                'monthly_sales_df': pd.DataFrame(),
+                'df': pd.DataFrame()
             }
 
         data = [{

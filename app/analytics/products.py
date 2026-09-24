@@ -11,6 +11,7 @@ class ProductAnalytics:
             return {
                 'best_sellers': [],
                 'category_revenue': [],
+                'product_summary_df': pd.DataFrame(),
                 'df': pd.DataFrame()
             }
 

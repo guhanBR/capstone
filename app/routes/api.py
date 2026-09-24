@@ -100,7 +100,7 @@ def update_cart_api():
     if not item_id or quantity is None or quantity <= 0:
         return jsonify({'success': False, 'message': 'Invalid input'}), 400
 
-    item = CartItem.query.get(item_id)
+    item = db.session.get(CartItem, item_id)
     if not item or item.cart.user_id != current_user.id:
         return jsonify({'success': False, 'message': 'Cart item not found'}), 404
 
@@ -115,7 +115,7 @@ def update_cart_api():
 @api_bp.route('/cart/remove/<int:item_id>', methods=['DELETE'])
 @login_required
 def remove_cart_item_api(item_id):
-    item = CartItem.query.get(item_id)
+    item = db.session.get(CartItem, item_id)
     if item and item.cart.user_id == current_user.id:
         cart = item.cart
         db.session.delete(item)
@@ -153,12 +153,12 @@ def mark_notification_read_api(notif_id):
 
 
 @api_bp.route('/user/theme', methods=['POST'])
-@login_required
 def update_theme_preference():
     data = request.get_json() or {}
     theme = data.get('theme', 'dark')
     if theme in ['light', 'dark']:
-        current_user.theme_preference = theme
-        db.session.commit()
+        if current_user.is_authenticated:
+            current_user.theme_preference = theme
+            db.session.commit()
         return jsonify({'success': True, 'theme': theme})
     return jsonify({'success': False, 'message': 'Invalid theme'}), 400

@@ -14,9 +14,17 @@ function addToCartAjax(productId, quantity = 1) {
         },
         body: formData
     })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
+    .then(async res => {
+        let data;
+        try {
+            data = await res.json();
+        } catch (e) {
+            data = { success: false, message: 'Unexpected server response.' };
+        }
+        return { ok: res.ok, data };
+    })
+    .then(({ ok, data }) => {
+        if (ok && data.success) {
             showToast(data.message, 'success');
             const cartBadge = document.getElementById('nav-cart-count');
             if (cartBadge) {
@@ -27,6 +35,6 @@ function addToCartAjax(productId, quantity = 1) {
         }
     })
     .catch(err => {
-        showToast('Error adding product to cart.', 'danger');
+        showToast('Network error adding product to cart.', 'danger');
     });
 }

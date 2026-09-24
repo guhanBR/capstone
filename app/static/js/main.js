@@ -7,6 +7,19 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // Toast System
+function initToasts() {
+    // Automatically fade out existing flash alerts after 5 seconds
+    document.querySelectorAll('.flash-messages .alert, .flash-message').forEach(alert => {
+        setTimeout(() => {
+            if (alert && alert.parentElement) {
+                alert.style.opacity = '0';
+                alert.style.transition = 'opacity 0.4s ease';
+                setTimeout(() => { if (alert && alert.parentElement) alert.remove(); }, 400);
+            }
+        }, 5000);
+    });
+}
+
 function showToast(message, type = 'info') {
     let container = document.getElementById('toast-container');
     if (!container) {

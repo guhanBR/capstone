@@ -13,7 +13,10 @@ class InventoryAnalytics:
                 'total_inventory_value': 0.0,
                 'low_stock_count': 0,
                 'out_of_stock_count': 0,
-                'products_summary': []
+                'low_stock_items': [],
+                'out_of_stock_items': [],
+                'products_summary': [],
+                'df': pd.DataFrame()
             }
 
         data = [{
