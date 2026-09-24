@@ -14,6 +14,9 @@ class Category(db.Model):
     # Relationships
     products = db.relationship('Product', backref='category', lazy=True)
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     @property
     def product_count(self):
         return len([p for p in self.products if p.status == 'active'])

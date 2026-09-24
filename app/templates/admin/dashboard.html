@@ -11,7 +11,9 @@
     <div style="display: flex; gap: 0.75rem; align-items: center;">
         <a href="{{ url_for('admin.orders') }}" class="btn btn-secondary btn-sm">View Orders</a>
         <a href="{{ url_for('admin.inventory') }}" class="btn btn-secondary btn-sm">View Inventory</a>
+        {% if current_user.role in ['admin', 'manager'] %}
         <a href="{{ url_for('admin.product_create') }}" class="btn btn-primary btn-sm">+ Add New Product</a>
+        {% endif %}
     </div>
 </div>
 

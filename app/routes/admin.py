@@ -471,10 +471,10 @@ def brand_edit():
     flash(f"Successfully renamed brand '{old_brand_name}' to '{new_brand_name}' on {len(products)} products.", 'success')
     return redirect(url_for('admin.brands'))
 
-# ---------------- SETTINGS MANAGEMENT (OWNER ONLY) ----------------
+# ---------------- SETTINGS MANAGEMENT (OWNER & MANAGER) ----------------
 @admin_bp.route('/settings', methods=['GET', 'POST'])
 @login_required
-@admin_required
+@manager_or_admin_required
 def settings():
     if request.method == 'POST':
         action = request.form.get('action')

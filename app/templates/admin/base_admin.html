@@ -90,25 +90,27 @@
                     <li class="admin-menu-item {% if request.endpoint in ['admin.products', 'admin.product_create', 'admin.product_edit'] %}active{% endif %}">
                         <a href="{{ url_for('admin.products') }}">Products</a>
                     </li>
-                    <li class="admin-menu-item {% if request.endpoint == 'admin.categories' %}active{% endif %}">
-                        <a href="{{ url_for('admin.categories') }}">Categories</a>
-                    </li>
-                    <li class="admin-menu-item {% if request.endpoint in ['admin.brands', 'admin.brand_edit'] %}active{% endif %}">
-                        <a href="{{ url_for('admin.brands') }}">Brands</a>
-                    </li>
+                    {% if current_user.role in ['admin', 'manager'] %}
+                        <li class="admin-menu-item {% if request.endpoint == 'admin.categories' %}active{% endif %}">
+                            <a href="{{ url_for('admin.categories') }}">Categories</a>
+                        </li>
+                        <li class="admin-menu-item {% if request.endpoint in ['admin.brands', 'admin.brand_edit'] %}active{% endif %}">
+                            <a href="{{ url_for('admin.brands') }}">Brands</a>
+                        </li>
+                    {% endif %}
                     <li class="admin-menu-item {% if request.endpoint == 'admin.inventory' %}active{% endif %}">
                         <a href="{{ url_for('admin.inventory') }}">Inventory</a>
                     </li>
                     <li class="admin-menu-item {% if request.endpoint == 'admin.orders' %}active{% endif %}">
                         <a href="{{ url_for('admin.orders') }}">Orders</a>
                     </li>
-                    <li class="admin-menu-item {% if request.endpoint == 'admin.customers' %}active{% endif %}">
-                        <a href="{{ url_for('admin.customers') }}">Customers</a>
-                    </li>
-                    <li class="admin-menu-item {% if request.endpoint == 'admin.reviews' %}active{% endif %}">
-                        <a href="{{ url_for('admin.reviews') }}">Reviews</a>
-                    </li>
                     {% if current_user.role in ['admin', 'manager'] %}
+                        <li class="admin-menu-item {% if request.endpoint == 'admin.customers' %}active{% endif %}">
+                            <a href="{{ url_for('admin.customers') }}">Customers</a>
+                        </li>
+                        <li class="admin-menu-item {% if request.endpoint == 'admin.reviews' %}active{% endif %}">
+                            <a href="{{ url_for('admin.reviews') }}">Reviews</a>
+                        </li>
                         <li class="admin-menu-item {% if request.endpoint == 'reports.analytics_dashboard' %}active{% endif %}">
                             <a href="{{ url_for('reports.analytics_dashboard') }}">Analytics &amp; Reports</a>
                         </li>
@@ -117,6 +119,8 @@
                         <li class="admin-menu-item {% if request.endpoint in ['admin.staff_list', 'admin.staff_create', 'admin.staff_edit'] %}active{% endif %}">
                             <a href="{{ url_for('admin.staff_list') }}">Staff Management</a>
                         </li>
+                    {% endif %}
+                    {% if current_user.role in ['admin', 'manager'] %}
                         <li class="admin-menu-item {% if request.endpoint == 'admin.settings' %}active{% endif %}">
                             <a href="{{ url_for('admin.settings') }}">Settings</a>
                         </li>

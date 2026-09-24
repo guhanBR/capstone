@@ -209,7 +209,7 @@ def test_owner_protection_prevent_last_admin_lockout(client):
 def test_manager_access_permissions(client):
     login_as(client, 'manager@sparepro.local', 'Manager@12345')
 
-    # Allowed routes
+    # Allowed routes for Manager
     allowed = [
         '/admin/dashboard',
         '/admin/products',
@@ -221,7 +221,8 @@ def test_manager_access_permissions(client):
         '/admin/customers',
         '/admin/reviews',
         '/reports/',
-        '/reports/export/sales'
+        '/reports/export/sales',
+        '/admin/settings'
     ]
     for ep in allowed:
         res = client.get(ep)
@@ -230,8 +231,7 @@ def test_manager_access_permissions(client):
     # Forbidden Owner-only routes (must return 403)
     forbidden = [
         '/admin/staff',
-        '/admin/staff/new',
-        '/admin/settings'
+        '/admin/staff/new'
     ]
     for ep in forbidden:
         res = client.get(ep)
@@ -343,3 +343,61 @@ def test_customer_features_regression(client):
 
     res = client.get('/customer/wishlist')
     assert res.status_code == 200
+
+# ----------------------------------------------------
+# 5. SIDEBAR & NAVIGATION AUDIT TESTS
+# ----------------------------------------------------
+def test_admin_sidebar_and_buttons(client):
+    login_as(client, 'owner@sparepro.local', 'Admin@12345')
+    res = client.get('/admin/dashboard')
+    assert res.status_code == 200
+    # Sidebar items
+    assert b'href="/admin/staff"' in res.data
+    assert b'href="/admin/settings"' in res.data
+    assert b'href="/reports/"' in res.data
+    assert b'href="/admin/categories"' in res.data
+    assert b'href="/admin/brands"' in res.data
+    assert b'href="/admin/customers"' in res.data
+    assert b'href="/admin/reviews"' in res.data
+    # Dashboard buttons
+    assert b'+ Add New Product' in res.data
+    assert b'View Orders' in res.data
+    assert b'View Inventory' in res.data
+
+def test_manager_sidebar_and_buttons(client):
+    login_as(client, 'manager@sparepro.local', 'Manager@12345')
+    res = client.get('/admin/dashboard')
+    assert res.status_code == 200
+    # Sidebar items for Manager
+    assert b'href="/admin/settings"' in res.data
+    assert b'href="/reports/"' in res.data
+    assert b'href="/admin/categories"' in res.data
+    assert b'href="/admin/brands"' in res.data
+    assert b'href="/admin/customers"' in res.data
+    assert b'href="/admin/reviews"' in res.data
+    assert b'href="/admin/staff"' not in res.data
+    # Dashboard buttons
+    assert b'+ Add New Product' in res.data
+    assert b'View Orders' in res.data
+    assert b'View Inventory' in res.data
+
+def test_employee_sidebar_and_buttons(client):
+    login_as(client, 'employee@sparepro.local', 'Employee@12345')
+    res = client.get('/admin/dashboard')
+    assert res.status_code == 200
+    # Employee sidebar should ONLY contain operational links
+    assert b'href="/admin/products"' in res.data
+    assert b'href="/admin/inventory"' in res.data
+    assert b'href="/admin/orders"' in res.data
+    # Employee sidebar must NOT contain restricted links
+    assert b'href="/admin/staff"' not in res.data
+    assert b'href="/admin/settings"' not in res.data
+    assert b'href="/reports/"' not in res.data
+    assert b'href="/admin/categories"' not in res.data
+    assert b'href="/admin/brands"' not in res.data
+    assert b'href="/admin/customers"' not in res.data
+    assert b'href="/admin/reviews"' not in res.data
+    # Employee dashboard buttons must NOT contain + Add New Product
+    assert b'+ Add New Product' not in res.data
+    assert b'View Orders' in res.data
+    assert b'View Inventory' in res.data
