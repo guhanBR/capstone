@@ -15,13 +15,15 @@
     </div>
 </div>
 
-<!-- Metric KPI Summary Cards (6 Total) -->
+<!-- Metric KPI Summary Cards (6 Total for Admin/Manager, 5 for Employee) -->
 <div class="kpi-grid">
+    {% if total_revenue is not none and current_user.role in ['admin', 'manager'] %}
     <div class="kpi-card">
         <span class="kpi-title">Total Revenue</span>
         <span class="kpi-value" style="color: var(--secondary);">₹{{ "{:,.2f}".format(total_revenue) }}</span>
         <span class="kpi-sub">Gross sales value</span>
     </div>
+    {% endif %}
     <div class="kpi-card">
         <span class="kpi-title">Total Orders</span>
         <span class="kpi-value">{{ total_orders }}</span>

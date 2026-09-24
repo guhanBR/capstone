@@ -94,6 +94,14 @@ def test_employee_dashboard_rendering():
         assert res.status_code == 200
         assert b'Employee Dashboard' in res.data
         assert b'EMPLOYEE' in res.data
-        assert b'Total Revenue' in res.data
+        # Security test: Total Revenue must NOT be sent or rendered to Employee
+        assert b'Total Revenue' not in res.data
+        assert b'Gross sales value' not in res.data
+        # Operational info remains available
+        assert b'Total Orders' in res.data
+        assert b'Pending Orders' in res.data
+        assert b'Total Products' in res.data
+        assert b'Total Customers' in res.data
+        assert b'Low / Out Stock' in res.data
         db.session.remove()
         db.drop_all()

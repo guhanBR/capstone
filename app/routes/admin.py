@@ -114,9 +114,16 @@ def dashboard():
 
     recent_orders = Order.query.order_by(Order.created_at.desc()).limit(5).all()
 
-    # Analytics for charts
-    sales_summary = SalesAnalytics.get_sales_summary()
-    product_performance = ProductAnalytics.get_product_performance()
+    # Revenue and sales analytics are strictly restricted to Owner/Admin and Manager
+    if current_user.role in (USER_ROLE_ADMIN, USER_ROLE_MANAGER):
+        orders = Order.query.filter(Order.order_status != 'Cancelled').all()
+        total_revenue = sum(float(o.total_amount) for o in orders)
+        sales_summary = SalesAnalytics.get_sales_summary()
+        product_performance = ProductAnalytics.get_product_performance()
+    else:
+        total_revenue = None
+        sales_summary = None
+        product_performance = None
 
     return render_template(
         'admin/dashboard.html',
