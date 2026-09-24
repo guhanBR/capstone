@@ -258,8 +258,6 @@ def test_employee_operational_access(client):
     allowed = [
         '/admin/dashboard',
         '/admin/products',
-        '/admin/categories',
-        '/admin/brands',
         '/admin/inventory',
         '/admin/orders',
         '/admin/customers',
@@ -276,6 +274,8 @@ def test_employee_restricted_routes_forbidden(client):
     forbidden_get = [
         '/admin/products/new',
         '/admin/products/edit/1',
+        '/admin/categories',
+        '/admin/brands',
         '/admin/staff',
         '/admin/staff/new',
         '/admin/settings',

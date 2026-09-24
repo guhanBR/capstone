@@ -268,7 +268,7 @@ def product_toggle_status(product_id):
 # ---------------- CATEGORY MANAGEMENT ----------------
 @admin_bp.route('/categories', methods=['GET', 'POST'])
 @login_required
-@staff_required
+@manager_or_admin_required
 def categories():
     if request.method == 'POST':
         if current_user.role not in ('admin', 'manager'):
@@ -429,7 +429,7 @@ def delete_review(review_id):
 # ---------------- BRANDS MANAGEMENT ----------------
 @admin_bp.route('/brands')
 @login_required
-@staff_required
+@manager_or_admin_required
 def brands():
     # Query distinct brands and count their products
     brand_counts = db.session.query(
