@@ -101,9 +101,6 @@ def dashboard():
     total_customers = User.query.filter_by(role='customer').count()
     total_products = Product.query.count()
     total_orders = Order.query.count()
-    
-    orders = Order.query.filter(Order.order_status != 'Cancelled').all()
-    total_revenue = sum(float(o.total_amount) for o in orders)
     pending_orders = Order.query.filter_by(order_status='Pending').count()
 
     low_stock_products = Product.query.filter(
