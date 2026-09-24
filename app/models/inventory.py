@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from app import db
 
 class InventoryTransaction(db.Model):
@@ -13,7 +13,7 @@ class InventoryTransaction(db.Model):
     reference_type = db.Column(db.String(50), nullable=True) # e.g. 'Order', 'Manual'
     reference_id = db.Column(db.Integer, nullable=True)
     notes = db.Column(db.Text, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     def to_dict(self):
         return {

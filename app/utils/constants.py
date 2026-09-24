@@ -1,7 +1,11 @@
 # Constants and Enums for SparePro
 
 USER_ROLE_ADMIN = 'admin'
+USER_ROLE_MANAGER = 'manager'
+USER_ROLE_EMPLOYEE = 'employee'
 USER_ROLE_CUSTOMER = 'customer'
+
+STAFF_ROLES = [USER_ROLE_ADMIN, USER_ROLE_MANAGER, USER_ROLE_EMPLOYEE]
 
 USER_STATUS_ACTIVE = 'active'
 USER_STATUS_INACTIVE = 'inactive'

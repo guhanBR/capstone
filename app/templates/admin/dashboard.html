@@ -1,148 +1,153 @@
-{% extends 'base.html' %}
+{% extends 'admin/base_admin.html' %}
 
-{% block title %}Admin Dashboard — SparePro Management{% endblock %}
+{% block title %}{% if current_user.role == 'manager' %}Manager Dashboard{% elif current_user.role == 'employee' %}Employee Dashboard{% else %}Admin Dashboard{% endif %} — SparePro Management{% endblock %}
 
-{% block content %}
-<div class="admin-layout">
-    <!-- Admin Sidebar Menu -->
-    <div class="admin-sidebar">
-        <ul class="admin-menu">
-            <li class="admin-menu-item active"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.products') }}">Products</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.categories') }}">Categories</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.orders') }}">Orders</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.inventory') }}">Inventory</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.customers') }}">Customers</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.reviews') }}">Reviews</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('reports.analytics_dashboard') }}">Analytics &amp; Reports</a></li>
-        </ul>
-    </div>
-
-    <!-- Admin Main Body -->
+{% block admin_content %}
+<div class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
     <div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-            <h2>Admin Operations Dashboard</h2>
-            <a href="{{ url_for('admin.product_create') }}" class="btn btn-primary btn-sm">+ Add New Product</a>
-        </div>
-
-        <!-- Metric KPI Cards -->
-        <div class="kpi-grid">
-            <div class="kpi-card">
-                <span class="kpi-title">Total Revenue</span>
-                <span class="kpi-value" style="color: var(--secondary);">₹{{ "{:,.2f}".format(total_revenue) }}</span>
-                <span class="kpi-sub">Gross sales value</span>
-            </div>
-            <div class="kpi-card">
-                <span class="kpi-title">Total Orders</span>
-                <span class="kpi-value">{{ total_orders }}</span>
-                <span class="kpi-sub">Lifetime orders</span>
-            </div>
-            <div class="kpi-card">
-                <span class="kpi-title">Pending Orders</span>
-                <span class="kpi-value" style="color: var(--warning);">{{ pending_orders }}</span>
-                <span class="kpi-sub">Awaiting shipment</span>
-            </div>
-            <div class="kpi-card">
-                <span class="kpi-title">Total Products</span>
-                <span class="kpi-value">{{ total_products }}</span>
-                <span class="kpi-sub">Catalog items</span>
-            </div>
-            <div class="kpi-card">
-                <span class="kpi-title">Low / Out Stock</span>
-                <span class="kpi-value" style="color: var(--danger);">{{ low_stock_count + out_of_stock_count }}</span>
-                <span class="kpi-sub">Inventory alerts</span>
-            </div>
-        </div>
-
-        <!-- Inventory Alerts Section -->
-        {% if low_stock_products or out_of_stock_products %}
-            <div class="card" style="margin-bottom: 2rem; border-left: 4px solid var(--warning);">
-                <h3 style="color: var(--warning); margin-bottom: 1rem;">Inventory Attention Required</h3>
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>SKU</th>
-                                <th>Part Name</th>
-                                <th>Category</th>
-                                <th>Current Stock</th>
-                                <th>Min Required</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for p in out_of_stock_products + low_stock_products %}
-                                <tr>
-                                    <td><code>{{ p.sku }}</code></td>
-                                    <td><strong>{{ p.name }}</strong></td>
-                                    <td>{{ p.category.name if p.category else '' }}</td>
-                                    <td><strong style="color: var(--danger);">{{ p.stock_quantity }}</strong></td>
-                                    <td>{{ p.minimum_stock_level }}</td>
-                                    <td><span class="status-badge badge-{{ p.stock_status|lower|replace(' ', '-') }}">{{ p.stock_status }}</span></td>
-                                    <td>
-                                        <a href="{{ url_for('admin.inventory') }}" class="btn btn-secondary btn-sm">Adjust Stock</a>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        {% endif %}
-
-        <!-- Recent Customer Orders -->
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h3>Recent Customer Orders</h3>
-                <a href="{{ url_for('admin.orders') }}" class="btn btn-secondary btn-sm">View All Orders</a>
-            </div>
-
-            {% if recent_orders %}
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Order #</th>
-                                <th>Customer</th>
-                                <th>Date</th>
-                                <th>Total</th>
-                                <th>Status</th>
-                                <th>Update Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for order in recent_orders %}
-                                <tr>
-                                    <td><strong>{{ order.order_number }}</strong></td>
-                                    <td>{{ order.user.name }} ({{ order.user.email }})</td>
-                                    <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-                                    <td>₹{{ "{:,.2f}".format(order.total_amount) }}</td>
-                                    <td><span class="status-badge badge-{{ order.order_status|lower }}">{{ order.order_status }}</span></td>
-                                    <td>
-                                        <form method="POST" action="{{ url_for('admin.update_order_status', order_id=order.id) }}" style="display: flex; gap: 0.4rem;">
-                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                            <select name="order_status" class="form-control" style="font-size: 0.8rem; padding: 0.2rem 0.4rem;">
-                                                <option value="Pending" {% if order.order_status == 'Pending' %}selected{% endif %}>Pending</option>
-                                                <option value="Confirmed" {% if order.order_status == 'Confirmed' %}selected{% endif %}>Confirmed</option>
-                                                <option value="Processing" {% if order.order_status == 'Processing' %}selected{% endif %}>Processing</option>
-                                                <option value="Packed" {% if order.order_status == 'Packed' %}selected{% endif %}>Packed</option>
-                                                <option value="Shipped" {% if order.order_status == 'Shipped' %}selected{% endif %}>Shipped</option>
-                                                <option value="Delivered" {% if order.order_status == 'Delivered' %}selected{% endif %}>Delivered</option>
-                                                <option value="Cancelled" {% if order.order_status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
-                                            </select>
-                                            <button type="submit" class="btn btn-secondary btn-sm">Save</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            {% else %}
-                <p style="color: var(--text-muted);">No orders recorded yet.</p>
-            {% endif %}
-        </div>
+        <h2 style="margin: 0; font-size: 1.6rem; font-weight: 700; color: var(--text-color);">{% if current_user.role == 'manager' %}Manager Dashboard{% elif current_user.role == 'employee' %}Employee Dashboard{% else %}Admin Dashboard{% endif %}</h2>
+        <p style="margin: 0.25rem 0 0 0; color: var(--text-muted); font-size: 0.88rem;">Overview of business metrics, inventory status, and recent store activity</p>
+    </div>
+    <div style="display: flex; gap: 0.75rem; align-items: center;">
+        <a href="{{ url_for('admin.orders') }}" class="btn btn-secondary btn-sm">View Orders</a>
+        <a href="{{ url_for('admin.inventory') }}" class="btn btn-secondary btn-sm">View Inventory</a>
+        <a href="{{ url_for('admin.product_create') }}" class="btn btn-primary btn-sm">+ Add New Product</a>
     </div>
 </div>
+
+<!-- Metric KPI Summary Cards (6 Total) -->
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <span class="kpi-title">Total Revenue</span>
+        <span class="kpi-value" style="color: var(--secondary);">₹{{ "{:,.2f}".format(total_revenue) }}</span>
+        <span class="kpi-sub">Gross sales value</span>
+    </div>
+    <div class="kpi-card">
+        <span class="kpi-title">Total Orders</span>
+        <span class="kpi-value">{{ total_orders }}</span>
+        <span class="kpi-sub">Lifetime orders</span>
+    </div>
+    <div class="kpi-card">
+        <span class="kpi-title">Pending Orders</span>
+        <span class="kpi-value" style="color: var(--warning);">{{ pending_orders }}</span>
+        <span class="kpi-sub">Awaiting processing</span>
+    </div>
+    <div class="kpi-card">
+        <span class="kpi-title">Total Products</span>
+        <span class="kpi-value">{{ total_products }}</span>
+        <span class="kpi-sub">Catalog items</span>
+    </div>
+    <div class="kpi-card">
+        <span class="kpi-title">Total Customers</span>
+        <span class="kpi-value">{{ total_customers }}</span>
+        <span class="kpi-sub">Registered accounts</span>
+    </div>
+    <div class="kpi-card">
+        <span class="kpi-title">Low / Out Stock</span>
+        <span class="kpi-value" style="color: var(--danger);">{{ low_stock_count + out_of_stock_count }}</span>
+        <span class="kpi-sub">Inventory alerts</span>
+    </div>
+</div>
+
+<!-- Inventory Attention Section -->
+{% if low_stock_products or out_of_stock_products %}
+    <div class="card" style="margin-bottom: 2rem; border-left: 4px solid var(--warning);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="color: var(--warning); margin: 0; display: flex; align-items: center; gap: 0.5rem; font-size: 1.15rem;">
+                <span>⚠️</span> Low Stock &amp; Inventory Attention
+            </h3>
+            <div style="display: flex; gap: 0.5rem;">
+                <a href="{{ url_for('admin.products') }}" class="btn btn-secondary btn-sm">View Products</a>
+                <a href="{{ url_for('admin.inventory') }}" class="btn btn-secondary btn-sm">View Inventory</a>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>SKU</th>
+                        <th>Part Name</th>
+                        <th>Category</th>
+                        <th>Current Stock</th>
+                        <th>Min Required</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in out_of_stock_products + low_stock_products %}
+                        <tr>
+                            <td><code>{{ p.sku }}</code></td>
+                            <td><strong>{{ p.name }}</strong></td>
+                            <td>{{ p.category.name if p.category else 'Uncategorized' }}</td>
+                            <td><strong style="color: var(--danger);">{{ p.stock_quantity }}</strong></td>
+                            <td>{{ p.minimum_stock_level }}</td>
+                            <td><span class="status-badge badge-{{ p.stock_status|lower|replace(' ', '-') }}">{{ p.stock_status }}</span></td>
+                            <td>
+                                <a href="{{ url_for('admin.inventory') }}" class="btn btn-secondary btn-sm">Adjust Stock</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endif %}
+
+<!-- Recent Customer Orders -->
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+        <h3 style="margin: 0; font-size: 1.15rem;">Recent Customer Orders</h3>
+        <a href="{{ url_for('admin.orders') }}" class="btn btn-secondary btn-sm">View All Orders</a>
+    </div>
+
+    {% if recent_orders %}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Order #</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Update Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in recent_orders %}
+                        <tr>
+                            <td><strong>{{ order.order_number }}</strong></td>
+                            <td>
+                                <div><strong>{{ order.user.name }}</strong></div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">{{ order.user.email }}</div>
+                            </td>
+                            <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td><strong>₹{{ "{:,.2f}".format(order.total_amount) }}</strong></td>
+                            <td><span class="status-badge badge-{{ order.order_status|lower }}">{{ order.order_status }}</span></td>
+                            <td>
+                                <form method="POST" action="{{ url_for('admin.update_order_status', order_id=order.id) }}" style="display: flex; gap: 0.4rem; align-items: center;">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                    <select name="order_status" class="form-control" style="font-size: 0.8rem; padding: 0.25rem 0.5rem; max-width: 130px;">
+                                        <option value="Pending" {% if order.order_status == 'Pending' %}selected{% endif %}>Pending</option>
+                                        <option value="Confirmed" {% if order.order_status == 'Confirmed' %}selected{% endif %}>Confirmed</option>
+                                        <option value="Processing" {% if order.order_status == 'Processing' %}selected{% endif %}>Processing</option>
+                                        <option value="Packed" {% if order.order_status == 'Packed' %}selected{% endif %}>Packed</option>
+                                        <option value="Shipped" {% if order.order_status == 'Shipped' %}selected{% endif %}>Shipped</option>
+                                        <option value="Delivered" {% if order.order_status == 'Delivered' %}selected{% endif %}>Delivered</option>
+                                        <option value="Cancelled" {% if order.order_status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-secondary btn-sm">Save</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p style="color: var(--text-muted); margin: 0.5rem 0;">No orders recorded yet.</p>
+    {% endif %}
+</div>
 {% endblock %}
+

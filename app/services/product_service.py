@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from sqlalchemy import or_, and_, asc, desc
 from app import db
 from app.models.product import Product
@@ -184,7 +185,7 @@ class ProductService:
                 product.image = data['image']
             product.status = data.get('status', 'active')
             # Force updated_at so next query sees a fresh timestamp
-            product.updated_at = datetime.utcnow()
+            product.updated_at = datetime.now(timezone.utc)
 
             # Log inventory transaction if stock actually changed
             if old_stock != new_stock:

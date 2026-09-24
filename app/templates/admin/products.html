@@ -1,121 +1,129 @@
-{% extends 'base.html' %}
+{% extends 'admin/base_admin.html' %}
 
 {% block title %}Manage Products — SparePro Admin{% endblock %}
 
-{% block content %}
-<div class="admin-layout">
-    <!-- Sidebar -->
-    <div class="admin-sidebar">
-        <ul class="admin-menu">
-            <li class="admin-menu-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
-            <li class="admin-menu-item active"><a href="{{ url_for('admin.products') }}">Products</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.categories') }}">Categories</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.orders') }}">Orders</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.inventory') }}">Inventory</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.customers') }}">Customers</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.reviews') }}">Reviews</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('reports.analytics_dashboard') }}">Analytics &amp; Reports</a></li>
-        </ul>
-    </div>
-
-    <!-- Main Content -->
+{% block admin_content %}
+<div class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
     <div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-            <h2>Product Catalog Management</h2>
-            <a href="{{ url_for('admin.product_create') }}" class="btn btn-primary btn-sm">+ Add New Product</a>
+        <h2 style="margin: 0; font-size: 1.6rem; font-weight: 700; color: var(--text-color);">Product Catalog Management</h2>
+        <p style="margin: 0.25rem 0 0 0; color: var(--text-muted); font-size: 0.88rem;">Add, edit, filter, and manage motor &amp; pump spare parts catalog</p>
+    </div>
+    {% if current_user.role in ['admin', 'manager'] %}
+        <a href="{{ url_for('admin.product_create') }}" class="btn btn-primary btn-sm">+ Add New Product</a>
+    {% endif %}
+</div>
+
+<!-- Filter & Search Bar -->
+<div class="card" style="margin-bottom: 1.5rem; padding: 1.25rem;">
+    <form method="GET" action="{{ url_for('admin.products') }}" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+        <input type="text" name="q" class="form-control" placeholder="Search by name, SKU, or brand..." value="{{ current_q }}" style="flex: 1; min-width: 220px;">
+        
+        <select name="category" class="form-control" style="width: auto; min-width: 160px;">
+            <option value="">All Categories</option>
+            {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if current_category == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+            {% endfor %}
+        </select>
+
+        <select name="status" class="form-control" style="width: auto; min-width: 140px;">
+            <option value="">All Statuses</option>
+            <option value="active" {% if current_status == 'active' %}selected{% endif %}>Active</option>
+            <option value="inactive" {% if current_status == 'inactive' %}selected{% endif %}>Inactive</option>
+        </select>
+
+        <div style="display: flex; gap: 0.5rem;">
+            <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+            <a href="{{ url_for('admin.products') }}" class="btn btn-secondary btn-sm">Reset</a>
         </div>
+    </form>
+</div>
 
-        <!-- Filter & Search Bar -->
-        <div class="card" style="margin-bottom: 1.5rem; padding: 1rem;">
-            <form method="GET" action="{{ url_for('admin.products') }}" style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                <input type="text" name="q" class="form-control" placeholder="Search product name, SKU, brand..." value="{{ current_q }}" style="flex: 1; min-width: 200px;">
-                
-                <select name="category" class="form-control" style="width: auto;">
-                    <option value="">All Categories</option>
-                    {% for cat in categories %}
-                        <option value="{{ cat.id }}" {% if current_category == cat.id %}selected{% endif %}>{{ cat.name }}</option>
-                    {% endfor %}
-                </select>
-
-                <select name="status" class="form-control" style="width: auto;">
-                    <option value="">All Statuses</option>
-                    <option value="active" {% if current_status == 'active' %}selected{% endif %}>Active</option>
-                    <option value="inactive" {% if current_status == 'inactive' %}selected{% endif %}>Inactive</option>
-                </select>
-
-                <button type="submit" class="btn btn-primary btn-sm">Filter</button>
-                <a href="{{ url_for('admin.products') }}" class="btn btn-secondary btn-sm">Reset</a>
-            </form>
-        </div>
-
-        <!-- Products Table -->
-        <div class="card">
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
+<!-- Products Table -->
+<div class="card">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 60px;">Image</th>
+                    <th>SKU</th>
+                    <th>Product Name</th>
+                    <th>Brand / Model</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Status</th>
+                    {% if current_user.role in ['admin', 'manager'] %}
+                        <th style="text-align: right;">Actions</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% if products %}
+                    {% for p in products %}
                         <tr>
-                            <th>Image</th>
-                            <th>SKU</th>
-                            <th>Product Name</th>
-                            <th>Brand / Model</th>
-                            <th>Category</th>
-                            <th>Price</th>
-                            <th>Stock</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for p in products %}
-                            <tr>
-                                <td>
-                                    <div style="width: 48px; height: 48px; background: #ffffff; border: 1px solid var(--surface-border); border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 3px;">
-                                        <img src="{{ p.image_url }}" alt="{{ p.name }}"
-                                             style="max-width: 100%; max-height: 100%; object-fit: contain;"
-                                             onerror="this.onerror=null; this.src='/static/images/products/placeholder.svg';">
-                                    </div>
-                                </td>
-                                <td><code>{{ p.sku }}</code></td>
-                                <td><strong>{{ p.name }}</strong></td>
-                                <td>{{ p.brand }} {% if p.model_number %}({{ p.model_number }}){% endif %}</td>
-                                <td>{{ p.category.name if p.category else 'Uncategorized' }}</td>
-                                <td>₹{{ "{:,.2f}".format(p.price) }}</td>
-                                <td>
-                                    <span class="status-badge badge-{{ p.stock_status|lower|replace(' ', '-') }}">
-                                        {{ p.stock_quantity }} units
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="status-badge badge-{{ p.status|lower }}">{{ p.status }}</span>
-                                </td>
-                                <td>
-                                    <div style="display: flex; gap: 0.4rem;">
+                            <td>
+                                <div style="width: 44px; height: 44px; background: #ffffff; border: 1px solid var(--surface-border); border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 2px;">
+                                    <img src="{{ p.image_url }}" alt="{{ p.name }}"
+                                         style="max-width: 100%; max-height: 100%; object-fit: contain;"
+                                         onerror="this.onerror=null; this.src='/static/images/products/placeholder.svg';">
+                                </div>
+                            </td>
+                            <td><code>{{ p.sku }}</code></td>
+                            <td><strong>{{ p.name }}</strong></td>
+                            <td>
+                                <div>{{ p.brand }}</div>
+                                {% if p.model_number %}
+                                    <div style="font-size: 0.78rem; color: var(--text-muted);">Model: {{ p.model_number }}</div>
+                                {% endif %}
+                            </td>
+                            <td>{{ p.category.name if p.category else 'Uncategorized' }}</td>
+                            <td><strong>₹{{ "{:,.2f}".format(p.price) }}</strong></td>
+                            <td>
+                                <span class="status-badge badge-{{ p.stock_status|lower|replace(' ', '-') }}">
+                                    {{ p.stock_quantity }} units
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status-badge badge-{{ p.status|lower }}">{{ p.status }}</span>
+                            </td>
+                            {% if current_user.role in ['admin', 'manager'] %}
+                                <td style="text-align: right;">
+                                    <div style="display: flex; gap: 0.4rem; justify-content: flex-end;">
                                         <a href="{{ url_for('admin.product_edit', product_id=p.id) }}" class="btn btn-secondary btn-sm">Edit</a>
-                                        <form method="POST" action="{{ url_for('admin.product_toggle_status', product_id=p.id) }}">
+                                        <form method="POST" action="{{ url_for('admin.product_toggle_status', product_id=p.id) }}" style="display: inline;">
                                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                            <button type="submit" class="btn btn-secondary btn-sm" data-confirm="Toggle product status?">
+                                            <button type="submit" class="btn btn-secondary btn-sm">
                                                 {% if p.status == 'active' %}Deactivate{% else %}Activate{% endif %}
                                             </button>
                                         </form>
                                     </div>
                                 </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Pagination -->
-            {% if pagination.pages > 1 %}
-                <div style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.5rem;">
-                    {% for page_num in pagination.iter_pages() %}
-                        {% if page_num %}
-                            <a href="{{ url_for('admin.products', page=page_num, q=current_q, category=current_category, status=current_status) }}" class="btn {% if page_num == pagination.page %}btn-primary{% else %}btn-secondary{% endif %} btn-sm">{{ page_num }}</a>
-                        {% endif %}
+                            {% endif %}
+                        </tr>
                     {% endfor %}
-                </div>
-            {% endif %}
-        </div>
+                {% else %}
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                            No products found matching your search and filter criteria.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
     </div>
+
+    <!-- Pagination -->
+    {% if pagination.pages > 1 %}
+        <div style="display: flex; justify-content: center; gap: 0.4rem; margin-top: 1.5rem; flex-wrap: wrap;">
+            {% for page_num in pagination.iter_pages() %}
+                {% if page_num %}
+                    <a href="{{ url_for('admin.products', page=page_num, q=current_q, category=current_category, status=current_status) }}" class="btn {% if page_num == pagination.page %}btn-primary{% else %}btn-secondary{% endif %} btn-sm">{{ page_num }}</a>
+                {% else %}
+                    <span style="padding: 0.25rem 0.5rem; color: var(--text-muted);">...</span>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
 </div>
 {% endblock %}
+

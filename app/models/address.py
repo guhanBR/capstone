@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from app import db
 
 class Address(db.Model):
@@ -15,8 +15,8 @@ class Address(db.Model):
     postal_code = db.Column(db.String(20), nullable=False)
     country = db.Column(db.String(100), nullable=False, default='India')
     is_default = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     # Relationships
     orders = db.relationship('Order', backref='shipping_address', lazy=True)

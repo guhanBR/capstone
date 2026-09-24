@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from app import db
 
 class Review(db.Model):
@@ -11,8 +11,8 @@ class Review(db.Model):
     rating = db.Column(db.Integer, nullable=False)
     review_text = db.Column(db.Text, nullable=True)
     status = db.Column(db.String(20), nullable=False, default='approved') # 'approved', 'pending', 'rejected'
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     __table_args__ = (db.UniqueConstraint('user_id', 'product_id', 'order_id', name='uk_user_product_order'),)
 

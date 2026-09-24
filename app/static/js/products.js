@@ -1,12 +1,3 @@
 // Products Filtering & Search JS helpers
-document.addEventListener('DOMContentLoaded', function () {
-    const filterForm = document.getElementById('product-filter-form');
-    if (filterForm) {
-        const selects = filterForm.querySelectorAll('select');
-        selects.forEach(select => {
-            select.addEventListener('change', () => {
-                filterForm.submit();
-            });
-        });
-    }
-});
+// Form submission and filtering is handled dynamically via AJAX (triggerFilter) inside products.html
+// to prevent unwanted full page reloads and scroll-jumping.

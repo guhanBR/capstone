@@ -1,0 +1,81 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}{% if staff_user %}Edit Staff Member #{{ staff_user.id }}{% else %}Add New Staff Member{% endif %} — SparePro Admin{% endblock %}
+
+{% block admin_content %}
+<div class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+        <h2 style="margin: 0; font-size: 1.6rem; font-weight: 700; color: var(--text-color);">
+            {% if staff_user %}Edit Staff Member: {{ staff_user.name }}{% else %}Create New Staff Member Account{% endif %}
+        </h2>
+        <p style="margin: 0.25rem 0 0 0; color: var(--text-muted); font-size: 0.88rem;">
+            {% if staff_user %}Update staff role, contact details, account status, or credentials{% else %}Provide staff member identity and assign appropriate operational access role{% endif %}
+        </p>
+    </div>
+    <a href="{{ url_for('admin.staff_list') }}" class="btn btn-secondary btn-sm">← Back to Staff List</a>
+</div>
+
+<div class="card" style="max-width: 800px;">
+    <form method="POST" action="{% if staff_user %}{{ url_for('admin.staff_edit', user_id=staff_user.id) }}{% else %}{{ url_for('admin.staff_create') }}{% endif %}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+        <!-- Basic Staff Profile Information -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-bottom: 1.25rem;">
+            <div class="form-group">
+                <label class="form-label">Full Name *</label>
+                <input type="text" name="name" class="form-control" value="{{ staff_user.name if staff_user else '' }}" placeholder="e.g. John Doe" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Email Address *</label>
+                <input type="email" name="email" class="form-control" value="{{ staff_user.email if staff_user else '' }}" placeholder="e.g. staff@sparepro.local" {% if staff_user %}readonly style="background-color: rgba(255, 255, 255, 0.05); cursor: not-allowed;"{% else %}required{% endif %}>
+                {% if staff_user %}
+                    <small style="color: var(--text-muted); font-size: 0.78rem;">Email address is permanent for account authentication.</small>
+                {% endif %}
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-bottom: 1.25rem;">
+            <div class="form-group">
+                <label class="form-label">Phone Number *</label>
+                <input type="tel" name="phone" class="form-control" value="{{ staff_user.phone if staff_user else '' }}" placeholder="10-digit mobile number" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Role Assignment *</label>
+                <select name="role" class="form-control" required>
+                    <option value="">Select Role</option>
+                    <option value="employee" {% if staff_user and staff_user.role == 'employee' %}selected{% elif not staff_user %}selected{% endif %}>Employee (Operational Access)</option>
+                    <option value="manager" {% if staff_user and staff_user.role == 'manager' %}selected{% endif %}>Manager (Management Access)</option>
+                    <option value="admin" {% if staff_user and staff_user.role == 'admin' %}selected{% endif %}>Owner / Admin (Full Access)</option>
+                </select>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+            <div class="form-group">
+                <label class="form-label">Account Status</label>
+                <select name="status" class="form-control">
+                    <option value="active" {% if not staff_user or staff_user.status == 'active' %}selected{% endif %}>Active</option>
+                    <option value="inactive" {% if staff_user and staff_user.status == 'inactive' %}selected{% endif %}>Inactive</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    {% if staff_user %}Reset Password (Leave blank to keep existing){% else %}Account Password *{% endif %}
+                </label>
+                <input type="password" name="password" class="form-control" placeholder="{% if staff_user %}Enter new password if changing{% else %}Min. 6 characters{% endif %}" {% if not staff_user %}required{% endif %}>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div style="display: flex; gap: 1rem; justify-content: flex-end; align-items: center; border-top: 1px solid var(--surface-border); padding-top: 1.25rem;">
+            <a href="{{ url_for('admin.staff_list') }}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">
+                {% if staff_user %}Update Staff Account{% else %}Save &amp; Create Staff{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

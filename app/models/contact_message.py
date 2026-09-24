@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from app import db
 
 class ContactMessage(db.Model):
@@ -11,7 +11,7 @@ class ContactMessage(db.Model):
     subject = db.Column(db.String(150), nullable=False)
     message = db.Column(db.Text, nullable=False)
     status = db.Column(db.String(20), default='unread', nullable=False)  # unread, read, replied
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     def to_dict(self):
         return {

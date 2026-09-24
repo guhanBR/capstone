@@ -1,26 +1,9 @@
-{% extends 'base.html' %}
+{% extends 'admin/base_admin.html' %}
 
 {% block title %}Manage Orders — SparePro Admin{% endblock %}
 
-{% block content %}
-<div class="admin-layout">
-    <!-- Sidebar -->
-    <div class="admin-sidebar">
-        <ul class="admin-menu">
-            <li class="admin-menu-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.products') }}">Products</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.categories') }}">Categories</a></li>
-            <li class="admin-menu-item active"><a href="{{ url_for('admin.orders') }}">Orders</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.inventory') }}">Inventory</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.customers') }}">Customers</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.reviews') }}">Reviews</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('reports.analytics_dashboard') }}">Analytics &amp; Reports</a></li>
-        </ul>
-    </div>
-
-    <!-- Main Content -->
-    <div>
-        <h2 style="margin-bottom: 1.5rem;">Customer Orders Management</h2>
+{% block admin_content %}
+<h2 style="margin-bottom: 1.5rem;">Customer Orders Management</h2>
 
         <!-- Search & Filter Bar -->
         <div class="card" style="margin-bottom: 1.5rem; padding: 1rem;">
@@ -105,6 +88,4 @@
                 </div>
             {% endif %}
         </div>
-    </div>
-</div>
 {% endblock %}

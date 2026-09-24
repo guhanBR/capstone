@@ -27,7 +27,7 @@ CREATE TABLE `users` (
     `email` VARCHAR(150) NOT NULL UNIQUE,
     `password_hash` VARCHAR(255) NOT NULL,
     `phone` VARCHAR(20) NOT NULL,
-    `role` ENUM('admin', 'customer') NOT NULL DEFAULT 'customer',
+    `role` ENUM('admin', 'manager', 'employee', 'customer') NOT NULL DEFAULT 'customer',
     `status` ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
     `theme_preference` ENUM('light', 'dark') NOT NULL DEFAULT 'dark',
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,

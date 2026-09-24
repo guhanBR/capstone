@@ -1,0 +1,118 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}Staff Management — SparePro Admin{% endblock %}
+
+{% block admin_content %}
+<div class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+        <h2 style="margin: 0; font-size: 1.6rem; font-weight: 700; color: var(--text-color);">Staff &amp; Role Management</h2>
+        <p style="margin: 0.25rem 0 0 0; color: var(--text-muted); font-size: 0.88rem;">Manage authorized administrators, managers, and employee access permissions</p>
+    </div>
+    <a href="{{ url_for('admin.staff_create') }}" class="btn btn-primary btn-sm">+ Add New Staff Member</a>
+</div>
+
+<!-- Search & Filter Controls -->
+<div class="card" style="margin-bottom: 1.5rem; padding: 1rem;">
+    <form method="GET" action="{{ url_for('admin.staff_list') }}" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <input type="text" name="q" class="form-control" placeholder="Search staff by name, email, or phone..." value="{{ current_q }}" style="flex: 2; min-width: 200px;">
+        <select name="role" class="form-control" style="flex: 1; min-width: 140px;">
+            <option value="">All Roles</option>
+            <option value="admin" {% if current_role == 'admin' %}selected{% endif %}>Owner / Admin</option>
+            <option value="manager" {% if current_role == 'manager' %}selected{% endif %}>Manager</option>
+            <option value="employee" {% if current_role == 'employee' %}selected{% endif %}>Employee</option>
+        </select>
+        <select name="status" class="form-control" style="flex: 1; min-width: 120px;">
+            <option value="">All Statuses</option>
+            <option value="active" {% if current_status == 'active' %}selected{% endif %}>Active</option>
+            <option value="inactive" {% if current_status == 'inactive' %}selected{% endif %}>Inactive</option>
+        </select>
+        <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+        <a href="{{ url_for('admin.staff_list') }}" class="btn btn-secondary btn-sm">Reset</a>
+    </form>
+</div>
+
+<!-- Staff Accounts Table -->
+<div class="card">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Staff Name</th>
+                    <th>Email Address</th>
+                    <th>Phone</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Created Date</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if staff_members %}
+                    {% for member in staff_members %}
+                        <tr>
+                            <td>
+                                <strong>{{ member.name }}</strong>
+                                {% if member.id == current_user.id %}
+                                    <span class="badge" style="background: rgba(249, 115, 22, 0.15); color: var(--secondary); font-size: 0.72rem; padding: 2px 6px; border-radius: 4px; margin-left: 4px;">You</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ member.email }}</td>
+                            <td>{{ member.phone or '—' }}</td>
+                            <td>
+                                <span class="badge" style="
+                                    font-weight: 700;
+                                    font-size: 0.75rem;
+                                    padding: 3px 8px;
+                                    border-radius: 4px;
+                                    {% if member.role == 'admin' %}
+                                        background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3);
+                                    {% elif member.role == 'manager' %}
+                                        background: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3);
+                                    {% else %}
+                                        background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);
+                                    {% endif %}
+                                ">
+                                    {{ member.role_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status-badge badge-{{ member.status|lower }}">{{ member.status }}</span>
+                            </td>
+                            <td>{{ member.created_at.strftime('%Y-%m-%d') if member.created_at else '—' }}</td>
+                            <td style="text-align: right;">
+                                <div style="display: inline-flex; gap: 0.5rem; justify-content: flex-end; align-items: center;">
+                                    <a href="{{ url_for('admin.staff_edit', user_id=member.id) }}" class="btn btn-secondary btn-sm">Edit</a>
+                                    
+                                    <form method="POST" action="{{ url_for('admin.staff_toggle_status', user_id=member.id) }}" style="display: inline;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        <button type="submit" class="btn {% if member.status == 'active' %}btn-secondary{% else %}btn-primary{% endif %} btn-sm" onclick="return confirm('Change status for {{ member.name }}?')">
+                                            {% if member.status == 'active' %}Deactivate{% else %}Activate{% endif %}
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                            No staff members found matching your search.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if pagination.pages > 1 %}
+        <div style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.5rem;">
+            {% for page_num in pagination.iter_pages() %}
+                {% if page_num %}
+                    <a href="{{ url_for('admin.staff_list', page=page_num, q=current_q, role=current_role, status=current_status) }}" class="btn {% if page_num == pagination.page %}btn-primary{% else %}btn-secondary{% endif %} btn-sm">{{ page_num }}</a>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,5 +1,64 @@
 /* ADMIN LAYOUT & DASHBOARD STYLES */
 
+/* ADMIN TOP BAR STYLES */
+.admin-topbar {
+    background-color: var(--surface);
+    border-bottom: 1px solid var(--surface-border);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    padding: 0.75rem 1.5rem;
+}
+
+.admin-topbar-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.admin-badge {
+    background-color: var(--secondary);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.admin-topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.admin-logout-btn {
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    padding: 0.4rem 0.85rem;
+    border-radius: 6px;
+    border: 1px solid var(--surface-border);
+    transition: all 0.2s ease;
+}
+
+.admin-logout-btn:hover {
+    color: var(--danger);
+    border-color: var(--danger);
+    background-color: rgba(239, 68, 68, 0.08);
+}
+
+/* ADMIN LAYOUT & SIDEBAR STYLES */
+.admin-wrapper {
+    max-width: 1400px;
+    margin: 1.5rem auto;
+    padding: 0 1.5rem;
+}
+
 .admin-layout {
     display: grid;
     grid-template-columns: 240px 1fr;
@@ -13,6 +72,19 @@
     border-radius: 12px;
     padding: 1.25rem 0.75rem;
     height: fit-content;
+    position: sticky;
+    top: 5rem;
+}
+
+.admin-sidebar-header {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 0.5rem 0.75rem 0.75rem 0.75rem;
+    border-bottom: 1px solid var(--surface-border);
+    margin-bottom: 0.75rem;
 }
 
 .admin-menu {
@@ -20,6 +92,8 @@
     display: flex;
     flex-direction: column;
     gap: 0.35rem;
+    margin: 0;
+    padding: 0;
 }
 
 .admin-menu-item a {
@@ -31,17 +105,30 @@
     color: var(--text-color);
     font-weight: 500;
     font-size: 0.92rem;
+    text-decoration: none;
     transition: all 0.2s ease;
 }
 
-.admin-menu-item a:hover, .admin-menu-item.active a {
+.admin-menu-item a:hover {
     background-color: var(--surface-hover);
     color: var(--secondary);
 }
 
+.admin-menu-item.active a {
+    background-color: rgba(249, 115, 22, 0.12);
+    color: var(--secondary);
+    font-weight: 700;
+    border-left: 3px solid var(--secondary);
+}
+
+.admin-main-content {
+    min-width: 0; /* Prevents grid blowout on wide tables */
+}
+
+/* KPI DASHBOARD CARDS */
 .kpi-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 1.25rem;
     margin-bottom: 2rem;
 }
@@ -54,10 +141,16 @@
     display: flex;
     flex-direction: column;
     box-shadow: var(--card-shadow);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.kpi-card:hover {
+    border-color: var(--surface-hover);
+    transform: translateY(-2px);
 }
 
 .kpi-title {
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     color: var(--text-muted);
     font-weight: 600;
     text-transform: uppercase;
@@ -66,14 +159,16 @@
 }
 
 .kpi-value {
-    font-size: 1.8rem;
+    font-size: 1.75rem;
     font-weight: 800;
     color: var(--text-color);
     font-family: 'Outfit', sans-serif;
+    line-height: 1.2;
 }
 
 .kpi-sub {
     font-size: 0.78rem;
-    color: var(--secondary);
-    margin-top: 0.3rem;
+    color: var(--text-muted);
+    margin-top: 0.4rem;
 }
+

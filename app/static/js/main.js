@@ -78,31 +78,42 @@ function initConfirmations() {
 
 // Account Dropdown Toggle Handler
 function toggleAccountMenu(event) {
-    if (event) event.stopPropagation();
-    const container = document.querySelector('.account-dropdown-container');
+    if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
+    const btn = event ? (event.currentTarget || event.target) : null;
+    const container = btn ? btn.closest('.account-dropdown-container') : document.querySelector('.account-dropdown-container');
     if (container) {
+        // Close other dropdowns first
+        document.querySelectorAll('.account-dropdown-container').forEach(c => {
+            if (c !== container) c.classList.remove('show');
+        });
         container.classList.toggle('show');
     }
 }
 
 document.addEventListener('click', function (e) {
-    const container = document.querySelector('.account-dropdown-container');
-    if (container && !container.contains(e.target)) {
-        container.classList.remove('show');
-    }
+    document.querySelectorAll('.account-dropdown-container.show').forEach(container => {
+        if (!container.contains(e.target)) {
+            container.classList.remove('show');
+        }
+    });
 });
 
 // Close dropdown on Escape key or when clicking navbar links
 document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
-        const container = document.querySelector('.account-dropdown-container');
-        if (container) container.classList.remove('show');
+        document.querySelectorAll('.account-dropdown-container').forEach(container => {
+            container.classList.remove('show');
+        });
     }
 });
 
 document.querySelectorAll('.nav-links a').forEach(link => {
     link.addEventListener('click', function () {
-        const container = document.querySelector('.account-dropdown-container');
-        if (container) container.classList.remove('show');
+        document.querySelectorAll('.account-dropdown-container').forEach(container => {
+            container.classList.remove('show');
+        });
     });
 });

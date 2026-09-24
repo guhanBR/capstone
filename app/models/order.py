@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from app import db
 
 class Order(db.Model):
@@ -15,8 +15,8 @@ class Order(db.Model):
     payment_method = db.Column(db.String(50), nullable=False, default='Cash on Delivery')
     payment_status = db.Column(db.String(20), nullable=False, default='Pending') # Pending, Paid, Failed, Refunded
     order_status = db.Column(db.String(20), nullable=False, default='Pending', index=True) # Pending, Confirmed, Processing, Packed, Shipped, Delivered, Cancelled
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     # Relationships
     items = db.relationship('OrderItem', backref='order', lazy=True, cascade='all, delete-orphan')
@@ -55,7 +55,7 @@ class OrderItem(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     unit_price = db.Column(db.Numeric(10, 2), nullable=False)
     subtotal = db.Column(db.Numeric(10, 2), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     # Backref to Product
     product = db.relationship('Product', lazy=True)

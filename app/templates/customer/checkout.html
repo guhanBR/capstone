@@ -45,7 +45,7 @@
                 <!-- Inline New Address Form -->
                 <div style="margin-top: 1.5rem; border-top: 1px solid var(--surface-border); padding-top: 1.25rem;">
                     <h4>{% if addresses %}Or Add a New Delivery Address:{% else %}Enter Shipping Address:{% endif %}</h4>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                    <div class="form-grid-2" style="margin-top: 1rem;">
                         <div class="form-group">
                             <label class="form-label">Full Name</label>
                             <input type="text" name="full_name" class="form-control" placeholder="Recipient Name">
@@ -63,7 +63,7 @@
                         <label class="form-label">Address Line 2</label>
                         <input type="text" name="address_line_2" class="form-control" placeholder="Landmark / Industrial Zone">
                     </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                    <div class="form-grid-3">
                         <div class="form-group">
                             <label class="form-label">City</label>
                             <input type="text" name="city" class="form-control">

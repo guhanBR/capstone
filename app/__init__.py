@@ -74,12 +74,42 @@ def create_app(config_name=None):
     def index():
         from app.models.category import Category
         from app.models.product import Product
-        popular_categories = Category.query.filter_by(status='active').limit(6).all()
-        featured_products = Product.query.filter_by(status='active').order_by(Product.id.desc()).limit(4).all()
+        from sqlalchemy import desc
+
+        # All active categories (for the category grid)
+        popular_categories = Category.query.filter_by(status='active').all()
+
+        # Popular products: most recently created, in-stock first, up to 8
+        popular_products = Product.query.filter_by(status='active').order_by(
+            desc(Product.stock_quantity > 0), desc(Product.created_at)
+        ).limit(8).all()
+
+        # New arrivals: latest 4 by creation date
+        new_arrivals = Product.query.filter_by(status='active').order_by(
+            desc(Product.created_at)
+        ).limit(4).all()
+
+        # Discounted products: have a discount_price set and it's less than price
+        discounted_products = Product.query.filter(
+            Product.status == 'active',
+            Product.discount_price.isnot(None),
+            Product.discount_price > 0,
+            Product.discount_price < Product.price
+        ).limit(4).all()
+
+        # Distinct active brands
+        brand_rows = db.session.query(Product.brand).filter(
+            Product.status == 'active'
+        ).distinct().all()
+        brands = [b[0] for b in brand_rows if b[0]]
+
         return render_template(
             'customer/home.html',
             popular_categories=popular_categories,
-            featured_products=featured_products
+            popular_products=popular_products,
+            new_arrivals=new_arrivals,
+            discounted_products=discounted_products,
+            brands=brands
         )
 
     @app.route('/about/')
@@ -144,7 +174,7 @@ def create_app(config_name=None):
     # Inject global context variables (e.g. cart count, categories, current time)
     @app.context_processor
     def inject_globals():
-        from datetime import datetime
+        from datetime import datetime, timezone
         from flask_login import current_user
         from app.models.category import Category
         from app.models.notification import Notification
@@ -161,7 +191,7 @@ def create_app(config_name=None):
             categories=categories,
             cart_count=cart_count,
             unread_notifications=unread_notifications,
-            now=datetime.utcnow()
+            now=datetime.now(timezone.utc).replace(tzinfo=None)
         )
 
     # Ensure upload directory exists

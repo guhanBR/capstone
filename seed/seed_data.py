@@ -1,6 +1,6 @@
 import os
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 
 # Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -24,7 +24,7 @@ def seed():
         db.drop_all()
         db.create_all()
 
-        print("[Seeding] Creating Admin Account...")
+        print("[Seeding] Creating Admin / Staff Accounts...")
         admin = User(
             name="System Administrator",
             email="admin@sparepro.local",
@@ -34,7 +34,28 @@ def seed():
             theme_preference="dark"
         )
         admin.set_password("Admin@12345")
-        db.session.add(admin)
+
+        manager = User(
+            name="Operations Manager",
+            email="manager@sparepro.local",
+            phone="9998887771",
+            role="manager",
+            status="active",
+            theme_preference="dark"
+        )
+        manager.set_password("Manager@12345")
+
+        employee = User(
+            name="Inventory Employee",
+            email="employee@sparepro.local",
+            phone="9998887772",
+            role="employee",
+            status="active",
+            theme_preference="dark"
+        )
+        employee.set_password("Employee@12345")
+
+        db.session.add_all([admin, manager, employee])
 
         print("[Seeding] Creating Customer Accounts...")
         cust1 = User(
@@ -300,7 +321,7 @@ def seed():
         ]
 
         for user, item_prods, qty1, qty2, status, pay_status, days_ago in sample_order_data:
-            order_date = datetime.utcnow() - timedelta(days=days_ago)
+            order_date = datetime.now(timezone.utc) - timedelta(days=days_ago)
             order_num = f"SP-{order_date.strftime('%Y%m%d')}-{user.id}00{days_ago}"
 
             p1, p2 = item_prods[0], item_prods[1]

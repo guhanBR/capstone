@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="description" content="SparePro Admin Operations & Management Panel">
+    <title>{% block title %}SparePro Admin{% endblock %}</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- CSS stylesheets -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+
+    <!-- Early Theme Script to prevent flash of wrong theme -->
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+</head>
+<body class="admin-body">
+
+    <!-- ADMIN TOP BAR -->
+    <nav class="admin-topbar">
+        <div class="admin-topbar-container">
+            <!-- Brand Logo with Admin Badge -->
+            <a href="{{ url_for('admin.dashboard') }}" class="admin-brand-logo" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-size: 1.5rem; font-weight: 800; color: var(--text-color); font-family: 'Outfit', sans-serif; letter-spacing: -0.5px;">Spare<span style="color: var(--secondary);">Pro</span></span>
+                <span class="admin-badge">{% if current_user.is_authenticated and current_user.role == 'manager' %}MANAGER{% elif current_user.is_authenticated and current_user.role == 'employee' %}EMPLOYEE{% else %}ADMIN{% endif %}</span>
+            </a>
+
+            <!-- Right-hand Admin Account & Logout Actions -->
+            <div class="admin-topbar-actions">
+                <!-- Mobile Sidebar Toggle Button -->
+                <button type="button" class="btn btn-secondary btn-sm admin-mobile-toggle" onclick="toggleAdminSidebar()" aria-label="Toggle Admin Sidebar" style="display: none;">
+                    ☰ Menu
+                </button>
+
+                <!-- Admin Account Dropdown -->
+                <div class="account-dropdown-container" style="position: relative;">
+                    <button type="button" class="account-dropdown-toggle" id="adminAccountDropdownBtn" onclick="toggleAccountMenu(event)">
+                        Admin Account <span style="font-size: 0.7rem; margin-left: 2px;">▼</span>
+                    </button>
+
+                    <div class="account-dropdown-menu" id="accountDropdownMenu">
+                        <div class="dropdown-header">
+                            <span style="font-weight: 700; color: var(--text-color); font-size: 0.88rem;">
+                                Hello, {{ current_user.name if current_user.is_authenticated else 'Admin' }}
+                            </span>
+                            {% if current_user.is_authenticated and current_user.role_display %}
+                                <div style="font-size: 0.75rem; color: var(--secondary); font-weight: 600; margin-top: 2px;">
+                                    {{ current_user.role_display }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-section-label">System</div>
+                        <button type="button" class="dropdown-item" onclick="toggleTheme()">
+                            Light Mode / Dark Mode
+                        </button>
+                        <a href="{{ url_for('index') }}" class="dropdown-item">Customer Shop View</a>
+                        <div class="dropdown-divider"></div>
+                        <a href="{{ url_for('auth.logout') }}" class="dropdown-item text-danger">Logout</a>
+                    </div>
+                </div>
+
+                <!-- Direct Logout Link -->
+                <a href="{{ url_for('auth.logout') }}" class="admin-logout-btn">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Backdrop overlay for mobile drawer -->
+    <div class="sidebar-backdrop" id="adminSidebarBackdrop" onclick="toggleAdminSidebar()"></div>
+
+    <!-- ADMIN LAYOUT WRAPPER -->
+    <div class="main-wrapper admin-wrapper">
+        <div class="admin-layout">
+            <!-- COMMON ADMIN SIDEBAR (Rendered Once) -->
+            <aside class="admin-sidebar" id="adminSidebar">
+                <div class="admin-sidebar-header">
+                    <span>ADMIN PANEL</span>
+                    <button type="button" class="admin-sidebar-close" onclick="toggleAdminSidebar()" aria-label="Close menu">✕</button>
+                </div>
+                <ul class="admin-menu">
+                    <li class="admin-menu-item {% if request.endpoint == 'admin.dashboard' %}active{% endif %}">
+                        <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+                    </li>
+                    <li class="admin-menu-item {% if request.endpoint in ['admin.products', 'admin.product_create', 'admin.product_edit'] %}active{% endif %}">
+                        <a href="{{ url_for('admin.products') }}">Products</a>
+                    </li>
+                    <li class="admin-menu-item {% if request.endpoint == 'admin.categories' %}active{% endif %}">
+                        <a href="{{ url_for('admin.categories') }}">Categories</a>
+                    </li>
+                    <li class="admin-menu-item {% if request.endpoint in ['admin.brands', 'admin.brand_edit'] %}active{% endif %}">
+                        <a href="{{ url_for('admin.brands') }}">Brands</a>
+                    </li>
+                    <li class="admin-menu-item {% if request.endpoint == 'admin.inventory' %}active{% endif %}">
+                        <a href="{{ url_for('admin.inventory') }}">Inventory</a>
+                    </li>
+                    <li class="admin-menu-item {% if request.endpoint == 'admin.orders' %}active{% endif %}">
+                        <a href="{{ url_for('admin.orders') }}">Orders</a>
+                    </li>
+                    <li class="admin-menu-item {% if request.endpoint == 'admin.customers' %}active{% endif %}">
+                        <a href="{{ url_for('admin.customers') }}">Customers</a>
+                    </li>
+                    <li class="admin-menu-item {% if request.endpoint == 'admin.reviews' %}active{% endif %}">
+                        <a href="{{ url_for('admin.reviews') }}">Reviews</a>
+                    </li>
+                    {% if current_user.role in ['admin', 'manager'] %}
+                        <li class="admin-menu-item {% if request.endpoint == 'reports.analytics_dashboard' %}active{% endif %}">
+                            <a href="{{ url_for('reports.analytics_dashboard') }}">Analytics &amp; Reports</a>
+                        </li>
+                    {% endif %}
+                    {% if current_user.is_admin %}
+                        <li class="admin-menu-item {% if request.endpoint in ['admin.staff_list', 'admin.staff_create', 'admin.staff_edit'] %}active{% endif %}">
+                            <a href="{{ url_for('admin.staff_list') }}">Staff Management</a>
+                        </li>
+                        <li class="admin-menu-item {% if request.endpoint == 'admin.settings' %}active{% endif %}">
+                            <a href="{{ url_for('admin.settings') }}">Settings</a>
+                        </li>
+                    {% endif %}
+                    <li class="admin-menu-item">
+                        <a href="{{ url_for('auth.logout') }}" style="color: var(--danger);">Logout</a>
+                    </li>
+                </ul>
+            </aside>
+
+            <!-- MAIN ADMIN CONTENT AREA -->
+            <main class="admin-main-content">
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="flash-messages">
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">
+                                    <span>{{ message }}</span>
+                                    <button onclick="this.parentElement.remove()" style="background:none;border:none;color:inherit;cursor:pointer;font-weight:bold;">✕</button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                {% block admin_content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <!-- Core Scripts -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        function toggleAdminSidebar() {
+            const sidebar = document.getElementById('adminSidebar');
+            const backdrop = document.getElementById('adminSidebarBackdrop');
+            if (sidebar) {
+                sidebar.classList.toggle('mobile-open');
+            }
+            if (backdrop) {
+                backdrop.classList.toggle('show');
+            }
+        }
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -8,7 +8,7 @@ auth_bp = Blueprint('auth', __name__)
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        if current_user.is_admin:
+        if current_user.is_staff:
             return redirect(url_for('admin.dashboard'))
         return redirect(url_for('customer.dashboard'))
 
@@ -28,7 +28,7 @@ def login():
                 return redirect(url_for('orders.checkout', mode='buy_now'))
             if next_page:
                 return redirect(next_page)
-            if user.is_admin:
+            if user.is_staff:
                 return redirect(url_for('admin.dashboard'))
             return redirect(url_for('customer.dashboard'))
         else:

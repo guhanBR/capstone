@@ -1,0 +1,93 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}Manage Brands — SparePro Admin{% endblock %}
+
+{% block admin_content %}
+<h2 style="margin-bottom: 1.5rem;">Brands Management</h2>
+
+<div class="admin-two-col-layout">
+    <!-- Brands Table -->
+    <div class="card">
+        <h3>Product Brands</h3>
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.5rem;">
+            Brands are automatically populated from active products.
+        </p>
+        <div class="table-responsive" style="margin-top: 1rem;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Brand Name</th>
+                        <th>Associated Products</th>
+                        {% if current_user.role in ['admin', 'manager'] %}
+                            <th>Actions</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for brand, count in brands %}
+                        <tr>
+                            <td><strong>{{ brand }}</strong></td>
+                            <td><span class="badge-count">{{ count }}</span></td>
+                            {% if current_user.role in ['admin', 'manager'] %}
+                                <td>
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="editBrand('{{ brand|escape }}')">Edit Name</button>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="{% if current_user.role in ['admin', 'manager'] %}3{% else %}2{% endif %}" style="text-align: center; padding: 2rem;">No brands found.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Rename Brand Form -->
+    <div class="card" id="editBrandCard" style="display: none;">
+        <h3>Rename Brand</h3>
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">
+            This will update the brand name for all associated products.
+        </p>
+        <form method="POST" action="{{ url_for('admin.brand_edit') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <input type="hidden" name="old_brand_name" id="oldBrandNameInput" value=""/>
+
+            <div class="form-group">
+                <label class="form-label">Current Brand Name</label>
+                <input type="text" id="displayOldBrandName" class="form-control" disabled>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">New Brand Name *</label>
+                <input type="text" name="new_brand_name" id="newBrandNameInput" class="form-control" required>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">Save Changes</button>
+                <button type="button" class="btn btn-secondary" onclick="cancelEdit()" style="flex: 1;">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function editBrand(brandName) {
+        document.getElementById('editBrandCard').style.display = 'block';
+        document.getElementById('oldBrandNameInput').value = brandName;
+        document.getElementById('displayOldBrandName').value = brandName;
+        document.getElementById('newBrandNameInput').value = brandName;
+        document.getElementById('newBrandNameInput').focus();
+    }
+    
+    function cancelEdit() {
+        document.getElementById('editBrandCard').style.display = 'none';
+        document.getElementById('oldBrandNameInput').value = '';
+        document.getElementById('displayOldBrandName').value = '';
+        document.getElementById('newBrandNameInput').value = '';
+    }
+</script>
+{% endblock %}

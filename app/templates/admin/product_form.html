@@ -1,190 +1,186 @@
-{% extends 'base.html' %}
+{% extends 'admin/base_admin.html' %}
 
 {% block title %}{% if product %}Edit Product #{{ product.id }}{% else %}Add New Product{% endif %} — SparePro Admin{% endblock %}
 
-{% block content %}
-<div class="admin-layout">
-    <!-- Sidebar -->
-    <div class="admin-sidebar">
-        <ul class="admin-menu">
-            <li class="admin-menu-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
-            <li class="admin-menu-item active"><a href="{{ url_for('admin.products') }}">Products</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.categories') }}">Categories</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.orders') }}">Orders</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.inventory') }}">Inventory</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.customers') }}">Customers</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.reviews') }}">Reviews</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('reports.analytics_dashboard') }}">Analytics &amp; Reports</a></li>
-        </ul>
-    </div>
-
-    <!-- Main Content -->
+{% block admin_content %}
+<div class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
     <div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-            <h2>{% if product %}Edit Product: {{ product.name }}{% else %}Create New Motor / Pump Spare Part{% endif %}</h2>
-            <a href="{{ url_for('admin.products') }}" class="btn btn-secondary btn-sm">← Back to Products List</a>
-        </div>
-
-        <div class="card">
-            <form method="POST" action="{% if product %}{{ url_for('admin.product_edit', product_id=product.id) }}{% else %}{{ url_for('admin.product_create') }}{% endif %}" enctype="multipart/form-data">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
-                    <div class="form-group">
-                        <label class="form-label">SKU Code *</label>
-                        <input type="text" name="sku" class="form-control" value="{{ product.sku if product else '' }}" placeholder="e.g. BRG-6203-ZZ" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Category *</label>
-                        <select name="category_id" class="form-control" required>
-                            <option value="">Select Category</option>
-                            {% for cat in categories %}
-                                <option value="{{ cat.id }}" {% if product and product.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Brand Name *</label>
-                        <input type="text" name="brand" class="form-control" value="{{ product.brand if product else '' }}" placeholder="e.g. SKF, Kirloskar, Crompton" required>
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
-                    <div class="form-group">
-                        <label class="form-label">Part / Product Name *</label>
-                        <input type="text" name="name" class="form-control" value="{{ product.name if product else '' }}" placeholder="e.g. 6203-2RS Deep Groove Ball Bearing" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Model Number</label>
-                        <input type="text" name="model_number" class="form-control" value="{{ product.model_number if product else '' }}" placeholder="e.g. 6203-2RS">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Detailed Description *</label>
-                    <textarea name="description" class="form-control" rows="3" required>{{ product.description if product else '' }}</textarea>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <div class="form-group">
-                        <label class="form-label">Technical Specifications</label>
-                        <textarea name="specifications" class="form-control" rows="3" placeholder="Inner diameter, outer diameter, seal type, rating...">{{ product.specifications if product else '' }}</textarea>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Equipment Compatibility</label>
-                        <textarea name="compatibility" class="form-control" rows="3" placeholder="Compatible pump models, motor HP ratings...">{{ product.compatibility if product else '' }}</textarea>
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 1rem;">
-                    <div class="form-group">
-                        <label class="form-label">Price (₹) *</label>
-                        <input type="number" step="0.01" name="price" class="form-control" value="{{ product.price if product else '0.00' }}" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Discount Price (₹)</label>
-                        <input type="number" step="0.01" name="discount_price" class="form-control" value="{{ product.discount_price if product and product.discount_price else '' }}">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Stock Quantity *</label>
-                        <input type="number" name="stock_quantity" class="form-control" value="{{ product.stock_quantity if product else '10' }}" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Min Stock Threshold *</label>
-                        <input type="number" name="minimum_stock_level" class="form-control" value="{{ product.minimum_stock_level if product else '5' }}" required>
-                    </div>
-                </div>
-
-                <!-- Product Image Management Section -->
-                <div style="border: 1px solid var(--surface-border); border-radius: 10px; margin-bottom: 1.25rem; overflow: hidden;">
-                    <div style="background: var(--surface-hover); padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--surface-border);">
-                        <h4 style="font-size: 0.95rem; margin: 0; color: var(--secondary);">Product Image</h4>
-                    </div>
-                    <div style="padding: 1.25rem;">
-                        <div style="display: grid; grid-template-columns: 160px 1fr; gap: 1.5rem; align-items: start;">
-                            <!-- Image Preview Box -->
-                            <div>
-                                <label class="form-label" style="font-size: 0.8rem; margin-bottom: 0.5rem; display: block;">Current Image</label>
-                                <div id="image-preview-box" style="width: 150px; height: 150px; border: 2px solid var(--surface-border); border-radius: 10px; background: #ffffff; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 6px; position: relative;">
-                                    <img id="image-preview"
-                                         src="{% if product and product.image %}{{ product.image_url }}{% else %}/static/images/products/placeholder.svg{% endif %}"
-                                         alt="Product Image Preview"
-                                         style="max-width: 100%; max-height: 100%; object-fit: contain;"
-                                         onerror="this.src='/static/images/products/placeholder.svg'">
-                                </div>
-                                {% if product and product.image %}
-                                    <div style="margin-top: 0.6rem;">
-                                        <span style="font-size: 0.72rem; color: var(--text-muted); display: block; word-break: break-all;">{{ product.image }}</span>
-                                    </div>
-                                {% endif %}
-                            </div>
-
-                            <!-- Upload Controls -->
-                            <div>
-                                <div class="form-group" style="margin-bottom: 1rem;">
-                                    <label class="form-label">Upload New Image</label>
-                                    <input type="file" name="image_file" id="image_file_input" class="form-control"
-                                           accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
-                                           onchange="previewSelectedImage(this)">
-                                    <small style="color: var(--text-muted); display: block; margin-top: 0.4rem; font-size: 0.78rem;">
-                                        Accepted formats: JPG, JPEG, PNG, WEBP &nbsp;|&nbsp; Max size: 16 MB
-                                    </small>
-                                </div>
-
-                                <div class="form-group" style="margin-bottom: 1rem;">
-                                    <label class="form-label">Or use existing filename / external URL</label>
-                                    <input type="text" name="image" id="image_url_input" class="form-control"
-                                           value="{{ product.image if product and product.image else '' }}"
-                                           placeholder="e.g. bearings/6203-bearing.jpg  or  https://..."
-                                           onchange="updatePreviewFromUrl(this.value)">
-                                    <small style="color: var(--text-muted); display: block; margin-top: 0.4rem; font-size: 0.78rem;">
-                                        Relative path from <code>static/images/products/</code> or full URL
-                                    </small>
-                                </div>
-
-                                {% if product and product.image %}
-                                <div style="padding: 0.75rem; background: rgba(255,100,80,0.08); border: 1px solid rgba(255,100,80,0.25); border-radius: 8px;">
-                                    <p style="margin: 0 0 0.6rem; font-size: 0.85rem; color: var(--text-muted);">Remove the current image and show a placeholder instead:</p>
-                                    <form method="POST"
-                                          action="{{ url_for('admin.product_remove_image', product_id=product.id) }}"
-                                          onsubmit="return confirm('Remove this product image? The product will show a placeholder until you upload a new one. (The product itself will NOT be deleted.)')">
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                        <button type="submit" class="btn btn-danger btn-sm">
-                                            Remove Image
-                                        </button>
-                                    </form>
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group" style="margin-bottom: 1.5rem;">
-                    <label class="form-label">Product Status</label>
-                    <select name="status" class="form-control" style="max-width: 300px;">
-                        <option value="active" {% if not product or product.status == 'active' %}selected{% endif %}>Active (Visible to customers)</option>
-                        <option value="inactive" {% if product and product.status == 'inactive' %}selected{% endif %}>Inactive (Hidden)</option>
-                    </select>
-                </div>
-
-                <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
-                    <button type="submit" class="btn btn-primary">{% if product %}Save Product Changes{% else %}Create Product{% endif %}</button>
-                    <a href="{{ url_for('admin.products') }}" class="btn btn-secondary">Cancel</a>
-                </div>
-            </form>
-        </div>
+        <h2 style="margin: 0; font-size: 1.6rem; font-weight: 700; color: var(--text-color);">
+            {% if product %}Edit Product: {{ product.name }}{% else %}Add New Motor / Pump Spare Part{% endif %}
+        </h2>
+        <p style="margin: 0.25rem 0 0 0; color: var(--text-muted); font-size: 0.88rem;">
+            {% if product %}Update catalog specifications, inventory stock thresholds, or product image{% else %}Fill in product details to publish to customer catalog{% endif %}
+        </p>
     </div>
+    <a href="{{ url_for('admin.products') }}" class="btn btn-secondary btn-sm">← Back to Products List</a>
 </div>
+
+<div class="card">
+    <form method="POST" action="{% if product %}{{ url_for('admin.product_edit', product_id=product.id) }}{% else %}{{ url_for('admin.product_create') }}{% endif %}" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+        <!-- Basic Product Identification -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 1.25rem;">
+            <div class="form-group">
+                <label class="form-label">SKU Code *</label>
+                <input type="text" name="sku" class="form-control" value="{{ product.sku if product else '' }}" placeholder="e.g. BRG-6203-ZZ" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Category *</label>
+                <select name="category_id" class="form-control" required>
+                    <option value="">Select Category</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if product and product.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Brand Name *</label>
+                <input type="text" name="brand" class="form-control" value="{{ product.brand if product else '' }}" placeholder="e.g. SKF, Kirloskar, Crompton" required>
+            </div>
+        </div>
+
+        <div class="form-grid-2" style="margin-bottom: 1.25rem;">
+            <div class="form-group">
+                <label class="form-label">Part / Product Name *</label>
+                <input type="text" name="name" class="form-control" value="{{ product.name if product else '' }}" placeholder="e.g. 6203-2RS Deep Groove Ball Bearing" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Model Number</label>
+                <input type="text" name="model_number" class="form-control" value="{{ product.model_number if product else '' }}" placeholder="e.g. 6203-2RS">
+            </div>
+        </div>
+
+        <!-- Description & Technical Specifications -->
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+            <label class="form-label">Detailed Description *</label>
+            <textarea name="description" class="form-control" rows="3" placeholder="Detailed component overview, application notes, and build materials..." required>{{ product.description if product else '' }}</textarea>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.25rem;">
+            <div class="form-group">
+                <label class="form-label">Technical Specifications</label>
+                <textarea name="specifications" class="form-control" rows="3" placeholder="Inner diameter, outer diameter, seal type, HP rating, RPM...">{{ product.specifications if product else '' }}</textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Equipment Compatibility</label>
+                <textarea name="compatibility" class="form-control" rows="3" placeholder="Compatible pump models, motor series, frame sizes...">{{ product.compatibility if product else '' }}</textarea>
+            </div>
+        </div>
+
+        <!-- Pricing & Stock Thresholds -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+            <div class="form-group">
+                <label class="form-label">Price (₹) *</label>
+                <input type="number" step="0.01" name="price" class="form-control" value="{{ product.price if product else '0.00' }}" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Discount Price (₹)</label>
+                <input type="number" step="0.01" name="discount_price" class="form-control" value="{{ product.discount_price if product and product.discount_price else '' }}" placeholder="Optional sale price">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Stock Quantity *</label>
+                <input type="number" name="stock_quantity" class="form-control" value="{{ product.stock_quantity if product else '10' }}" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Min Stock Threshold *</label>
+                <input type="number" name="minimum_stock_level" class="form-control" value="{{ product.minimum_stock_level if product else '5' }}" required>
+            </div>
+        </div>
+
+        <!-- Product Image Management Section -->
+        <div style="border: 1px solid var(--surface-border); border-radius: 10px; margin-bottom: 1.5rem; overflow: hidden; background: var(--surface);">
+            <div style="background: var(--surface-hover); padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--surface-border);">
+                <h4 style="font-size: 0.95rem; margin: 0; color: var(--secondary); font-weight: 700;">Product Image Management</h4>
+            </div>
+            <div style="padding: 1.25rem;">
+                <div class="admin-image-upload-grid" style="display: grid; grid-template-columns: 160px 1fr; gap: 1.5rem; align-items: start;">
+                    <!-- Image Preview Box -->
+                    <div>
+                        <label class="form-label" style="font-size: 0.8rem; margin-bottom: 0.5rem; display: block;">Current Image</label>
+                        <div id="image-preview-box" style="width: 150px; height: 150px; border: 2px solid var(--surface-border); border-radius: 10px; background: #ffffff; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 6px;">
+                            <img id="image-preview"
+                                 src="{% if product and product.image %}{{ product.image_url }}{% else %}/static/images/products/placeholder.svg{% endif %}"
+                                 alt="Product Image Preview"
+                                 style="max-width: 100%; max-height: 100%; object-fit: contain;"
+                                 onerror="this.src='/static/images/products/placeholder.svg'">
+                        </div>
+                        {% if product and product.image %}
+                            <div style="margin-top: 0.6rem;">
+                                <span style="font-size: 0.72rem; color: var(--text-muted); display: block; word-break: break-all;">{{ product.image }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Upload & URL Controls -->
+                    <div>
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label class="form-label">Upload New Image File</label>
+                            <input type="file" name="image_file" id="image_file_input" class="form-control"
+                                   accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                                   onchange="previewSelectedImage(this)">
+                            <small style="color: var(--text-muted); display: block; margin-top: 0.4rem; font-size: 0.78rem;">
+                                Supported formats: JPG, JPEG, PNG, WEBP &nbsp;|&nbsp; Safe unique filename generated upon upload
+                            </small>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label class="form-label">Or Specify Static Filename / External Image URL</label>
+                            <input type="text" name="image" id="image_url_input" class="form-control"
+                                   value="{{ product.image if product and product.image else '' }}"
+                                   placeholder="e.g. bearings/6203-bearing.jpg or https://..."
+                                   onchange="updatePreviewFromUrl(this.value)">
+                            <small style="color: var(--text-muted); display: block; margin-top: 0.4rem; font-size: 0.78rem;">
+                                Relative path from <code>static/images/products/</code> or valid web URL
+                            </small>
+                        </div>
+
+                        {% if product and product.image %}
+                        <div style="padding: 0.75rem 1rem; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); border-radius: 8px;">
+                            <p style="margin: 0 0 0.5rem; font-size: 0.82rem; color: var(--text-muted);">Remove current custom image and reset to system placeholder:</p>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="confirmAndRemoveImage()">
+                                Remove Image
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Catalog Status -->
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label class="form-label">Catalog Visibility Status</label>
+            <select name="status" class="form-control" style="max-width: 320px;">
+                <option value="active" {% if not product or product.status == 'active' %}selected{% endif %}>Active (Visible in customer store)</option>
+                <option value="inactive" {% if product and product.status == 'inactive' %}selected{% endif %}>Inactive (Hidden from search &amp; shop)</option>
+            </select>
+        </div>
+
+        <!-- Form Buttons -->
+        <div style="margin-top: 1.5rem; display: flex; gap: 1rem; align-items: center;">
+            <button type="submit" class="btn btn-primary">
+                {% if product %}Save Product Changes{% else %}Create Product{% endif %}
+            </button>
+            <a href="{{ url_for('admin.products') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<!-- Standalone Hidden Form for Image Removal -->
+{% if product and product.image %}
+<form id="remove-image-form" method="POST" action="{{ url_for('admin.product_remove_image', product_id=product.id) }}" style="display: none;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+</form>
+{% endif %}
 
 <script>
 function previewSelectedImage(input) {
     if (input.files && input.files[0]) {
         const file = input.files[0];
-        // Client-side format validation
         const allowed = ['image/jpeg', 'image/png', 'image/webp'];
         if (!allowed.includes(file.type)) {
             alert('Invalid file type. Only JPG, JPEG, PNG, and WEBP images are allowed.');
@@ -212,5 +208,12 @@ function updatePreviewFromUrl(val) {
         imgPreview.src = '/static/images/products/' + val;
     }
 }
+
+function confirmAndRemoveImage() {
+    if (confirm('Remove this product image? The product will revert to default placeholder image.')) {
+        document.getElementById('remove-image-form').submit();
+    }
+}
 </script>
 {% endblock %}
+

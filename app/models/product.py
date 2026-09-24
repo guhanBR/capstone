@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from app import db
 
 class Product(db.Model):
@@ -19,8 +19,8 @@ class Product(db.Model):
     minimum_stock_level = db.Column(db.Integer, nullable=False, default=5)
     image = db.Column(db.String(255), nullable=True, default=None)
     status = db.Column(db.String(20), nullable=False, default='active')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     # Relationships
     cart_items = db.relationship('CartItem', backref='product', lazy=True, cascade='all, delete-orphan')
@@ -55,18 +55,32 @@ class Product(db.Model):
     @property
     def image_url(self):
         """Return a URL for this product's image.
-        Supports: absolute URLs, /static/ paths, subdirectory paths like
-        'bearings/6203.jpg' or 'bearings/6203.svg', and bare filenames.
-        Returns a professional placeholder SVG path when no image is set.
+        Supports:
+          - Absolute URLs (http://, https://)
+          - Absolute paths starting with /
+          - Paths starting with static/ (e.g. 'static/uploads/products/x.jpg')
+          - Admin-uploaded paths starting with uploads/ (e.g. 'uploads/products/uuid.webp')
+            → served from /static/uploads/products/uuid.webp
+          - Seeded subdirectory paths like 'bearings/6203.jpg'
+            → served from /static/images/products/bearings/6203.jpg
+          - Bare filenames like 'bearing.jpg'
+            → served from /static/images/products/bearing.jpg
+        Returns a placeholder SVG when no image is set.
         """
         if not self.image:
             return '/static/images/products/placeholder.svg'
+        # Already an absolute URL or absolute path — use as-is
         if self.image.startswith(('http://', 'https://', '/')):
             return self.image
+        # Explicit static/ prefix — just prepend /
         if self.image.startswith('static/'):
             return f'/{self.image}'
-        # Subdirectory path like 'bearings/6203.svg' or bare 'bearing.jpg'
+        # Admin-uploaded images are stored under static/uploads/products/
+        if self.image.startswith('uploads/'):
+            return f'/static/{self.image}'
+        # Seeded subdirectory paths (e.g. 'bearings/6203.jpg') or bare filenames
         return f'/static/images/products/{self.image}'
+
 
     def to_dict(self):
         return {

@@ -1,145 +1,371 @@
 {% extends 'base.html' %}
 
-{% block title %}SparePro — Motor &amp; Pump Spare Parts Made Simple{% endblock %}
+{% block title %}SparePro — Quality Spare Parts for Motors & Pumps{% endblock %}
 
 {% block content %}
-<!-- HERO SECTION -->
-<section style="background: var(--surface); border: 1px solid var(--surface-border); border-radius: 12px; padding: 3.5rem 2.5rem; margin-bottom: 2.5rem; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
-    <span style="color: var(--secondary); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; display: block; margin-bottom: 0.75rem;">SPAREPRO INDUSTRIAL SOLUTIONS</span>
-    <h1 style="font-size: 2.75rem; font-weight: 800; color: var(--text-color); margin-bottom: 1rem; line-height: 1.2; font-family: 'Outfit', sans-serif;">
-        Motor &amp; Pump Spare Parts Made Simple
-    </h1>
-    <p style="color: var(--text-muted); font-size: 1.15rem; max-width: 680px; margin: 0 auto 2rem; line-height: 1.6;">
-        Find reliable deep groove ball bearings, mechanical seals, impellers, capacitors, pump shafts, and motor cooling fans with real-time stock availability.
-    </p>
-    <div style="display: flex; gap: 1rem; justify-content: center; align-items: center; flex-wrap: wrap;">
-        <a href="{{ url_for('products.list_products') }}" class="btn btn-primary" style="padding: 0.85rem 2.25rem; font-size: 1rem; border-radius: 6px; font-weight: 600;">
-            Browse Spare Parts
-        </a>
-        <a href="{{ url_for('about') }}" class="btn btn-secondary" style="padding: 0.85rem 2rem; font-size: 1rem; border-radius: 6px; font-weight: 600;">
-            Learn About SparePro
-        </a>
+
+{# ═══════════════════════════════════════════════════════════════ #}
+{# 1. HERO SECTION                                                 #}
+{# ═══════════════════════════════════════════════════════════════ #}
+<section class="home-hero">
+    <div class="home-hero-content">
+        <span class="home-hero-tag">INDUSTRIAL SPARE PARTS SPECIALIST</span>
+        <h1 class="home-hero-heading">
+            Quality Spare Parts<br>for <span style="color: var(--secondary);">Motors &amp; Pumps</span>
+        </h1>
+        <p class="home-hero-sub">
+            Find reliable mechanical and electrical components for motors and
+            pumps from trusted brands. Real-time stock. Easy ordering.
+        </p>
+        <div class="home-hero-actions">
+            <a href="{{ url_for('products.list_products') }}" class="btn btn-primary" style="padding: 0.9rem 2.25rem; font-size: 1rem;">
+                Shop Spare Parts
+            </a>
+            <a href="{{ url_for('products.list_products') }}" class="btn btn-secondary" style="padding: 0.9rem 2rem; font-size: 1rem;">
+                Explore Categories
+            </a>
+        </div>
+    </div>
+    <div class="home-hero-visual">
+        <div class="home-hero-img-wrap">
+            <img src="/static/images/products/bearing.jpg"
+                 alt="Industrial motor bearing — SparePro"
+                 class="home-hero-img"
+                 onerror="this.onerror=null; this.src='/static/images/products/bearing.svg';">
+        </div>
+        <!-- Floating stat cards -->
+        <div class="home-hero-stat" style="top: 12%; left: -10%;">
+            <span class="home-hero-stat-num">{{ popular_categories|length }}+</span>
+            <span class="home-hero-stat-label">Categories</span>
+        </div>
+        <div class="home-hero-stat" style="bottom: 14%; right: -8%;">
+            <span class="home-hero-stat-num">{{ popular_products|length }}+</span>
+            <span class="home-hero-stat-label">Products</span>
+        </div>
     </div>
 </section>
 
-<!-- POPULAR CATEGORIES -->
-<section style="margin-bottom: 3rem;">
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem;">
+{# ═══════════════════════════════════════════════════════════════ #}
+{# 2. SHOP BY CATEGORY                                             #}
+{# ═══════════════════════════════════════════════════════════════ #}
+{% if popular_categories %}
+<section class="home-section">
+    <div class="home-section-header">
         <div>
-            <h2 style="font-size: 1.65rem; font-weight: 800; color: var(--text-color);">Popular Categories</h2>
-            <p style="color: var(--text-muted); font-size: 0.95rem;">Browse genuine component categories engineered for industrial motors and pumps.</p>
+            <h2 class="home-section-title">Shop by Category</h2>
+            <p class="home-section-sub">Browse genuine components engineered for industrial motors and pumps.</p>
         </div>
-        <a href="{{ url_for('products.list_products') }}" style="font-weight: 600; font-size: 0.9rem;">View All Categories →</a>
+        <a href="{{ url_for('products.list_products') }}" class="home-section-link">View All →</a>
     </div>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.25rem;">
+    {% set cat_images = {
+        'Bearings':               'bearing.jpg',
+        'Mechanical Seals':       'seal.jpg',
+        'Capacitors':             'capacitor.jpg',
+        'Impellers':              'impeller.jpg',
+        'Pump Shafts':            'shaft.jpg',
+        'Motor Parts':            'motor_part.svg',
+        'Gaskets':                'gasket.jpg',
+        'Couplings':              'coupling.jpg',
+        'Electrical Components':  'electrical.jpg',
+        'Fasteners & Hardware':   'fasteners.jpg'
+    } %}
+
+    <div class="home-cat-grid">
         {% for cat in popular_categories %}
-            <a href="{{ url_for('products.list_products', category=cat.id) }}" style="text-decoration: none; color: inherit;">
-                <div class="card" style="padding: 1.5rem 1rem; text-align: center; height: 100%; transition: transform 0.2s ease, border-color 0.2s ease; border-radius: 10px;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='var(--secondary)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='var(--surface-border)';">
-                    <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-color); margin-bottom: 0.4rem;">{{ cat.name }}</h3>
-                    <span style="font-size: 0.8rem; color: var(--text-muted);">Explore catalog →</span>
+        {% set img = cat_images.get(cat.name, 'placeholder.svg') %}
+        <a href="{{ url_for('products.list_products', category=cat.id) }}" class="home-cat-card" aria-label="Browse {{ cat.name }}">
+            <div class="home-cat-img-wrap">
+                <img src="/static/images/products/{{ img }}"
+                     alt="{{ cat.name }}"
+                     class="home-cat-img"
+                     onerror="this.onerror=null; this.src='/static/images/products/placeholder.svg';">
+            </div>
+            <div class="home-cat-label">{{ cat.name }}</div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{# ═══════════════════════════════════════════════════════════════ #}
+{# 3. FIND YOUR SPARE PART (search call-out)                       #}
+{# ═══════════════════════════════════════════════════════════════ #}
+<section class="home-search-section">
+    <h2 class="home-search-heading">Can’t Find Your Spare Part?</h2>
+    <p class="home-search-sub">Search by product name, SKU, model or brand.</p>
+    <form action="{{ url_for('products.list_products') }}" method="GET" class="home-search-form" role="search">
+        <input type="text" name="q" class="home-search-input" placeholder="Search product name, SKU, model or brand..." aria-label="Search spare parts">
+        <button type="submit" class="btn btn-primary home-search-btn">Search</button>
+    </form>
+</section>
+
+{# ═══════════════════════════════════════════════════════════════ #}
+{# 4. POPULAR PRODUCTS                                             #}
+{# ═══════════════════════════════════════════════════════════════ #}
+{% if popular_products %}
+<section class="home-section">
+    <div class="home-section-header">
+        <div>
+            <h2 class="home-section-title">Popular Products</h2>
+            <p class="home-section-sub">High-demand bearings, seals, and replacement components.</p>
+        </div>
+        <a href="{{ url_for('products.list_products') }}" class="home-section-link">Browse All →</a>
+    </div>
+
+    <div class="home-product-grid">
+        {% for product in popular_products %}
+        <div class="home-product-card">
+            <!-- Stock badge -->
+            <span class="status-badge badge-{{ product.stock_status|lower|replace(' ', '-') }} home-product-badge">
+                {{ product.stock_status }}
+            </span>
+
+            <!-- Image -->
+            <a href="{{ url_for('products.product_detail', product_id=product.id) }}" class="home-product-img-link" tabindex="-1">
+                <div class="home-product-img-wrap">
+                    <img src="{{ product.image_url }}"
+                         alt="{{ product.name }}"
+                         class="home-product-img"
+                         loading="lazy"
+                         onerror="this.onerror=null; this.src='/static/images/products/placeholder.svg';">
                 </div>
             </a>
-        {% endfor %}
-    </div>
-</section>
 
-<!-- FEATURED PRODUCTS -->
-<section style="margin-bottom: 3rem;">
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem;">
-        <div>
-            <h2 style="font-size: 1.65rem; font-weight: 800; color: var(--text-color);">Featured Products</h2>
-            <p style="color: var(--text-muted); font-size: 0.95rem;">High demand motor bearings, seals, and replacement components.</p>
-        </div>
-        <a href="{{ url_for('products.list_products') }}" style="font-weight: 600; font-size: 0.9rem;">Browse Shop Catalog →</a>
-    </div>
+            <!-- Info -->
+            <div class="home-product-body">
+                <h3 class="home-product-name">
+                    <a href="{{ url_for('products.product_detail', product_id=product.id) }}" style="color: var(--text-color); text-decoration: none;">{{ product.name }}</a>
+                </h3>
+                <div class="home-product-meta">SKU: {{ product.sku }}</div>
+                <div class="home-product-meta">Brand: {{ product.brand }}</div>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem;">
-        {% for product in featured_products %}
-            <div class="product-card" style="background: var(--surface); border: 1px solid var(--surface-border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; position: relative;">
-                <span class="status-badge badge-{{ product.stock_status|lower|replace(' ', '-') }}" style="position: absolute; top: 12px; right: 12px; z-index: 2; font-size: 0.72rem; padding: 0.2rem 0.5rem;">
-                    {{ product.stock_status }}
-                </span>
-
-                <div class="product-img-container" style="background-color: var(--surface-hover); aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; padding: 1.25rem; overflow: hidden; position: relative;">
-                    <img src="{{ product.image_url }}" alt="{{ product.name }}" style="max-height: 100%; max-width: 100%; object-fit: contain;" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <div style="display: none; height: 100%; width: 100%; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.85rem; font-weight: 600;">Image unavailable</div>
-                </div>
-
-                <div style="padding: 1.25rem; display: flex; flex-direction: column; flex: 1;">
-                    <h3 style="font-size: 0.98rem; font-weight: 700; margin-bottom: 0.35rem; line-height: 1.35; font-family: 'Inter', sans-serif;">
-                        <a href="{{ url_for('products.product_detail', product_id=product.id) }}" style="color: var(--text-color);">{{ product.name }}</a>
-                    </h3>
-                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.25rem;">SKU: {{ product.sku }}</div>
-                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.85rem;">Brand: {{ product.brand }}</div>
-
-                    <div style="margin-top: auto; padding-top: 0.75rem; border-top: 1px solid var(--surface-border);">
-                        <span style="font-size: 1.2rem; font-weight: 800; color: var(--secondary); display: block; margin-bottom: 0.6rem;">₹{{ "{:,.2f}".format(product.effective_price) }}</span>
-
-                        {% if product.stock_quantity > 0 %}
-                            <div style="display: flex; gap: 0.4rem;">
-                                <button type="button"
-                                        onclick="addToCartAjax({{ product.id }})"
-                                        class="btn btn-secondary btn-sm"
-                                        style="flex: 1; font-size: 0.78rem; padding: 0.38rem 0.5rem; border-color: var(--surface-border);">
-                                    Add to Cart
-                                </button>
-                                <form method="POST" action="{{ url_for('cart.buy_now') }}" style="flex: 1;">
-                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                    <input type="hidden" name="product_id" value="{{ product.id }}"/>
-                                    <input type="hidden" name="quantity" value="1"/>
-                                    <button type="submit" class="btn btn-primary btn-sm" style="width: 100%; font-size: 0.78rem; padding: 0.38rem 0.5rem;">
-                                        Buy Now
-                                    </button>
-                                </form>
-                            </div>
+                <div class="home-product-footer">
+                    <div class="home-product-price">
+                        {% if product.discount_price and product.discount_price < product.price %}
+                            <span class="home-price-current">₹{{ "{:,.2f}".format(product.discount_price|float) }}</span>
+                            <span class="home-price-original">₹{{ "{:,.2f}".format(product.price|float) }}</span>
                         {% else %}
-                            <button class="btn btn-secondary btn-sm" disabled style="width: 100%; font-size: 0.8rem; opacity: 0.6; margin-bottom: 0.4rem;">Out of Stock</button>
+                            <span class="home-price-current">₹{{ "{:,.2f}".format(product.price|float) }}</span>
                         {% endif %}
-
-                        <div style="display: flex; gap: 0.4rem; margin-top: 0.4rem;">
-                            <form method="POST" action="{{ url_for('customer.wishlist_add', product_id=product.id) }}" style="width: 100%;">
-                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                <button type="submit" class="btn btn-secondary btn-sm" style="width: 100%; font-size: 0.78rem; padding: 0.35rem 0.5rem; border-color: var(--surface-border);">
-                                    Add to Wishlist
-                                </button>
-                            </form>
-                        </div>
                     </div>
 
+                    {% if product.stock_quantity > 0 %}
+                    <div class="home-product-actions">
+                        <a href="{{ url_for('products.product_detail', product_id=product.id) }}" class="btn btn-secondary btn-sm home-product-btn">View</a>
+                        <form method="POST" action="{{ url_for('cart.buy_now') }}" style="margin: 0;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <input type="hidden" name="product_id" value="{{ product.id }}"/>
+                            <input type="hidden" name="quantity" value="1"/>
+                            <button type="submit" class="btn btn-primary btn-sm home-product-btn">Buy Now</button>
+                        </form>
+                    </div>
+                    {% else %}
+                    <button class="btn btn-secondary btn-sm" disabled style="opacity: 0.55; width: 100%; margin-top: 0.5rem;">Out of Stock</button>
+                    {% endif %}
                 </div>
             </div>
+        </div>
         {% endfor %}
     </div>
 </section>
+{% endif %}
 
-<!-- WHY CHOOSE SPAREPRO -->
-<section style="margin-bottom: 2rem;">
-    <div style="text-align: center; margin-bottom: 2rem;">
-        <h2 style="font-size: 1.75rem; font-weight: 800; color: var(--text-color);">Why Choose SparePro?</h2>
-        <p style="color: var(--text-muted); font-size: 0.95rem;">Engineered for workshops, maintenance engineers, and industrial procurement.</p>
+{# ═══════════════════════════════════════════════════════════════ #}
+{# 5. NEW ARRIVALS                                                  #}
+{# ═══════════════════════════════════════════════════════════════ #}
+{% if new_arrivals %}
+<section class="home-section">
+    <div class="home-section-header">
+        <div>
+            <h2 class="home-section-title">New Arrivals</h2>
+            <p class="home-section-sub">Recently added components — check them out first.</p>
+        </div>
+        <a href="{{ url_for('products.list_products', sort='newest') }}" class="home-section-link">View All Products →</a>
     </div>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem;">
-        <div class="card" style="padding: 1.5rem; text-align: center;">
-            <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--secondary);">Reliable Products</h3>
-            <p style="font-size: 0.88rem; color: var(--text-muted);">100% genuine bearings, mechanical seals, and motor parts from SKF, Kirloskar, ABB, Siemens, and premier manufacturers.</p>
+    <div class="home-arrival-grid">
+        {% for product in new_arrivals %}
+        <div class="home-arrival-card">
+            <a href="{{ url_for('products.product_detail', product_id=product.id) }}" class="home-arrival-img-link" tabindex="-1">
+                <div class="home-arrival-img-wrap">
+                    <img src="{{ product.image_url }}"
+                         alt="{{ product.name }}"
+                         loading="lazy"
+                         class="home-arrival-img"
+                         onerror="this.onerror=null; this.src='/static/images/products/placeholder.svg';">
+                </div>
+            </a>
+            <div class="home-arrival-body">
+                <span class="status-badge badge-{{ product.stock_status|lower|replace(' ', '-') }}" style="font-size: 0.68rem; padding: 0.15rem 0.45rem;">{{ product.stock_status }}</span>
+                <h3 class="home-arrival-name">
+                    <a href="{{ url_for('products.product_detail', product_id=product.id) }}" style="color: var(--text-color); text-decoration: none;">{{ product.name }}</a>
+                </h3>
+                <div style="font-size: 0.78rem; color: var(--text-muted);">{{ product.brand }}</div>
+                <div class="home-arrival-price">
+                    {% if product.discount_price and product.discount_price < product.price %}
+                        <span class="home-price-current" style="font-size: 1rem;">₹{{ "{:,.2f}".format(product.discount_price|float) }}</span>
+                        <span class="home-price-original">₹{{ "{:,.2f}".format(product.price|float) }}</span>
+                    {% else %}
+                        <span class="home-price-current" style="font-size: 1rem;">₹{{ "{:,.2f}".format(product.price|float) }}</span>
+                    {% endif %}
+                </div>
+                <a href="{{ url_for('products.product_detail', product_id=product.id) }}" class="btn btn-secondary btn-sm" style="width: 100%; margin-top: 0.5rem; font-size: 0.8rem;">View Product</a>
+            </div>
         </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
 
-        <div class="card" style="padding: 1.5rem; text-align: center;">
-            <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--secondary);">Easy Ordering</h3>
-            <p style="font-size: 0.88rem; color: var(--text-muted);">Direct search by SKU, model number, dimensions, or component type with instant digital cart checkout.</p>
+{# ═══════════════════════════════════════════════════════════════ #}
+{# 6. SPECIAL OFFERS (only if discounted products exist)           #}
+{# ═══════════════════════════════════════════════════════════════ #}
+{% if discounted_products %}
+<section class="home-section home-offers-section">
+    <div class="home-section-header">
+        <div>
+            <h2 class="home-section-title">Special Offers</h2>
+            <p class="home-section-sub">Products available at discounted prices right now.</p>
         </div>
+        <a href="{{ url_for('products.list_products', sort='price_asc') }}" class="home-section-link">See All Deals →</a>
+    </div>
 
-        <div class="card" style="padding: 1.5rem; text-align: center;">
-            <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--secondary);">Stock Availability</h3>
-            <p style="font-size: 0.88rem; color: var(--text-muted);">Real-time inventory levels ensure transparent ordering and zero stockout surprises.</p>
+    <div class="home-offer-grid">
+        {% for product in discounted_products %}
+        {% set saving = ((product.price|float - product.discount_price|float) / product.price|float * 100)|int %}
+        <div class="home-offer-card">
+            <div class="home-offer-badge">{{ saving }}% OFF</div>
+            <a href="{{ url_for('products.product_detail', product_id=product.id) }}" class="home-offer-img-link" tabindex="-1">
+                <div class="home-offer-img-wrap">
+                    <img src="{{ product.image_url }}"
+                         alt="{{ product.name }}"
+                         loading="lazy"
+                         class="home-offer-img"
+                         onerror="this.onerror=null; this.src='/static/images/products/placeholder.svg';">
+                </div>
+            </a>
+            <div class="home-offer-body">
+                <h3 class="home-offer-name">
+                    <a href="{{ url_for('products.product_detail', product_id=product.id) }}" style="color: var(--text-color); text-decoration: none;">{{ product.name }}</a>
+                </h3>
+                <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.5rem;">{{ product.brand }}</div>
+                <div class="home-offer-price">
+                    <span class="home-price-current">₹{{ "{:,.2f}".format(product.discount_price|float) }}</span>
+                    <span class="home-price-original">₹{{ "{:,.2f}".format(product.price|float) }}</span>
+                </div>
+                {% if product.stock_quantity > 0 %}
+                <div style="display: flex; gap: 0.4rem; margin-top: 0.6rem;">
+                    <a href="{{ url_for('products.product_detail', product_id=product.id) }}" class="btn btn-secondary btn-sm" style="flex: 1; font-size: 0.78rem;">View</a>
+                    <form method="POST" action="{{ url_for('cart.buy_now') }}" style="flex: 1;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <input type="hidden" name="product_id" value="{{ product.id }}"/>
+                        <input type="hidden" name="quantity" value="1"/>
+                        <button type="submit" class="btn btn-primary btn-sm" style="width: 100%; font-size: 0.78rem;">Buy Now</button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
         </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
 
-        <div class="card" style="padding: 1.5rem; text-align: center;">
-            <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--secondary);">Professional Support</h3>
-            <p style="font-size: 0.88rem; color: var(--text-muted);">Dedicated customer service team for technical compatibility verification and workshop bulk inquiries.</p>
+{# ═══════════════════════════════════════════════════════════════ #}
+{# 7. WHY CHOOSE SPAREPRO                                          #}
+{# ═══════════════════════════════════════════════════════════════ #}
+<section class="home-section home-why-section">
+    <div style="text-align: center; margin-bottom: 2.5rem;">
+        <h2 class="home-section-title" style="text-align: center;">Why Choose SparePro?</h2>
+        <p class="home-section-sub" style="text-align: center;">Engineered for workshops, maintenance engineers, and industrial procurement.</p>
+    </div>
+
+    <div class="home-why-grid">
+        <div class="home-why-card">
+            <div class="home-why-num">01</div>
+            <h3 class="home-why-title">Quality Products</h3>
+            <p class="home-why-body">Genuine bearings, mechanical seals, and motor parts from SKF, Kirloskar, ABB, Siemens, and trusted industrial manufacturers.</p>
+        </div>
+        <div class="home-why-card">
+            <div class="home-why-num">02</div>
+            <h3 class="home-why-title">Wide Product Range</h3>
+            <p class="home-why-body">Mechanical and electrical components — impellers, pump shafts, capacitors, couplings, gaskets — all in one place.</p>
+        </div>
+        <div class="home-why-card">
+            <div class="home-why-num">03</div>
+            <h3 class="home-why-title">Easy Ordering</h3>
+            <p class="home-why-body">Search by SKU, model number, or brand. Direct digital cart checkout. No friction, no delays.</p>
+        </div>
+        <div class="home-why-card">
+            <div class="home-why-num">04</div>
+            <h3 class="home-why-title">Order Tracking</h3>
+            <p class="home-why-body">Track the status of every order from placement through dispatch. Transparent real-time inventory levels.</p>
         </div>
     </div>
 </section>
+
+{# ═══════════════════════════════════════════════════════════════ #}
+{# 8. HOW IT WORKS                                                 #}
+{# ═══════════════════════════════════════════════════════════════ #}
+<section class="home-section home-how-section">
+    <div style="text-align: center; margin-bottom: 2.5rem;">
+        <h2 class="home-section-title" style="text-align: center;">How It Works</h2>
+        <p class="home-section-sub" style="text-align: center;">Order your spare parts in five simple steps.</p>
+    </div>
+
+    <div class="home-steps">
+        <div class="home-step">
+            <div class="home-step-num">1</div>
+            <div class="home-step-connector"></div>
+            <h4 class="home-step-title">Find a Product</h4>
+            <p class="home-step-body">Search by name, SKU, brand, or browse categories.</p>
+        </div>
+        <div class="home-step">
+            <div class="home-step-num">2</div>
+            <div class="home-step-connector"></div>
+            <h4 class="home-step-title">View Details</h4>
+            <p class="home-step-body">Check specifications, compatibility, and stock status.</p>
+        </div>
+        <div class="home-step">
+            <div class="home-step-num">3</div>
+            <div class="home-step-connector"></div>
+            <h4 class="home-step-title">Add to Cart</h4>
+            <p class="home-step-body">Add one or multiple parts and review your order.</p>
+        </div>
+        <div class="home-step">
+            <div class="home-step-num">4</div>
+            <div class="home-step-connector"></div>
+            <h4 class="home-step-title">Checkout</h4>
+            <p class="home-step-body">Confirm address, payment and place the order securely.</p>
+        </div>
+        <div class="home-step">
+            <div class="home-step-num">5</div>
+            <div class="home-step-connector" style="display: none;"></div>
+            <h4 class="home-step-title">Track Order</h4>
+            <p class="home-step-body">Monitor every step until your parts arrive.</p>
+        </div>
+    </div>
+</section>
+
+{# ═══════════════════════════════════════════════════════════════ #}
+{# 9. TRUSTED BRANDS (only if brands exist in DB)                  #}
+{# ═══════════════════════════════════════════════════════════════ #}
+{% if brands %}
+<section class="home-section">
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <h2 class="home-section-title" style="text-align: center;">Trusted Brands</h2>
+        <p class="home-section-sub" style="text-align: center;">Components sourced from manufacturers you can rely on.</p>
+    </div>
+
+    <div class="home-brands-grid">
+        {% for brand in brands %}
+        <a href="{{ url_for('products.list_products', brand=brand) }}" class="home-brand-card" aria-label="Browse {{ brand }} products">
+            {{ brand }}
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
 {% endblock %}

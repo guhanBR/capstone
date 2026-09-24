@@ -1,45 +1,291 @@
-/* RESPONSIVE DESIGN BREAKPOINTS */
+/* ==========================================================================
+   SPAREPRO RESPONSIVE DESIGN SYSTEM
+   Supports: Mobile (320px, 360px, 375px, 390px, 400px, 414px),
+             Tablet (768px, 992px), and Desktop (1200px+)
+   Preserves existing desktop UI fidelity 100%.
+   ========================================================================== */
 
+/* ─── GLOBAL RESPONSIVE SAFETY ─── */
+html, body {
+    max-width: 100%;
+    overflow-x: clip;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+img, svg {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Base helper classes for layouts */
+.cart-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+}
+
+.checkout-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+}
+
+.product-detail-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+}
+
+.product-detail-specs-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.order-detail-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+}
+
+.admin-two-col-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+}
+
+.admin-equal-two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.form-grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+}
+
+.admin-sidebar-close {
+    display: none;
+}
+
+.sidebar-backdrop {
+    display: none;
+}
+
+/* Ensure all table-responsive containers behave correctly */
+.table-responsive {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 10px;
+    border: 1px solid var(--surface-border);
+}
+
+.table-responsive > .table {
+    margin-bottom: 0;
+}
+
+/* ==========================================================================
+   BREAKPOINT: DESKTOP / LARGE TABLET (max-width: 1100px)
+   ========================================================================== */
+@media (max-width: 1100px) {
+    .main-wrapper {
+        padding: 0 1.25rem;
+    }
+
+    .admin-wrapper {
+        padding: 0 1.25rem;
+    }
+}
+
+/* ==========================================================================
+   BREAKPOINT: TABLET LANDSCAPE & PORTRAIT (max-width: 992px)
+   ========================================================================== */
 @media (max-width: 992px) {
+    /* ── Customer Navbar ── */
+    .navbar {
+        padding: 0.75rem 1.25rem;
+    }
+
     .navbar-container {
         flex-wrap: wrap;
-        gap: 1rem;
+        gap: 0.75rem 1rem;
+        justify-content: space-between;
     }
-    
+
+    .nav-search-form {
+        order: 3;
+        flex: 1 1 100% !important;
+        max-width: 100% !important;
+        margin-top: 0.25rem;
+    }
+
+    .nav-links {
+        gap: 0.75rem;
+    }
+
+    .nav-item a {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.9rem;
+    }
+
+    /* ── Account Dropdown ── */
+    .account-dropdown-menu {
+        max-width: calc(100vw - 24px);
+        right: 0;
+    }
+
+    /* ── Main Layout Wrapper ── */
     .main-wrapper {
         padding: 0 1rem;
-        margin: 1.5rem auto;
+        margin: 1.25rem auto;
+    }
+
+    /* ── Admin Topbar & Mobile Drawer ── */
+    .admin-topbar {
+        padding: 0.65rem 1rem;
+    }
+
+    .admin-topbar-container {
+        gap: 0.5rem;
+    }
+
+    .admin-topbar-actions {
+        gap: 0.6rem;
+    }
+
+    .admin-mobile-toggle {
+        display: inline-flex !important;
+        align-items: center;
+        gap: 0.35rem;
+        font-weight: 700;
+        padding: 0.4rem 0.75rem;
+        font-size: 0.85rem;
+        cursor: pointer;
     }
 
     .admin-layout {
         grid-template-columns: 1fr;
+        gap: 1.25rem;
     }
 
     .admin-sidebar {
-        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 280px;
+        max-width: 85vw;
+        height: 100vh;
+        z-index: 1200;
+        background: var(--surface);
+        border: none;
+        border-right: 1px solid var(--surface-border);
+        border-radius: 0;
+        padding: 1.25rem 1rem;
+        box-shadow: 4px 0 25px rgba(0, 0, 0, 0.5);
+        overflow-y: auto;
+        transform: translateX(-100%);
+        transition: transform 0.28s ease-in-out;
+        display: block !important;
     }
 
     .admin-sidebar.mobile-open {
-        display: block;
-        position: fixed;
-        top: 60px;
-        left: 0;
-        bottom: 0;
-        width: 260px;
-        z-index: 999;
-        box-shadow: 4px 0 15px rgba(0,0,0,0.5);
+        transform: translateX(0);
     }
 
-    /* Account page — sidebar stacks above content */
+    .admin-sidebar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0.5rem 0.75rem;
+    }
+
+    .admin-sidebar-close {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        font-size: 1.25rem;
+        font-weight: bold;
+        cursor: pointer;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        transition: color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .admin-sidebar-close:hover {
+        color: var(--secondary);
+        background-color: var(--surface-hover);
+    }
+
+    .sidebar-backdrop {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 1150;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+    }
+
+    .sidebar-backdrop.show {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .admin-wrapper {
+        padding: 0 1rem;
+        margin: 1rem auto;
+    }
+
+    /* ── Admin Dashboard KPI Cards (Tablet: 2 cols) ── */
+    .kpi-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 1rem;
+    }
+
+    /* ── Multi-Column Stacking for Tablet/Mobile ── */
+    .cart-layout,
+    .checkout-layout,
+    .product-detail-layout,
+    .product-detail-specs-layout,
+    .order-detail-layout,
+    .admin-two-col-layout,
+    .admin-equal-two-col {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem;
+    }
+
+    /* ── Customer Account Layout ── */
     .account-layout {
         grid-template-columns: 1fr;
+        gap: 1.25rem;
     }
 
     .account-sidebar {
         position: static;
         display: flex;
         flex-wrap: wrap;
-        gap: 0;
+        gap: 0.25rem;
         padding: 0.5rem;
     }
 
@@ -50,7 +296,7 @@
     .account-sidebar-link {
         border-left: none;
         border-bottom: 3px solid transparent;
-        padding: 0.5rem 1rem;
+        padding: 0.5rem 0.85rem;
         font-size: 0.88rem;
         border-radius: 6px;
     }
@@ -61,26 +307,59 @@
         border-radius: 6px 6px 0 0;
     }
 
-    /* Wishlist grid responsive */
+    /* ── Wishlist Grid ── */
     .wishlist-grid {
         grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1rem;
     }
 }
 
+/* ==========================================================================
+   BREAKPOINT: MOBILE PHONES & SMALL TABLETS (max-width: 768px)
+   ========================================================================== */
 @media (max-width: 768px) {
+    /* ── Customer Navbar ── */
     .nav-links {
-        gap: 0.75rem;
-        font-size: 0.9rem;
+        gap: 0.5rem;
+        font-size: 0.88rem;
     }
 
-    .product-grid {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 1rem;
+    /* ── Admin Topbar Direct Logout Button: Hide on mobile to prevent crowding ── */
+    .admin-logout-btn {
+        display: none !important;
+    }
+
+    /* ── Tables on Mobile: Enable smooth scroll and prevent squishing ── */
+    .table {
+        min-width: 540px;
+    }
+
+    .table th, .table td {
+        padding: 0.75rem 0.65rem;
+        font-size: 0.85rem;
+    }
+
+    /* ── Dashboard & Section Headers ── */
+    .dashboard-header,
+    .page-header-row {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 0.75rem;
+    }
+
+    .dashboard-header h2,
+    .page-header-row h1 {
+        font-size: 1.35rem;
+    }
+
+    /* ── Order Tracking Timeline ── */
+    .timeline-container {
+        margin: 1.75rem 0 2.25rem;
     }
 
     .timeline-label {
         font-size: 0.65rem;
-        top: 40px;
+        top: 36px;
     }
 
     .timeline-step {
@@ -89,31 +368,286 @@
         font-size: 0.75rem;
     }
 
-    .checkout-layout {
+    /* ── Checkout Sticky Sidebar: Reset on mobile ── */
+    .checkout-summary-card {
+        position: static !important;
+        top: auto;
+    }
+
+    /* ── Footer ── */
+    .footer {
+        padding: 2rem 1rem 1.25rem;
+    }
+
+    .footer-container {
         grid-template-columns: 1fr;
+        gap: 1.5rem;
     }
 }
 
+/* ==========================================================================
+   BREAKPOINT: STANDARD MOBILE (max-width: 576px)
+   ========================================================================== */
 @media (max-width: 576px) {
-    .nav-text {
-        display: none;
+    /* ── Global Typography & Spacing ── */
+    h1 { font-size: 1.5rem; }
+    h2 { font-size: 1.3rem; }
+    h3 { font-size: 1.1rem; }
+
+    .main-wrapper {
+        padding: 0 0.75rem;
+        margin: 1rem auto;
     }
-    
-    .product-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .btn {
-        padding: 0.55rem 1rem;
-        font-size: 0.88rem;
+
+    .admin-wrapper {
+        padding: 0 0.75rem;
+        margin: 0.75rem auto;
     }
 
     .card {
         padding: 1rem;
+        border-radius: 10px;
     }
 
-    /* Stack Buy Now / Add to Cart buttons on very small screens */
-    .product-card .product-actions-row {
+    /* ── Customer Navbar Compact ── */
+    .navbar {
+        padding: 0.5rem 0.75rem;
+    }
+
+    .brand-logo span:first-child {
+        font-size: 1.3rem !important;
+    }
+
+    .brand-logo span:last-child {
+        font-size: 0.58rem !important;
+    }
+
+    .nav-links {
+        gap: 0.25rem;
+    }
+
+    .nav-item a {
+        padding: 0.3rem 0.45rem;
+        font-size: 0.8rem;
+    }
+
+    .account-dropdown-toggle {
+        padding: 0.35rem 0.6rem;
+        font-size: 0.8rem;
+    }
+
+    .account-dropdown-menu {
+        width: 210px;
+        max-width: calc(100vw - 16px);
+        right: 0;
+        font-size: 0.82rem;
+    }
+
+    /* ── Admin Topbar Compact ── */
+    .admin-topbar {
+        padding: 0.5rem 0.75rem;
+    }
+
+    .admin-brand-logo span:first-child {
+        font-size: 1.25rem !important;
+    }
+
+    .admin-badge {
+        font-size: 0.6rem;
+        padding: 0.15rem 0.35rem;
+    }
+
+    .admin-mobile-toggle {
+        padding: 0.35rem 0.55rem;
+        font-size: 0.8rem;
+    }
+
+    /* ── Admin Dashboard KPI Cards (Mobile: 1 column) ── */
+    .kpi-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem;
+    }
+
+    .kpi-card {
+        padding: 0.9rem 1rem;
+    }
+
+    .kpi-title {
+        font-size: 0.75rem;
+    }
+
+    .kpi-value {
+        font-size: 1.5rem;
+    }
+
+    /* ── Form Grids Stack to 1 Col on Mobile ── */
+    .form-grid-2,
+    .form-grid-3,
+    .admin-image-upload-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem;
+    }
+
+    /* ── Form Controls & Search / Filter Bars ── */
+    .form-control {
+        font-size: 0.88rem;
+        padding: 0.55rem 0.75rem;
+    }
+
+    .form-label {
+        font-size: 0.85rem;
+    }
+
+    /* Filter bars flex stack */
+    .filter-bar,
+    .card form[method="GET"] {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.6rem !important;
+    }
+
+    .filter-bar select,
+    .filter-bar input,
+    .card form[method="GET"] select,
+    .card form[method="GET"] input {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    /* ── Buttons on Mobile ── */
+    .btn {
+        padding: 0.5rem 0.85rem;
+        font-size: 0.88rem;
+    }
+
+    .btn-sm {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.8rem;
+    }
+
+    /* Stack action buttons if grouped */
+    .product-actions-row,
+    .home-hero-actions {
         flex-direction: column;
+        width: 100%;
+    }
+
+    .home-hero-actions .btn {
+        width: 100%;
+    }
+
+    /* ── Wishlist Grid Mobile ── */
+    .wishlist-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* ── Modals & Dialogs ── */
+    .modal-content {
+        max-width: calc(100vw - 20px) !important;
+        margin: 1rem auto;
+        padding: 1rem;
+    }
+
+    /* ── Flash Messages ── */
+    .alert {
+        padding: 0.65rem 0.85rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* ==========================================================================
+   BREAKPOINT: NARROW MOBILE (max-width: 414px - 320px)
+   ========================================================================== */
+@media (max-width: 414px) {
+    /* ── Product Grids: 1 column on narrow mobile ── */
+    .product-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem;
+    }
+
+    /* ── Navigation Search Form Compact ── */
+    .nav-search-form input {
+        padding: 0.35rem 0.5rem;
+        font-size: 0.8rem;
+    }
+
+    .nav-search-form button {
+        padding: 0.35rem 0.6rem;
+        font-size: 0.8rem;
+    }
+
+    /* ── Table Action Forms inside cells ── */
+    .table td form {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
+
+    .table td form select {
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+
+    /* ── Address Cards & Review Cards ── */
+    .address-card-actions,
+    .review-actions {
+        flex-wrap: wrap;
+        gap: 0.4rem;
+    }
+
+    .address-card-actions .btn,
+    .review-actions .btn {
+        flex: 1 1 auto;
+    }
+
+    /* ── Notification Items ── */
+    .notif-item {
+        padding: 0.75rem 0.5rem;
+        gap: 0.5rem;
+    }
+
+    /* ── Order Tracking Step Container ── */
+    .timeline-container {
+        margin: 1.5rem 0 2rem;
+    }
+
+    .timeline-step {
+        width: 26px;
+        height: 26px;
+        font-size: 0.7rem;
+    }
+
+    .timeline-label {
+        font-size: 0.6rem;
+        top: 32px;
+    }
+}
+
+/* ==========================================================================
+   BREAKPOINT: EXTRA NARROW MOBILE (max-width: 360px & 320px)
+   ========================================================================== */
+@media (max-width: 360px) {
+    .navbar {
+        padding: 0.4rem 0.5rem;
+    }
+
+    .nav-links {
+        font-size: 0.78rem;
+        gap: 0.2rem;
+    }
+
+    .nav-item a {
+        padding: 0.25rem 0.35rem;
+    }
+
+    .brand-logo span:first-child {
+        font-size: 1.15rem !important;
+    }
+
+    .admin-brand-logo span:first-child {
+        font-size: 1.15rem !important;
+    }
+
+    .card {
+        padding: 0.75rem;
     }
 }

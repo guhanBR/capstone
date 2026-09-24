@@ -1,26 +1,9 @@
-{% extends 'base.html' %}
+{% extends 'admin/base_admin.html' %}
 
 {% block title %}Manage Customers — SparePro Admin{% endblock %}
 
-{% block content %}
-<div class="admin-layout">
-    <!-- Sidebar -->
-    <div class="admin-sidebar">
-        <ul class="admin-menu">
-            <li class="admin-menu-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.products') }}">Products</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.categories') }}">Categories</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.orders') }}">Orders</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.inventory') }}">Inventory</a></li>
-            <li class="admin-menu-item active"><a href="{{ url_for('admin.customers') }}">Customers</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.reviews') }}">Reviews</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('reports.analytics_dashboard') }}">Analytics &amp; Reports</a></li>
-        </ul>
-    </div>
-
-    <!-- Main Content -->
-    <div>
-        <h2 style="margin-bottom: 1.5rem;">Registered Customer Accounts</h2>
+{% block admin_content %}
+<h2 style="margin-bottom: 1.5rem;">Registered Customer Accounts</h2>
 
         <!-- Search Form -->
         <div class="card" style="margin-bottom: 1.5rem; padding: 1rem;">
@@ -42,7 +25,9 @@
                             <th>Total Orders</th>
                             <th>Registered Date</th>
                             <th>Status</th>
-                            <th>Action</th>
+                            {% if current_user.role in ['admin', 'manager'] %}
+                                <th>Action</th>
+                            {% endif %}
                         </tr>
                     </thead>
                     <tbody>
@@ -54,14 +39,16 @@
                                 <td><span class="badge-count">{{ user.orders|length }}</span></td>
                                 <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
                                 <td><span class="status-badge badge-{{ user.status|lower }}">{{ user.status }}</span></td>
-                                <td>
-                                    <form method="POST" action="{{ url_for('admin.customer_toggle_status', user_id=user.id) }}">
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                        <button type="submit" class="btn btn-secondary btn-sm" data-confirm="Change customer status?">
-                                            {% if user.status == 'active' %}Deactivate{% else %}Activate{% endif %}
-                                        </button>
-                                    </form>
-                                </td>
+                                {% if current_user.role in ['admin', 'manager'] %}
+                                    <td>
+                                        <form method="POST" action="{{ url_for('admin.customer_toggle_status', user_id=user.id) }}">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            <button type="submit" class="btn btn-secondary btn-sm" data-confirm="Change customer status?">
+                                                {% if user.status == 'active' %}Deactivate{% else %}Activate{% endif %}
+                                            </button>
+                                        </form>
+                                    </td>
+                                {% endif %}
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -79,6 +66,4 @@
                 </div>
             {% endif %}
         </div>
-    </div>
-</div>
 {% endblock %}

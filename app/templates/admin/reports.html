@@ -1,26 +1,9 @@
-{% extends 'base.html' %}
+{% extends 'admin/base_admin.html' %}
 
 {% block title %}Analytics &amp; Data Reports — SparePro Admin{% endblock %}
 
-{% block content %}
-<div class="admin-layout">
-    <!-- Sidebar -->
-    <div class="admin-sidebar">
-        <ul class="admin-menu">
-            <li class="admin-menu-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.products') }}">Products</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.categories') }}">Categories</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.orders') }}">Orders</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.inventory') }}">Inventory</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.customers') }}">Customers</a></li>
-            <li class="admin-menu-item"><a href="{{ url_for('admin.reviews') }}">Reviews</a></li>
-            <li class="admin-menu-item active"><a href="{{ url_for('reports.analytics_dashboard') }}">Analytics &amp; Reports</a></li>
-        </ul>
-    </div>
-
-    <!-- Main Content -->
-    <div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+{% block admin_content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
             <div>
                 <h2>Pandas &amp; NumPy Analytics Dashboard</h2>
                 <p style="color: var(--text-muted); font-size: 0.9rem;">Automated analytical processing of sales, product turnover, customer LTV, and stock valuation.</p>
@@ -80,7 +63,7 @@
         </div>
 
         <!-- Section 2: Product Performance & Category Revenue -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+        <div class="admin-equal-two-col" style="margin-bottom: 2rem;">
             <div class="card">
                 <h3>2. Top Performing Spare Parts</h3>
                 <div class="table-responsive" style="margin-top: 1rem;">
@@ -161,5 +144,4 @@
             </div>
         </div>
     </div>
-</div>
 {% endblock %}

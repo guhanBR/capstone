@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from app import db
 
 class AuditLog(db.Model):
@@ -10,7 +10,7 @@ class AuditLog(db.Model):
     entity_type = db.Column(db.String(50), nullable=False)
     entity_id = db.Column(db.Integer, nullable=True)
     description = db.Column(db.Text, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     def to_dict(self):
         return {

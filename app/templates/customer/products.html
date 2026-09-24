@@ -11,14 +11,13 @@
         </h1>
         <p style="color: var(--text-muted); font-size: 0.95rem;">Find high-quality motor and pump spare parts from trusted brands.</p>
     </div>
-    <button type="button" id="btn-clear-all" onclick="clearAllFilters()" class="btn btn-secondary btn-sm" style="background-color: #181c24; color: #ffffff; border: none; border-radius: 6px; padding: 0.5rem 1rem; cursor: pointer;">
-        Clear Filters
-    </button>
 </div>
 
 <!-- Search & Filter Controls -->
 <form id="product-filter-form" method="GET" action="{{ url_for('products.list_products') }}" style="margin-bottom: 2rem;" onsubmit="handleFormSubmit(event)">
     <input type="hidden" name="category" id="filter-category" value="{{ current_category if current_category else '' }}">
+    <input type="hidden" name="min_price" id="filter-min-price" value="{{ current_min_price if current_min_price is not none else '' }}">
+    <input type="hidden" name="max_price" id="filter-max-price" value="{{ current_max_price if current_max_price is not none else '' }}">
     
     <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; background: var(--surface); padding: 0.75rem; border-radius: 10px; border: 1px solid var(--surface-border);">
         <input type="text" name="q" id="filter-q" class="form-control" placeholder="Search by SKU, Brand, Model, Component..." value="{{ current_search if current_search else '' }}" style="flex: 2; min-width: 250px;">
@@ -38,8 +37,17 @@
             {% endfor %}
         </select>
 
-        <select name="availability" id="filter-availability-select" class="form-control" style="flex: 1; min-width: 140px;" onchange="syncAvailability(this.value)">
-            <option value="">All Availability</option>
+        <select id="filter-price-range" class="form-control" style="flex: 1; min-width: 140px;" onchange="syncPriceRange(this.value)">
+            <option value="">All Prices</option>
+            <option value="0-100" {% if current_max_price == 100.0 and not current_min_price %}selected{% endif %}>Under ₹100</option>
+            <option value="100-500" {% if current_min_price == 100.0 and current_max_price == 500.0 %}selected{% endif %}>₹100 – ₹500</option>
+            <option value="500-1000" {% if current_min_price == 500.0 and current_max_price == 1000.0 %}selected{% endif %}>₹500 – ₹1,000</option>
+            <option value="1000-5000" {% if current_min_price == 1000.0 and current_max_price == 5000.0 %}selected{% endif %}>₹1,000 – ₹5,000</option>
+            <option value="5000-" {% if current_min_price == 5000.0 and not current_max_price %}selected{% endif %}>Above ₹5,000</option>
+        </select>
+
+        <select name="availability" id="filter-availability" class="form-control" style="flex: 1; min-width: 140px;" onchange="triggerFilter(1)">
+            <option value="">All Statuses</option>
             <option value="in_stock" {% if current_availability == 'in_stock' %}selected{% endif %}>In Stock</option>
             <option value="low_stock" {% if current_availability == 'low_stock' %}selected{% endif %}>Low Stock</option>
             <option value="out_of_stock" {% if current_availability == 'out_of_stock' %}selected{% endif %}>Out of Stock</option>
@@ -47,106 +55,27 @@
 
         <select name="sort" id="filter-sort" class="form-control" style="flex: 1; min-width: 150px;" onchange="triggerFilter(1)">
             <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Newest First</option>
+            <option value="oldest" {% if current_sort == 'oldest' %}selected{% endif %}>Oldest First</option>
             <option value="price_asc" {% if current_sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
             <option value="price_desc" {% if current_sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
             <option value="name_asc" {% if current_sort == 'name_asc' %}selected{% endif %}>Name: A to Z</option>
             <option value="name_desc" {% if current_sort == 'name_desc' %}selected{% endif %}>Name: Z to A</option>
-            <option value="best_selling" {% if current_sort == 'best_selling' %}selected{% endif %}>Best Selling</option>
-            <option value="highest_rated" {% if current_sort == 'highest_rated' %}selected{% endif %}>Highest Rated</option>
+            <option value="highest_rated" {% if current_sort == 'highest_rated' %}selected{% endif %}>Best Rated</option>
         </select>
-    </div>
-
-    <!-- 2 Column Main Layout: Sidebar & Products Grid -->
-    <div style="display: grid; grid-template-columns: 250px 1fr; gap: 1.75rem; margin-top: 1.5rem;">
-        
-        <!-- LEFT SIDEBAR -->
-        <aside style="display: flex; flex-direction: column; gap: 1.5rem;">
-            <!-- Categories List Sidebar Card -->
-            <div class="card" style="padding: 1.25rem;">
-                <h4 style="font-size: 1rem; margin-bottom: 0.85rem; border-bottom: 1px solid var(--surface-border); padding-bottom: 0.5rem;">Categories</h4>
-                <ul id="category-sidebar-list" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.9rem;">
-                    <li>
-                        <a href="javascript:void(0)" class="category-sidebar-link {% if not current_category %}active-category{% endif %}" data-category-id="" onclick="selectSidebarCategory('', this)"
-                           style="color: {% if not current_category %}var(--secondary){% else %}var(--text-color){% endif %}; font-weight: {% if not current_category %}700{% else %}400{% endif %}; text-decoration: none;">
-                            All Categories
-                        </a>
-                    </li>
-                    {% for cat in categories %}
-                        <li>
-                            <a href="javascript:void(0)" class="category-sidebar-link {% if current_category == cat.id %}active-category{% endif %}" data-category-id="{{ cat.id }}" onclick="selectSidebarCategory('{{ cat.id }}', this)"
-                               style="color: {% if current_category == cat.id %}var(--secondary){% else %}var(--text-muted){% endif %}; font-weight: {% if current_category == cat.id %}700{% else %}400{% endif %}; text-decoration: none;">
-                                {{ cat.name }}
-                            </a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
-
-            <!-- Price Range Filter -->
-            <div class="card" style="padding: 1.25rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; border-bottom: 1px solid var(--surface-border); padding-bottom: 0.5rem;">
-                    <h4 style="font-size: 1rem; margin: 0;">Price Range</h4>
-                    <span id="price-display-val" style="font-size: 0.88rem; font-weight: 700; color: var(--secondary);">
-                        Up to ₹{{ "{:,.0f}".format(current_max_price if current_max_price is not none and current_max_price != '' else max_db_price) }}
-                    </span>
-                </div>
-                <input type="range" id="price-range-slider" name="max_price" min="0" max="{{ max_db_price|int }}" step="50" value="{{ current_max_price if current_max_price is not none and current_max_price != '' else max_db_price|int }}" style="width: 100%; accent-color: var(--secondary); cursor: pointer;">
-                <div style="display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--text-muted); margin-top: 0.5rem;">
-                    <span>₹0</span>
-                    <span>Maximum: ₹{{ "{:,.0f}".format(max_db_price) }}</span>
-                </div>
-            </div>
-
-            <!-- Availability Radio Options -->
-            <div class="card" style="padding: 1.25rem;">
-                <h4 style="font-size: 1rem; margin-bottom: 0.85rem; border-bottom: 1px solid var(--surface-border); padding-bottom: 0.5rem;">Availability</h4>
-                <div style="display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.88rem; color: var(--text-color);">
-                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                        <input type="radio" class="availability-radio" name="availability_radio" value="" {% if not current_availability %}checked{% endif %} onchange="syncAvailabilityRadio(this.value)"> All Statuses
-                    </label>
-                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                        <input type="radio" class="availability-radio" name="availability_radio" value="in_stock" {% if current_availability == 'in_stock' %}checked{% endif %} onchange="syncAvailabilityRadio(this.value)"> In Stock
-                    </label>
-                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                        <input type="radio" class="availability-radio" name="availability_radio" value="low_stock" {% if current_availability == 'low_stock' %}checked{% endif %} onchange="syncAvailabilityRadio(this.value)"> Low Stock
-                    </label>
-                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                        <input type="radio" class="availability-radio" name="availability_radio" value="out_of_stock" {% if current_availability == 'out_of_stock' %}checked{% endif %} onchange="syncAvailabilityRadio(this.value)"> Out of Stock
-                    </label>
-                </div>
-            </div>
-        </aside>
-
-        <!-- RIGHT MAIN PRODUCT GRID CONTAINER -->
-        <div id="product-grid-container" style="position: relative; transition: opacity 0.2s ease;">
-            {% include 'customer/_product_grid.html' %}
-        </div>
     </div>
 </form>
 
+<!-- Main Layout: Grid Container (span full width) -->
+<div style="display: block; margin-top: 1.5rem; width: 100%;">
+    <!-- RIGHT MAIN PRODUCT GRID CONTAINER -->
+    <div id="product-grid-container" style="position: relative; transition: opacity 0.2s ease; width: 100%;">
+        {% include 'customer/_product_grid.html' %}
+    </div>
+</div>
+
 <script>
-const MAX_DB_PRICE = parseInt("{{ max_db_price|int }}", 10);
-let debounceTimer = null;
-
-function formatRupee(val) {
-    return 'Up to ₹' + Number(val).toLocaleString('en-IN');
-}
-
-// Live update slider label & trigger debounced AJAX filter
+// Live update filter settings & trigger AJAX
 document.addEventListener('DOMContentLoaded', function() {
-    const slider = document.getElementById('price-range-slider');
-    const priceDisplay = document.getElementById('price-display-val');
-
-    if (slider && priceDisplay) {
-        slider.addEventListener('input', function() {
-            priceDisplay.textContent = formatRupee(this.value);
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(function() {
-                triggerFilter(1);
-            }, 250);
-        });
-    }
-
     // Delegation for pagination links inside #product-grid-container
     const container = document.getElementById('product-grid-container');
     if (container) {
@@ -166,47 +95,40 @@ function handleFormSubmit(e) {
     triggerFilter(1);
 }
 
-function selectSidebarCategory(catId, element) {
+function syncCategorySelect(catId) {
     document.getElementById('filter-category').value = catId;
-    document.getElementById('filter-category-select').value = catId;
-    
-    // Highlight sidebar link
-    document.querySelectorAll('.category-sidebar-link').forEach(link => {
-        link.style.color = 'var(--text-muted)';
-        link.style.fontWeight = '400';
-    });
-    if (element) {
-        element.style.color = 'var(--secondary)';
-        element.style.fontWeight = '700';
+    triggerFilter(1);
+}
+
+function syncPriceRange(val) {
+    const parts = val.split('-');
+    if (parts.length === 2) {
+        document.getElementById('filter-min-price').value = parts[0] || '';
+        document.getElementById('filter-max-price').value = parts[1] || '';
+    } else {
+        document.getElementById('filter-min-price').value = '';
+        document.getElementById('filter-max-price').value = '';
     }
     triggerFilter(1);
 }
 
-function syncCategorySelect(catId) {
-    document.getElementById('filter-category').value = catId;
-    document.querySelectorAll('.category-sidebar-link').forEach(link => {
-        const linkCat = link.getAttribute('data-category-id') || '';
-        if (linkCat === String(catId)) {
-            link.style.color = 'var(--secondary)';
-            link.style.fontWeight = '700';
-        } else {
-            link.style.color = 'var(--text-muted)';
-            link.style.fontWeight = '400';
-        }
-    });
-    triggerFilter(1);
-}
-
-function syncAvailabilityRadio(val) {
-    document.getElementById('filter-availability-select').value = val;
-    triggerFilter(1);
-}
-
-function syncAvailability(val) {
-    const radios = document.querySelectorAll('.availability-radio');
-    radios.forEach(r => {
-        r.checked = (r.value === val);
-    });
+function clearSingleFilter(type) {
+    if (type === 'q') {
+        document.getElementById('filter-q').value = '';
+    } else if (type === 'category') {
+        document.getElementById('filter-category').value = '';
+        document.getElementById('filter-category-select').value = '';
+    } else if (type === 'brand') {
+        document.getElementById('filter-brand').value = '';
+    } else if (type === 'price') {
+        document.getElementById('filter-min-price').value = '';
+        document.getElementById('filter-max-price').value = '';
+        document.getElementById('filter-price-range').value = '';
+    } else if (type === 'availability') {
+        document.getElementById('filter-availability').value = '';
+    } else if (type === 'sort') {
+        document.getElementById('filter-sort').value = 'newest';
+    }
     triggerFilter(1);
 }
 
@@ -215,32 +137,11 @@ function clearAllFilters() {
     document.getElementById('filter-category').value = '';
     document.getElementById('filter-category-select').value = '';
     document.getElementById('filter-brand').value = '';
-    document.getElementById('filter-availability-select').value = '';
+    document.getElementById('filter-min-price').value = '';
+    document.getElementById('filter-max-price').value = '';
+    document.getElementById('filter-price-range').value = '';
+    document.getElementById('filter-availability').value = '';
     document.getElementById('filter-sort').value = 'newest';
-    
-    const radios = document.querySelectorAll('.availability-radio');
-    radios.forEach(r => { r.checked = (r.value === ''); });
-
-    const slider = document.getElementById('price-range-slider');
-    if (slider) {
-        slider.value = MAX_DB_PRICE;
-    }
-    const priceDisplay = document.getElementById('price-display-val');
-    if (priceDisplay) {
-        priceDisplay.textContent = formatRupee(MAX_DB_PRICE);
-    }
-
-    document.querySelectorAll('.category-sidebar-link').forEach(link => {
-        const linkCat = link.getAttribute('data-category-id') || '';
-        if (linkCat === '') {
-            link.style.color = 'var(--secondary)';
-            link.style.fontWeight = '700';
-        } else {
-            link.style.color = 'var(--text-muted)';
-            link.style.fontWeight = '400';
-        }
-    });
-
     triggerFilter(1);
 }
 
@@ -260,16 +161,17 @@ function triggerFilter(page = 1) {
     const brand = document.getElementById('filter-brand').value;
     if (brand) params.set('brand', brand);
 
-    const availability = document.getElementById('filter-availability-select').value;
+    const availability = document.getElementById('filter-availability').value;
     if (availability) params.set('availability', availability);
 
     const sort = document.getElementById('filter-sort').value;
     if (sort && sort !== 'newest') params.set('sort', sort);
 
-    const slider = document.getElementById('price-range-slider');
-    if (slider) {
-        params.set('max_price', slider.value);
-    }
+    const minPrice = document.getElementById('filter-min-price').value;
+    if (minPrice) params.set('min_price', minPrice);
+
+    const maxPrice = document.getElementById('filter-max-price').value;
+    if (maxPrice) params.set('max_price', maxPrice);
 
     if (page && parseInt(page, 10) > 1) {
         params.set('page', page);
@@ -315,24 +217,35 @@ window.addEventListener('popstate', function(e) {
     document.getElementById('filter-brand').value = urlParams.get('brand') || '';
     
     const avail = urlParams.get('availability') || '';
-    document.getElementById('filter-availability-select').value = avail;
-    document.querySelectorAll('.availability-radio').forEach(r => {
-        r.checked = (r.value === avail);
-    });
+    document.getElementById('filter-availability').value = avail;
 
     document.getElementById('filter-sort').value = urlParams.get('sort') || 'newest';
 
-    const maxPrice = urlParams.get('max_price') || MAX_DB_PRICE;
-    const slider = document.getElementById('price-range-slider');
-    if (slider) {
-        slider.value = maxPrice;
-    }
-    const priceDisplay = document.getElementById('price-display-val');
-    if (priceDisplay) {
-        priceDisplay.textContent = formatRupee(maxPrice);
+    const minPrice = urlParams.get('min_price') || '';
+    const maxPrice = urlParams.get('max_price') || '';
+    document.getElementById('filter-min-price').value = minPrice;
+    document.getElementById('filter-max-price').value = maxPrice;
+
+    const select = document.getElementById('filter-price-range');
+    if (select) {
+        if (minPrice === '' && maxPrice === '') {
+            select.value = '';
+        } else if (minPrice === '' && parseFloat(maxPrice) === 100) {
+            select.value = '0-100';
+        } else if (parseFloat(minPrice) === 100 && parseFloat(maxPrice) === 500) {
+            select.value = '100-500';
+        } else if (parseFloat(minPrice) === 500 && parseFloat(maxPrice) === 1000) {
+            select.value = '500-1000';
+        } else if (parseFloat(minPrice) === 1000 && parseFloat(maxPrice) === 5000) {
+            select.value = '1000-5000';
+        } else if (parseFloat(minPrice) === 5000 && maxPrice === '') {
+            select.value = '5000-';
+        } else {
+            select.value = '';
+        }
     }
 
-    // Fetch product grid for popped state without replacing history again
+    // Fetch product grid for popped state
     const container = document.getElementById('product-grid-container');
     if (container) {
         container.style.opacity = '0.5';

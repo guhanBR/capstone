@@ -16,11 +16,13 @@
             <!-- Product Image -->
             <div class="wishlist-card-img">
                 {% if item.product.image and item.product.image != 'placeholder.png' %}
-                    <img src="{{ url_for('static', filename='images/' + item.product.image) }}"
-                         alt="{{ item.product.name }}">
+                    <img src="{{ item.product.image_url }}"
+                         alt="{{ item.product.name }}"
+                         onerror="this.onerror=null;this.style.display='none';">
                 {% else %}
                     <div style="font-size:3rem; color:var(--text-muted); opacity:0.4;">⚙</div>
                 {% endif %}
+
             </div>
 
             <div class="wishlist-card-body">
