@@ -111,6 +111,9 @@
                         <li class="admin-menu-item {% if request.endpoint == 'admin.reviews' %}active{% endif %}">
                             <a href="{{ url_for('admin.reviews') }}">Reviews</a>
                         </li>
+                        <li class="admin-menu-item {% if request.endpoint == 'admin.support_messages' %}active{% endif %}">
+                            <a href="{{ url_for('admin.support_messages') }}">Support Messages</a>
+                        </li>
                         <li class="admin-menu-item {% if request.endpoint == 'reports.analytics_dashboard' %}active{% endif %}">
                             <a href="{{ url_for('reports.analytics_dashboard') }}">Analytics &amp; Reports</a>
                         </li>

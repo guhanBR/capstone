@@ -694,3 +694,11 @@ def staff_toggle_status(user_id):
     log_audit(current_user.id, 'TOGGLE_STATUS', 'User', staff_user.id, f"Staff {staff_user.email} status changed to {staff_user.status}")
     flash(f"Staff member {staff_user.name} is now {staff_user.status}.", 'info')
     return redirect(url_for('admin.staff_list'))
+
+
+@admin_bp.route('/support-messages')
+@login_required
+@manager_or_admin_required
+def support_messages():
+    return render_template('admin/support_messages.html')
+
