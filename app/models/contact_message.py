@@ -10,7 +10,9 @@ class ContactMessage(db.Model):
     phone = db.Column(db.String(20), nullable=True)
     subject = db.Column(db.String(150), nullable=False)
     message = db.Column(db.Text, nullable=False)
-    status = db.Column(db.String(20), default='unread', nullable=False)  # unread, read, replied
+    status = db.Column(db.String(20), default='unread', nullable=False)  # unread, read, in_progress, replied, closed
+    is_read = db.Column(db.Boolean, default=False, nullable=False)
+    read_at = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     def to_dict(self):
@@ -22,5 +24,7 @@ class ContactMessage(db.Model):
             'subject': self.subject,
             'message': self.message,
             'status': self.status,
+            'is_read': self.is_read,
+            'read_at': self.read_at.strftime('%Y-%m-%d %H:%M:%S') if self.read_at else None,
             'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S') if self.created_at else None
         }

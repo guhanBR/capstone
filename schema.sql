@@ -217,8 +217,13 @@ CREATE TABLE `contact_messages` (
     `subject` VARCHAR(150) NOT NULL,
     `message` TEXT NOT NULL,
     `status` VARCHAR(20) NOT NULL DEFAULT 'unread',
+    `is_read` BOOLEAN NOT NULL DEFAULT FALSE,
+    `read_at` DATETIME DEFAULT NULL,
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     INDEX `idx_contact_email` (`email`),
+    INDEX `idx_contact_status` (`status`),
+    INDEX `idx_contact_is_read` (`is_read`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 -- 14. Support Replies Table
 CREATE TABLE `support_replies` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,

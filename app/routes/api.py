@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from flask import Blueprint, jsonify, request, make_response
 from flask_login import current_user, login_required
 from sqlalchemy import or_
@@ -220,6 +221,18 @@ def get_support_messages_api():
     return resp
 
 
+@api_bp.route('/support-messages/unread-count', methods=['GET'])
+@manager_or_admin_required
+def get_support_messages_unread_count_api():
+    db.session.expire_all()
+    count = ContactMessage.query.filter(
+        or_(ContactMessage.is_read == False, ContactMessage.status == 'unread')
+    ).count()
+    resp = make_response(jsonify({'success': True, 'unread_count': count}))
+    resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate'
+    return resp
+
+
 @api_bp.route('/support-messages/<int:message_id>', methods=['GET'])
 @manager_or_admin_required
 def get_support_message_detail_api(message_id):
@@ -228,12 +241,38 @@ def get_support_message_detail_api(message_id):
     if not message:
         return jsonify({'success': False, 'message': 'Customer enquiry not found'}), 404
 
+    # Mark as read when details are inspected
+    if not message.is_read:
+        message.is_read = True
+        message.read_at = datetime.now(timezone.utc)
+        if message.status == 'unread':
+            message.status = 'read'
+        db.session.commit()
+
     resp = make_response(jsonify({
         'success': True,
         'data': message.to_dict()
     }))
     resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate'
     return resp
+
+
+@api_bp.route('/support-messages/<int:message_id>/read', methods=['POST', 'PUT'])
+@manager_or_admin_required
+def mark_support_message_read_api(message_id):
+    message = db.session.get(ContactMessage, message_id)
+    if not message:
+        return jsonify({'success': False, 'message': 'Customer enquiry not found'}), 404
+
+    if not message.is_read:
+        message.is_read = True
+        message.read_at = datetime.now(timezone.utc)
+        if message.status == 'unread':
+            message.status = 'read'
+        db.session.commit()
+
+    return jsonify({'success': True, 'message': 'Enquiry marked as read', 'data': message.to_dict()})
+
 
 
 @api_bp.route('/support-messages/<int:message_id>/status', methods=['PUT', 'POST'])

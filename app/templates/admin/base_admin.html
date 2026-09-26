@@ -112,7 +112,10 @@
                             <a href="{{ url_for('admin.reviews') }}">Reviews</a>
                         </li>
                         <li class="admin-menu-item {% if request.endpoint == 'admin.support_messages' %}active{% endif %}">
-                            <a href="{{ url_for('admin.support_messages') }}">Support Messages</a>
+                            <a href="{{ url_for('admin.support_messages') }}" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                <span>Support Messages</span>
+                                <span id="supportUnreadBadge" style="display: none; background-color: var(--danger, #ef4444); color: #ffffff; font-size: 0.68rem; font-weight: 800; padding: 0.15rem 0.45rem; border-radius: 10px; min-width: 18px; text-align: center; line-height: 1;">0</span>
+                            </a>
                         </li>
                         <li class="admin-menu-item {% if request.endpoint == 'reports.analytics_dashboard' %}active{% endif %}">
                             <a href="{{ url_for('reports.analytics_dashboard') }}">Analytics &amp; Reports</a>
@@ -169,6 +172,44 @@
             }
         }
     </script>
+    {% if current_user.is_authenticated and current_user.role in ['admin', 'manager'] %}
+    <script>
+        (function() {
+            let pollTimer = null;
+
+            function updateSupportUnreadBadge() {
+                fetch('/api/support-messages/unread-count', {
+                    headers: { 'Accept': 'application/json' }
+                })
+                .then(res => res.ok ? res.json() : null)
+                .then(data => {
+                    if (data && data.success) {
+                        const badge = document.getElementById('supportUnreadBadge');
+                        if (badge) {
+                            const count = data.unread_count || 0;
+                            if (count > 0) {
+                                badge.textContent = count > 99 ? '99+' : count;
+                                badge.style.display = 'inline-block';
+                            } else {
+                                badge.style.display = 'none';
+                            }
+                        }
+                    }
+                })
+                .catch(() => {});
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                updateSupportUnreadBadge();
+                pollTimer = setInterval(updateSupportUnreadBadge, 30000);
+            });
+
+            window.addEventListener('beforeunload', function() {
+                if (pollTimer) clearInterval(pollTimer);
+            });
+        })();
+    </script>
+    {% endif %}
     {% block scripts %}{% endblock %}
 </body>
 </html>
