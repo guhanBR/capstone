@@ -10,6 +10,7 @@ from app.models.notification import Notification
 from app.models.audit_log import AuditLog
 from app.models.wishlist import Wishlist
 from app.models.contact_message import ContactMessage
+from app.models.contact_reply import ContactReply
 
 __all__ = [
     'User',
@@ -25,6 +26,7 @@ __all__ = [
     'Notification',
     'AuditLog',
     'Wishlist',
-    'ContactMessage'
+    'ContactMessage',
+    'ContactReply'
 ]
 

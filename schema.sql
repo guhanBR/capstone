@@ -6,6 +6,7 @@ USE `sparepro_db`;
 
 -- Drop existing tables if re-initializing
 SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS `support_replies`;
 DROP TABLE IF EXISTS `contact_messages`;
 DROP TABLE IF EXISTS `audit_logs`;
 DROP TABLE IF EXISTS `notifications`;
@@ -218,6 +219,22 @@ CREATE TABLE `contact_messages` (
     `status` VARCHAR(20) NOT NULL DEFAULT 'unread',
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     INDEX `idx_contact_email` (`email`),
-    INDEX `idx_contact_status` (`status`)
+-- 14. Support Replies Table
+CREATE TABLE `support_replies` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `contact_message_id` INT NOT NULL,
+    `staff_id` INT DEFAULT NULL,
+    `recipient_email` VARCHAR(120) NOT NULL,
+    `subject` VARCHAR(200) NOT NULL,
+    `reply_body` TEXT NOT NULL,
+    `sending_status` VARCHAR(20) NOT NULL DEFAULT 'Pending',
+    `error_message` TEXT DEFAULT NULL,
+    `provider_message_id` VARCHAR(100) DEFAULT NULL,
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (`contact_message_id`) REFERENCES `contact_messages` (`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`staff_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+    INDEX `idx_reply_msg` (`contact_message_id`),
+    INDEX `idx_reply_staff` (`staff_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 

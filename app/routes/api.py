@@ -8,8 +8,10 @@ from app.models.cart import Cart, CartItem
 from app.models.order import Order
 from app.models.notification import Notification
 from app.models.contact_message import ContactMessage
+from app.models.contact_reply import ContactReply
 from app.services.product_service import ProductService
 from app.utils.decorators import manager_or_admin_required
+from app.utils.email_helper import send_support_reply_email
 
 api_bp = Blueprint('api', __name__)
 
@@ -258,4 +260,81 @@ def update_support_message_status_api(message_id):
         'message': f'Status updated to {new_status}',
         'data': message.to_dict()
     })
+
+
+@api_bp.route('/support-messages/<int:message_id>/replies', methods=['GET'])
+@manager_or_admin_required
+def get_support_message_replies_api(message_id):
+    message = db.session.get(ContactMessage, message_id)
+    if not message:
+        return jsonify({'success': False, 'message': 'Customer enquiry not found'}), 404
+
+    replies = ContactReply.query.filter_by(contact_message_id=message_id).order_by(ContactReply.created_at.asc()).all()
+    return jsonify({
+        'success': True,
+        'data': [r.to_dict() for r in replies]
+    })
+
+
+@api_bp.route('/support-messages/<int:message_id>/reply', methods=['POST'])
+@manager_or_admin_required
+def post_support_message_reply_api(message_id):
+    message = db.session.get(ContactMessage, message_id)
+    if not message:
+        return jsonify({'success': False, 'message': 'Customer enquiry not found'}), 404
+
+    data = request.get_json(silent=True) or {}
+    subject = (data.get('subject') or request.form.get('subject') or '').strip()
+    reply_body = (data.get('reply_body') or request.form.get('reply_body') or '').strip()
+
+    if not subject or not reply_body:
+        return jsonify({'success': False, 'message': 'Subject and reply body are required.'}), 400
+
+    recipient_email = message.email.strip()
+
+    # Step 1: Create ContactReply record in Pending state and commit DB first (non-blocking)
+    reply = ContactReply(
+        contact_message_id=message.id,
+        staff_id=current_user.id if hasattr(current_user, 'id') else None,
+        recipient_email=recipient_email,
+        subject=subject,
+        reply_body=reply_body,
+        sending_status='Pending'
+    )
+    db.session.add(reply)
+    db.session.commit()
+
+    reply_id = reply.id
+
+    # Step 2: Perform SMTP email sending outside of open DB transaction
+    success, email_msg, provider_msg_id = send_support_reply_email(recipient_email, subject, reply_body)
+
+    # Step 3: Open fresh DB update to record final sending status
+    reply_rec = db.session.get(ContactReply, reply_id)
+    if reply_rec:
+        if success:
+            reply_rec.sending_status = 'Sent'
+            reply_rec.provider_message_id = provider_msg_id
+            # Also update original message status to replied
+            msg_rec = db.session.get(ContactMessage, message.id)
+            if msg_rec:
+                msg_rec.status = 'replied'
+            db.session.commit()
+            return jsonify({
+                'success': True,
+                'message': 'Reply sent successfully and recorded in history.',
+                'data': reply_rec.to_dict()
+            })
+        else:
+            reply_rec.sending_status = 'Failed'
+            reply_rec.error_message = email_msg
+            db.session.commit()
+            return jsonify({
+                'success': False,
+                'message': email_msg,
+                'data': reply_rec.to_dict()
+            }), 400
+
+    return jsonify({'success': False, 'message': 'Failed to process reply.'}), 500
+
 

@@ -163,7 +163,7 @@
             </div>
 
             <!-- Status Update Section -->
-            <div style="background-color: rgba(255,255,255,0.02); border: 1px solid var(--surface-border); border-radius: 8px; padding: 1rem;">
+            <div style="background-color: rgba(255,255,255,0.02); border: 1px solid var(--surface-border); border-radius: 8px; padding: 1rem; margin-bottom: 1.25rem;">
                 <label style="font-weight: 600; font-size: 0.88rem; color: var(--text-color); display: block; margin-bottom: 0.5rem;">
                     Update Enquiry Status
                 </label>
@@ -179,6 +179,42 @@
                         Save Status
                     </button>
                 </div>
+            </div>
+
+            <!-- Email Reply Section -->
+            <div style="background-color: rgba(255,255,255,0.02); border: 1px solid var(--surface-border); border-radius: 8px; padding: 1.25rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <h4 style="margin: 0; font-size: 1rem; color: var(--text-color);">📧 Reply via Email</h4>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="toggleReplyHistory()" style="font-size: 0.78rem;">
+                        Reply History (<span id="replyHistoryCount">0</span>)
+                    </button>
+                </div>
+
+                <!-- Reply History List -->
+                <div id="replyHistoryContainer" style="display: none; margin-bottom: 1rem; max-height: 200px; overflow-y: auto; border: 1px solid var(--surface-border); border-radius: 6px; padding: 0.75rem; background: rgba(0,0,0,0.2);">
+                    <div id="replyHistoryList" style="font-size: 0.85rem;">
+                        No previous replies.
+                    </div>
+                </div>
+
+                <!-- Email Reply Form -->
+                <form id="replyForm" onsubmit="sendReply(event)">
+                    <div style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; display: block; margin-bottom: 0.2rem;">Recipient (Customer Email)</label>
+                        <input type="email" id="replyRecipient" class="form-control" readonly style="background-color: rgba(255,255,255,0.05); cursor: not-allowed;">
+                    </div>
+                    <div style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; display: block; margin-bottom: 0.2rem;">Subject *</label>
+                        <input type="text" id="replySubject" class="form-control" placeholder="Re: Enquiry Subject" required>
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label style="font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; display: block; margin-bottom: 0.2rem;">Response Message *</label>
+                        <textarea id="replyBody" class="form-control" rows="4" placeholder="Write response to customer..." required></textarea>
+                    </div>
+                    <button type="submit" id="sendReplyBtn" class="btn btn-primary btn-sm" style="width: 100%; font-weight: 600; padding: 0.6rem;">
+                        🚀 Send Email Reply
+                    </button>
+                </form>
             </div>
         </div>
 
@@ -385,6 +421,14 @@
             document.getElementById('modalMessage').textContent = msg.message || '';
             document.getElementById('modalStatusSelect').value = msg.status || 'unread';
 
+            // Populate Email Reply fields
+            document.getElementById('replyRecipient').value = msg.email || '';
+            document.getElementById('replySubject').value = 'Re: ' + (msg.subject || '');
+            document.getElementById('replyBody').value = '';
+
+            // Load Reply History
+            loadReplyHistory(id);
+
             document.getElementById('detailModal').style.display = 'flex';
         })
         .catch(err => {
@@ -395,6 +439,102 @@
     function closeModal() {
         document.getElementById('detailModal').style.display = 'none';
         currentMessageId = null;
+    }
+
+    function loadReplyHistory(id) {
+        fetch(`/api/support-messages/${id}/replies`, {
+            headers: { 'Accept': 'application/json' }
+        })
+        .then(res => res.json())
+        .then(res => {
+            const countSpan = document.getElementById('replyHistoryCount');
+            const listDiv = document.getElementById('replyHistoryList');
+            if (res.success && res.data) {
+                countSpan.textContent = res.data.length;
+                if (res.data.length === 0) {
+                    listDiv.innerHTML = '<div style="color: var(--text-muted); font-style: italic;">No previous replies.</div>';
+                } else {
+                    listDiv.innerHTML = res.data.map(r => `
+                        <div style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.5rem; margin-bottom: 0.5rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <strong>${escapeHtml(r.staff_name)}</strong>
+                                <span class="status-badge ${r.sending_status === 'Sent' ? 'badge-success' : 'badge-danger'}" style="font-size: 0.7rem;">${escapeHtml(r.sending_status)}</span>
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.1rem;">To: ${escapeHtml(r.recipient_email)} | ${escapeHtml(r.created_at || '')}</div>
+                            <div style="margin-top: 0.3rem; white-space: pre-wrap; color: var(--text-color); font-size: 0.82rem;">${escapeHtml(r.reply_body)}</div>
+                            ${r.error_message ? `<div style="color: var(--danger); font-size: 0.75rem; margin-top: 0.2rem;">Error: ${escapeHtml(r.error_message)}</div>` : ''}
+                        </div>
+                    `).join('');
+                }
+            }
+        })
+        .catch(() => {});
+    }
+
+    function toggleReplyHistory() {
+        const container = document.getElementById('replyHistoryContainer');
+        container.style.display = container.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function sendReply(event) {
+        if (event) event.preventDefault();
+        if (!currentMessageId) return;
+
+        const subject = document.getElementById('replySubject').value.trim();
+        const replyBody = document.getElementById('replyBody').value.trim();
+        const sendBtn = document.getElementById('sendReplyBtn');
+        const alertBox = document.getElementById('modalAlert');
+
+        if (!subject || !replyBody) {
+            alertBox.className = 'alert alert-danger';
+            alertBox.textContent = 'Subject and reply body are required.';
+            alertBox.style.display = 'block';
+            return;
+        }
+
+        sendBtn.disabled = true;
+        sendBtn.textContent = 'Sending Email...';
+        alertBox.style.display = 'none';
+
+        const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+        const csrfToken = csrfTokenMeta ? csrfTokenMeta.getAttribute('content') : '';
+
+        fetch(`/api/support-messages/${currentMessageId}/reply`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ subject: subject, reply_body: replyBody })
+        })
+        .then(res => res.json())
+        .then(data => {
+            sendBtn.disabled = false;
+            sendBtn.textContent = '🚀 Send Email Reply';
+
+            if (data.success) {
+                alertBox.className = 'alert alert-success';
+                alertBox.textContent = data.message || 'Email reply sent and recorded successfully.';
+                alertBox.style.display = 'block';
+
+                document.getElementById('replyBody').value = '';
+                loadReplyHistory(currentMessageId);
+                loadMessages(currentPage);
+            } else {
+                alertBox.className = 'alert alert-danger';
+                alertBox.textContent = data.message || 'Failed to send email reply.';
+                alertBox.style.display = 'block';
+                loadReplyHistory(currentMessageId);
+            }
+        })
+        .catch(err => {
+            sendBtn.disabled = false;
+            sendBtn.textContent = '🚀 Send Email Reply';
+            alertBox.className = 'alert alert-danger';
+            alertBox.textContent = 'Error sending reply: ' + err.message;
+            alertBox.style.display = 'block';
+        });
     }
 
     function saveStatusUpdate() {
