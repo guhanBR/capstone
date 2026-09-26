@@ -1,14 +1,20 @@
 from flask import Blueprint, jsonify, request, make_response
 from flask_login import current_user, login_required
+from sqlalchemy import or_
 from app import db
 from app.models.product import Product
 from app.models.category import Category
 from app.models.cart import Cart, CartItem
 from app.models.order import Order
 from app.models.notification import Notification
+from app.models.contact_message import ContactMessage
 from app.services.product_service import ProductService
+from app.utils.decorators import manager_or_admin_required
 
 api_bp = Blueprint('api', __name__)
+
+VALID_SUPPORT_STATUSES = {'unread', 'read', 'replied', 'closed', 'in_progress'}
+
 
 @api_bp.route('/products', methods=['GET'])
 def get_products():
@@ -162,3 +168,94 @@ def update_theme_preference():
             db.session.commit()
         return jsonify({'success': True, 'theme': theme})
     return jsonify({'success': False, 'message': 'Invalid theme'}), 400
+
+
+# ─────────────────────────────────────────────
+# CUSTOMER SUPPORT MESSAGES API (ADMIN / MANAGER)
+# ─────────────────────────────────────────────
+
+@api_bp.route('/support-messages', methods=['GET'])
+@manager_or_admin_required
+def get_support_messages_api():
+    status = request.args.get('status', '').strip().lower()
+    search = request.args.get('q', '').strip()
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
+
+    # Force fresh DB read
+    db.session.expire_all()
+
+    query = ContactMessage.query
+
+    if status and status in VALID_SUPPORT_STATUSES:
+        query = query.filter(ContactMessage.status == status)
+
+    if search:
+        search_pattern = f"%{search}%"
+        query = query.filter(
+            or_(
+                ContactMessage.name.ilike(search_pattern),
+                ContactMessage.email.ilike(search_pattern),
+                ContactMessage.phone.ilike(search_pattern),
+                ContactMessage.subject.ilike(search_pattern),
+                ContactMessage.message.ilike(search_pattern)
+            )
+        )
+
+    pagination = query.order_by(ContactMessage.created_at.desc()).paginate(
+        page=page, per_page=per_page, error_out=False
+    )
+
+    resp = make_response(jsonify({
+        'success': True,
+        'data': [m.to_dict() for m in pagination.items],
+        'total': pagination.total,
+        'pages': pagination.pages,
+        'current_page': pagination.page,
+        'per_page': per_page
+    }))
+    resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate'
+    return resp
+
+
+@api_bp.route('/support-messages/<int:message_id>', methods=['GET'])
+@manager_or_admin_required
+def get_support_message_detail_api(message_id):
+    db.session.expire_all()
+    message = db.session.get(ContactMessage, message_id)
+    if not message:
+        return jsonify({'success': False, 'message': 'Customer enquiry not found'}), 404
+
+    resp = make_response(jsonify({
+        'success': True,
+        'data': message.to_dict()
+    }))
+    resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate'
+    return resp
+
+
+@api_bp.route('/support-messages/<int:message_id>/status', methods=['PUT', 'POST'])
+@manager_or_admin_required
+def update_support_message_status_api(message_id):
+    message = db.session.get(ContactMessage, message_id)
+    if not message:
+        return jsonify({'success': False, 'message': 'Customer enquiry not found'}), 404
+
+    data = request.get_json(silent=True) or {}
+    new_status = (data.get('status') or request.form.get('status') or '').strip().lower()
+
+    if not new_status or new_status not in VALID_SUPPORT_STATUSES:
+        return jsonify({
+            'success': False,
+            'message': f"Invalid status value. Supported values: {', '.join(sorted(VALID_SUPPORT_STATUSES))}"
+        }), 400
+
+    message.status = new_status
+    db.session.commit()
+
+    return jsonify({
+        'success': True,
+        'message': f'Status updated to {new_status}',
+        'data': message.to_dict()
+    })
+
