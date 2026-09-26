@@ -20,23 +20,7 @@ def create_app(config_name=None):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(config[config_name])
 
-    # Try database connection; fallback to SQLite if MySQL is unreachable during dev
-    db_uri = app.config['SQLALCHEMY_DATABASE_URI']
-    if 'mysql' in db_uri:
-        try:
-            import pymysql
-            host = app.config.get('MYSQL_HOST', 'localhost')
-            port = app.config.get('MYSQL_PORT', 3306)
-            user = app.config.get('MYSQL_USER', 'root')
-            password = app.config.get('MYSQL_PASSWORD', 'rootpassword')
-            # Test direct connection
-            conn = pymysql.connect(host=host, port=port, user=user, password=password, connect_timeout=2)
-            conn.close()
-        except Exception as e:
-            # Fallback to SQLite if local MySQL daemon isn't running
-            print(f"[Warning] MySQL connection test failed ({e}). Falling back to SQLite database.")
-            app.config['SQLALCHEMY_DATABASE_URI'] = app.config['FALLBACK_SQLITE_URI']
-
+    # Enforce database connection as configured
     db.init_app(app)
     login_manager.init_app(app)
     csrf.init_app(app)
@@ -118,7 +102,7 @@ def create_app(config_name=None):
 
     @app.route('/contact/', methods=['GET', 'POST'])
     def contact():
-        from flask import request, flash, redirect, url_for
+        from flask import request, flash, redirect, url_for, current_app
         from app.models.contact_message import ContactMessage
 
         if request.method == 'POST':
@@ -131,17 +115,22 @@ def create_app(config_name=None):
             if not name or not email or not subject or not message:
                 flash('Please fill in all required fields.', 'danger')
             else:
-                msg = ContactMessage(
-                    name=name,
-                    email=email,
-                    phone=phone,
-                    subject=subject,
-                    message=message
-                )
-                db.session.add(msg)
-                db.session.commit()
-                flash('Thank you for contacting SparePro! Your message has been sent successfully.', 'success')
-                return redirect(url_for('contact'))
+                try:
+                    msg = ContactMessage(**{
+                        'name': name,
+                        'email': email,
+                        'phone': phone if phone else None,
+                        'subject': subject,
+                        'message': message
+                    })
+                    db.session.add(msg)
+                    db.session.commit()
+                    flash('Thank you for contacting SparePro! Your message has been sent successfully.', 'success')
+                    return redirect(url_for('contact'))
+                except Exception as e:
+                    db.session.rollback()
+                    current_app.logger.error(f"Error saving contact message: {e}")
+                    flash('An error occurred while submitting your message. Please try again later.', 'danger')
 
         return render_template('customer/contact.html')
 

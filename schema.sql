@@ -6,6 +6,7 @@ USE `sparepro_db`;
 
 -- Drop existing tables if re-initializing
 SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS `contact_messages`;
 DROP TABLE IF EXISTS `audit_logs`;
 DROP TABLE IF EXISTS `notifications`;
 DROP TABLE IF EXISTS `inventory_transactions`;
@@ -205,3 +206,18 @@ CREATE TABLE `audit_logs` (
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 13. Contact Messages Table
+CREATE TABLE `contact_messages` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `name` VARCHAR(100) NOT NULL,
+    `email` VARCHAR(120) NOT NULL,
+    `phone` VARCHAR(20) DEFAULT NULL,
+    `subject` VARCHAR(150) NOT NULL,
+    `message` TEXT NOT NULL,
+    `status` VARCHAR(20) NOT NULL DEFAULT 'unread',
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    INDEX `idx_contact_email` (`email`),
+    INDEX `idx_contact_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+

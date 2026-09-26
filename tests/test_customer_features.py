@@ -9,6 +9,7 @@ from app.models.wishlist import Wishlist
 from app.models.notification import Notification
 from app.models.review import Review
 from app.models.order import Order
+from app.models.contact_message import ContactMessage
 
 @pytest.fixture
 def app_context():
@@ -333,3 +334,75 @@ def test_addresses_handling_and_promotion(app_context):
         assert a2 is None
         assert fixture_addr.is_default is True
         assert a1.is_default is False
+
+# ─────────────────────────────────────────────
+# CONTACT SUPPORT TESTS
+# ─────────────────────────────────────────────
+
+def test_contact_page_get(app_context):
+    client = app_context.test_client()
+    res = client.get('/contact/')
+    assert res.status_code == 200
+    assert b'Contact Customer Support' in res.data
+    assert b'Send Inquiry' in res.data
+
+def test_contact_form_submission_success(app_context):
+    client = app_context.test_client()
+    res = client.post('/contact/', data={
+        'name': 'Ramesh Patel',
+        'email': 'ramesh@example.com',
+        'phone': '9876500000',
+        'subject': 'Impeller Compatibility Question',
+        'message': 'Need advice on SS-304 impeller compatibility for 2HP motor.'
+    }, follow_redirects=True)
+
+    assert res.status_code == 200
+    assert b'Thank you for contacting SparePro!' in res.data
+
+    with app_context.app_context():
+        msgs = ContactMessage.query.filter_by(email='ramesh@example.com').all()
+        assert len(msgs) == 1
+        msg = msgs[0]
+        assert msg.name == 'Ramesh Patel'
+        assert msg.phone == '9876500000'
+        assert msg.subject == 'Impeller Compatibility Question'
+        assert msg.message == 'Need advice on SS-304 impeller compatibility for 2HP motor.'
+        assert msg.status == 'unread'
+        assert msg.created_at is not None
+
+def test_contact_form_validation_missing_required(app_context):
+    client = app_context.test_client()
+    res = client.post('/contact/', data={
+        'name': 'Ramesh Patel',
+        'email': '',  # missing required field
+        'phone': '9876500000',
+        'subject': 'Impeller Compatibility Question',
+        'message': 'Need advice.'
+    }, follow_redirects=True)
+
+    assert res.status_code == 200
+    assert b'Please fill in all required fields.' in res.data
+
+    with app_context.app_context():
+        msgs = ContactMessage.query.all()
+        assert len(msgs) == 0
+
+def test_contact_form_db_error_handling(app_context, monkeypatch):
+    client = app_context.test_client()
+
+    def mock_commit():
+        raise Exception("Database connection failure")
+
+    monkeypatch.setattr(db.session, "commit", mock_commit)
+
+    res = client.post('/contact/', data={
+        'name': 'Test User',
+        'email': 'test@example.com',
+        'phone': '9999999999',
+        'subject': 'Error test',
+        'message': 'Testing DB exception'
+    }, follow_redirects=True)
+
+    assert res.status_code == 200
+    assert b'An error occurred while submitting your message' in res.data
+

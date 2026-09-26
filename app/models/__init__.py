@@ -9,6 +9,7 @@ from app.models.inventory import InventoryTransaction
 from app.models.notification import Notification
 from app.models.audit_log import AuditLog
 from app.models.wishlist import Wishlist
+from app.models.contact_message import ContactMessage
 
 __all__ = [
     'User',
@@ -23,5 +24,7 @@ __all__ = [
     'InventoryTransaction',
     'Notification',
     'AuditLog',
-    'Wishlist'
+    'Wishlist',
+    'ContactMessage'
 ]
+
