@@ -133,7 +133,7 @@ def test_customer_can_view_own_complaints_and_replies(app_context):
 
     res = client.get('/customer/profile?section=support_requests')
     assert res.status_code == 200
-    assert b'My Support Requests' in res.data
+    assert b'Support Centre' in res.data
     assert b'Motor Bearing Noise' in res.data
     assert b'SKF 6205-2Z' in res.data # Staff reply text
     # Ensure cust1 cannot see cust2's complaint in UI

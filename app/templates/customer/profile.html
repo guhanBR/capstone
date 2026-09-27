@@ -26,7 +26,7 @@
         </a>
         <a href="{{ url_for('customer.profile', section='support_requests') }}"
            class="account-sidebar-link {% if active_section == 'support_requests' %}active{% endif %}">
-            My Support Requests
+            Support Centre
         </a>
     </aside>
 
@@ -251,7 +251,7 @@
 
         <!-- ── SUPPORT REQUESTS SECTION ── -->
         {% elif active_section == 'support_requests' %}
-        <div class="account-section-title">My Support Requests</div>
+        <div class="account-section-title">Support Centre</div>
 
         {% if support_requests %}
             <div style="display: flex; flex-direction: column; gap: 1.25rem;">
