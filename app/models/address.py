@@ -21,6 +21,9 @@ class Address(db.Model):
     # Relationships
     orders = db.relationship('Order', backref='shipping_address', lazy=True)
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     def to_dict(self):
         return {
             'id': self.id,

@@ -12,6 +12,9 @@ class Cart(db.Model):
     # Relationships
     items = db.relationship('CartItem', backref='cart', lazy=True, cascade='all, delete-orphan')
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     @property
     def total_items(self):
         return sum(item.quantity for item in self.items)
@@ -41,6 +44,9 @@ class CartItem(db.Model):
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     __table_args__ = (db.UniqueConstraint('cart_id', 'product_id', name='uk_cart_product'),)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     @property
     def unit_price(self):

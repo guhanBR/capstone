@@ -19,6 +19,9 @@ class ContactReply(db.Model):
     contact_message = db.relationship('ContactMessage', backref=db.backref('replies', lazy=True, cascade='all, delete-orphan'))
     staff_user = db.relationship('User', backref=db.backref('support_replies', lazy=True))
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     def to_dict(self):
         return {
             'id': self.id,

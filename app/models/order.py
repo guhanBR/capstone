@@ -22,6 +22,9 @@ class Order(db.Model):
     items = db.relationship('OrderItem', backref='order', lazy=True, cascade='all, delete-orphan')
     reviews = db.relationship('Review', backref='order', lazy=True)
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     def to_dict(self):
         return {
             'id': self.id,
@@ -59,6 +62,9 @@ class OrderItem(db.Model):
 
     # Backref to Product
     product = db.relationship('Product', lazy=True)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def to_dict(self):
         return {

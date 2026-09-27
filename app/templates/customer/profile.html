@@ -113,7 +113,7 @@
                 </div>
                 <div class="address-card-actions">
                     <button type="button" class="btn btn-secondary btn-sm"
-                            onclick="toggleAddressEdit({{ addr.id }})">Edit</button>
+                            onclick="toggleAddressEdit('{{ addr.id }}')">Edit</button>
 
                     {% if not addr.is_default %}
                     <form method="POST" action="{{ url_for('customer.set_default_address', address_id=addr.id) }}" style="display:inline;">
@@ -180,7 +180,7 @@
                         <div style="display:flex; gap:0.5rem;">
                             <button type="submit" class="btn btn-primary btn-sm">Save Changes</button>
                             <button type="button" class="btn btn-secondary btn-sm"
-                                    onclick="toggleAddressEdit({{ addr.id }})">Cancel</button>
+                                    onclick="toggleAddressEdit('{{ addr.id }}')">Cancel</button>
                         </div>
                     </form>
                 </div>

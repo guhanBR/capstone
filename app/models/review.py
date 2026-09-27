@@ -16,6 +16,9 @@ class Review(db.Model):
 
     __table_args__ = (db.UniqueConstraint('user_id', 'product_id', 'order_id', name='uk_user_product_order'),)
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     def to_dict(self):
         return {
             'id': self.id,

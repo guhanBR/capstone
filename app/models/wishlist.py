@@ -17,6 +17,9 @@ class Wishlist(db.Model):
         db.UniqueConstraint('user_id', 'product_id', name='uk_user_product_wishlist'),
     )
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     def to_dict(self):
         return {
             'id': self.id,

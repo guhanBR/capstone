@@ -27,6 +27,9 @@ class Product(db.Model):
     reviews = db.relationship('Review', backref='product', lazy=True, cascade='all, delete-orphan')
     inventory_transactions = db.relationship('InventoryTransaction', backref='product', lazy=True, cascade='all, delete-orphan')
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     @property
     def effective_price(self):
         if self.discount_price and float(self.discount_price) > 0 and float(self.discount_price) < float(self.price):
