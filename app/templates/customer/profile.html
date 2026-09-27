@@ -24,6 +24,10 @@
            class="account-sidebar-link {% if active_section == 'addresses' %}active{% endif %}">
             Saved Addresses
         </a>
+        <a href="{{ url_for('customer.profile', section='support_requests') }}"
+           class="account-sidebar-link {% if active_section == 'support_requests' %}active{% endif %}">
+            My Support Requests
+        </a>
     </aside>
 
     <!-- RIGHT CONTENT PANEL -->
@@ -244,6 +248,74 @@
                 <button type="submit" class="btn btn-primary btn-sm">Save Address</button>
             </form>
         </div>
+
+        <!-- ── SUPPORT REQUESTS SECTION ── -->
+        {% elif active_section == 'support_requests' %}
+        <div class="account-section-title">My Support Requests</div>
+
+        {% if support_requests %}
+            <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+            {% for req in support_requests %}
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem; border-bottom: 1px solid var(--surface-border); padding-bottom: 0.75rem;">
+                        <div>
+                            <span style="color: var(--secondary); font-weight: 700; font-size: 0.82rem; text-transform: uppercase;">Reference #SR-{{ "%04d"|format(req.id) }} (Enquiry #{{ req.id }})</span>
+                            <h3 style="margin: 0.2rem 0 0 0; font-size: 1.1rem; font-weight: 700; color: var(--text-color);">{{ req.subject }}</h3>
+                        </div>
+                        <div style="text-align: right;">
+                            {% if req.status == 'replied' %}
+                                <span class="status-badge badge-success">Replied</span>
+                            {% elif req.status == 'in_progress' %}
+                                <span class="status-badge badge-info" style="background-color: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3);">In Progress</span>
+                            {% elif req.status == 'closed' %}
+                                <span class="status-badge badge-secondary">Resolved</span>
+                            {% else %}
+                                <span class="status-badge badge-warning">Submitted</span>
+                            {% endif %}
+                            <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.25rem;">
+                                Submitted: {{ req.created_at.strftime('%b %d, %Y %H:%M') if req.created_at else '—' }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <strong style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 0.25rem;">Your Message</strong>
+                        <div style="background-color: var(--surface-hover); border: 1px solid var(--surface-border); border-radius: 6px; padding: 0.85rem; font-size: 0.9rem; line-height: 1.6; white-space: pre-wrap; color: var(--text-color);">{{ req.message }}</div>
+                    </div>
+
+                    <!-- Staff Replies -->
+                    <div>
+                        <strong style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 0.5rem;">
+                            Staff Responses ({% if req.replies %}{{ req.replies|length }}{% else %}0{% endif %})
+                        </strong>
+                        {% if req.replies %}
+                            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                            {% for reply in req.replies %}
+                                <div style="background-color: rgba(232, 117, 24, 0.05); border: 1px solid rgba(232, 117, 24, 0.2); border-radius: 6px; padding: 0.85rem;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                                        <span style="font-weight: 700; font-size: 0.88rem; color: var(--text-color);">💬 {{ reply.staff_user.name if reply.staff_user else 'Support Staff' }}</span>
+                                        <span style="font-size: 0.78rem; color: var(--text-muted);">{{ reply.created_at.strftime('%b %d, %Y %H:%M') if reply.created_at else '' }}</span>
+                                    </div>
+                                    <div style="font-size: 0.9rem; line-height: 1.6; white-space: pre-wrap; color: var(--text-color);">{{ reply.reply_body }}</div>
+                                </div>
+                            {% endfor %}
+                            </div>
+                        {% else %}
+                            <div style="font-size: 0.85rem; color: var(--text-muted); font-style: italic; padding: 0.5rem 0;">
+                                No response from support staff yet. Our team will review your enquiry soon.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+        {% else %}
+            <div class="card" style="text-align: center; padding: 3rem;">
+                <h3 style="font-size: 1.1rem; color: var(--text-color); margin-bottom: 0.5rem;">No Support Requests Found</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.25rem;">You haven't submitted any customer support enquiries yet.</p>
+                <a href="{{ url_for('contact') }}" class="btn btn-primary btn-sm">Submit New Support Enquiry</a>
+            </div>
+        {% endif %}
         {% endif %}
 
     </div><!-- /account-content-panel -->

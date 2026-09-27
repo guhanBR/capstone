@@ -329,7 +329,9 @@ def post_support_message_reply_api(message_id):
     if not subject or not reply_body:
         return jsonify({'success': False, 'message': 'Subject and reply body are required.'}), 400
 
-    recipient_email = message.email.strip()
+    recipient_email = (message.email or '').strip()
+    if not recipient_email or '@' not in recipient_email or '.' not in recipient_email.split('@')[-1]:
+        return jsonify({'success': False, 'message': 'Invalid customer email address associated with this enquiry.'}), 400
 
     # Step 1: Create ContactReply record in Pending state and commit DB first (non-blocking)
     reply = ContactReply(

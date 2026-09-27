@@ -11,6 +11,9 @@ from app.models.wishlist import Wishlist
 from app.models.cart import Cart, CartItem
 from app.utils.validators import validate_phone
 
+from app.models.contact_message import ContactMessage
+from app.models.contact_reply import ContactReply
+
 customer_bp = Blueprint('customer', __name__)
 
 
@@ -44,7 +47,7 @@ def dashboard():
 
 
 # ─────────────────────────────────────────────
-# ACCOUNT / PROFILE (Profile + Settings + Addresses)
+# ACCOUNT / PROFILE (Profile + Settings + Addresses + Support Requests)
 # ─────────────────────────────────────────────
 
 @customer_bp.route('/profile', methods=['GET', 'POST'])
@@ -53,7 +56,7 @@ def dashboard():
 def profile():
     # Determine which section to show
     active_section = request.args.get('section', 'profile')
-    if active_section not in ('profile', 'settings', 'addresses'):
+    if active_section not in ('profile', 'settings', 'addresses', 'support_requests'):
         active_section = 'profile'
 
     if request.method == 'POST':
@@ -162,7 +165,48 @@ def profile():
         return redirect(url_for('customer.profile', section=active_section))
 
     addresses = Address.query.filter_by(user_id=current_user.id).all()
-    return render_template('customer/profile.html', addresses=addresses, active_section=active_section)
+    support_requests = []
+    if active_section == 'support_requests':
+        support_requests = ContactMessage.query.filter_by(
+            email=current_user.email
+        ).order_by(ContactMessage.created_at.desc()).all()
+
+    return render_template(
+        'customer/profile.html',
+        addresses=addresses,
+        support_requests=support_requests,
+        active_section=active_section
+    )
+
+
+@customer_bp.route('/support-requests')
+@login_required
+@customer_required
+def support_requests():
+    return redirect(url_for('customer.profile', section='support_requests'))
+
+
+@customer_bp.route('/support-requests/<int:message_id>')
+@login_required
+@customer_required
+def support_request_detail(message_id):
+    message = db.session.get(ContactMessage, message_id)
+    if not message or message.email.lower() != current_user.email.lower():
+        if request.headers.get('Accept') == 'application/json':
+            return jsonify({'success': False, 'message': 'Access denied or support request not found.'}), 403
+        flash('Support request not found or access denied.', 'danger')
+        return redirect(url_for('customer.profile', section='support_requests'))
+
+    replies = ContactReply.query.filter_by(contact_message_id=message.id).order_by(ContactReply.created_at.asc()).all()
+
+    if request.headers.get('Accept') == 'application/json':
+        return jsonify({
+            'success': True,
+            'message': message.to_dict(),
+            'replies': [r.to_dict() for r in replies]
+        })
+
+    return redirect(url_for('customer.profile', section='support_requests'))
 
 
 @customer_bp.route('/address/delete/<int:address_id>', methods=['POST'])

@@ -104,6 +104,7 @@ def create_app(config_name=None):
     def contact():
         from flask import request, flash, redirect, url_for, current_app
         from app.models.contact_message import ContactMessage
+        from app.utils.email_helper import send_complaint_acknowledgement_email
 
         if request.method == 'POST':
             name = request.form.get('name', '').strip()
@@ -125,7 +126,17 @@ def create_app(config_name=None):
                     })
                     db.session.add(msg)
                     db.session.commit()
-                    flash('Thank you for contacting SparePro! Your message has been sent successfully.', 'success')
+
+                    complaint_ref = f"SR-{msg.id:04d}"
+
+                    # Send acknowledgement email if SMTP configuration is valid
+                    email_sent, email_msg = send_complaint_acknowledgement_email(email, complaint_ref, subject)
+
+                    if email_sent:
+                        flash(f'Thank you for contacting SparePro! Your complaint has been received successfully. Reference Number: {complaint_ref} (Enquiry #{msg.id}). An acknowledgement email has been sent to {email}.', 'success')
+                    else:
+                        flash(f'Thank you for contacting SparePro! Your complaint has been received successfully. Reference Number: {complaint_ref} (Enquiry #{msg.id}).', 'success')
+
                     return redirect(url_for('contact'))
                 except Exception as e:
                     db.session.rollback()

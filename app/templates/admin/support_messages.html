@@ -478,22 +478,33 @@
 
     function sendReply(event) {
         if (event) event.preventDefault();
-        if (!currentMessageId) return;
+        if (!currentMessageId) {
+            alert('No enquiry selected.');
+            return;
+        }
 
+        const recipient = document.getElementById('replyRecipient').value.trim();
         const subject = document.getElementById('replySubject').value.trim();
         const replyBody = document.getElementById('replyBody').value.trim();
         const sendBtn = document.getElementById('sendReplyBtn');
         const alertBox = document.getElementById('modalAlert');
 
+        if (!recipient) {
+            alertBox.className = 'alert alert-danger';
+            alertBox.textContent = 'Recipient email address is missing for this enquiry.';
+            alertBox.style.display = 'block';
+            return;
+        }
+
         if (!subject || !replyBody) {
             alertBox.className = 'alert alert-danger';
-            alertBox.textContent = 'Subject and reply body are required.';
+            alertBox.textContent = 'Subject and response message are required.';
             alertBox.style.display = 'block';
             return;
         }
 
         sendBtn.disabled = true;
-        sendBtn.textContent = 'Sending Email...';
+        sendBtn.textContent = '⏳ Sending Email...';
         alertBox.style.display = 'none';
 
         const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
@@ -503,19 +514,26 @@
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
                 'X-CSRF-Token': csrfToken,
                 'Accept': 'application/json'
             },
             body: JSON.stringify({ subject: subject, reply_body: replyBody })
         })
-        .then(res => res.json())
-        .then(data => {
+        .then(async res => {
+            let data;
+            try {
+                data = await res.json();
+            } catch (e) {
+                data = { success: false, message: `HTTP ${res.status}: ${res.statusText || 'Server error'}` };
+            }
+
             sendBtn.disabled = false;
             sendBtn.textContent = '🚀 Send Email Reply';
 
-            if (data.success) {
+            if (res.ok && data.success) {
                 alertBox.className = 'alert alert-success';
-                alertBox.textContent = data.message || 'Email reply sent and recorded successfully.';
+                alertBox.textContent = data.message || 'Email reply sent successfully.';
                 alertBox.style.display = 'block';
 
                 document.getElementById('replyBody').value = '';
@@ -532,7 +550,7 @@
             sendBtn.disabled = false;
             sendBtn.textContent = '🚀 Send Email Reply';
             alertBox.className = 'alert alert-danger';
-            alertBox.textContent = 'Error sending reply: ' + err.message;
+            alertBox.textContent = 'Error sending reply: ' + (err.message || 'Network error');
             alertBox.style.display = 'block';
         });
     }
