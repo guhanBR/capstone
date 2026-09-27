@@ -9,10 +9,12 @@ def send_support_reply_email(recipient_email, subject, reply_body):
     Returns: (success: bool, message: str, provider_msg_id: str or None)
     """
     mail_server = current_app.config.get('MAIL_SERVER', 'smtp.gmail.com')
-    mail_port = current_app.config.get('MAIL_PORT', 587)
+    mail_port = int(current_app.config.get('MAIL_PORT', 587))
     mail_use_tls = current_app.config.get('MAIL_USE_TLS', True)
-    mail_username = current_app.config.get('MAIL_USERNAME', '').strip()
-    mail_password = current_app.config.get('MAIL_PASSWORD', '').strip()
+    mail_use_ssl = current_app.config.get('MAIL_USE_SSL', False)
+    mail_timeout = int(current_app.config.get('MAIL_TIMEOUT', 10))
+    mail_username = str(current_app.config.get('MAIL_USERNAME', '') or '').strip()
+    mail_password = str(current_app.config.get('MAIL_PASSWORD', '') or '').strip()
     sender_email = current_app.config.get('MAIL_DEFAULT_SENDER', 'support@sparepro.local')
 
     # If SMTP credentials are not set in environment, return explicit failure message
@@ -27,9 +29,13 @@ def send_support_reply_email(recipient_email, subject, reply_body):
 
         msg.attach(MIMEText(reply_body, 'plain'))
 
-        server = smtplib.SMTP(mail_server, mail_port, timeout=10)
-        if mail_use_tls:
-            server.starttls()
+        if mail_use_ssl:
+            server = smtplib.SMTP_SSL(mail_server, mail_port, timeout=mail_timeout)
+        else:
+            server = smtplib.SMTP(mail_server, mail_port, timeout=mail_timeout)
+            if mail_use_tls:
+                server.starttls()
+
         server.login(mail_username, mail_password)
         server.send_message(msg)
         server.quit()
@@ -46,10 +52,12 @@ def send_complaint_acknowledgement_email(recipient_email, complaint_ref, subject
     Returns: (success: bool, message: str)
     """
     mail_server = current_app.config.get('MAIL_SERVER', 'smtp.gmail.com')
-    mail_port = current_app.config.get('MAIL_PORT', 587)
+    mail_port = int(current_app.config.get('MAIL_PORT', 587))
     mail_use_tls = current_app.config.get('MAIL_USE_TLS', True)
-    mail_username = current_app.config.get('MAIL_USERNAME', '').strip()
-    mail_password = current_app.config.get('MAIL_PASSWORD', '').strip()
+    mail_use_ssl = current_app.config.get('MAIL_USE_SSL', False)
+    mail_timeout = int(current_app.config.get('MAIL_TIMEOUT', 10))
+    mail_username = str(current_app.config.get('MAIL_USERNAME', '') or '').strip()
+    mail_password = str(current_app.config.get('MAIL_PASSWORD', '') or '').strip()
     sender_email = current_app.config.get('MAIL_DEFAULT_SENDER', 'support@sparepro.local')
 
     if not mail_username or not mail_password:
@@ -71,9 +79,13 @@ def send_complaint_acknowledgement_email(recipient_email, complaint_ref, subject
         )
         msg.attach(MIMEText(body, 'plain'))
 
-        server = smtplib.SMTP(mail_server, mail_port, timeout=10)
-        if mail_use_tls:
-            server.starttls()
+        if mail_use_ssl:
+            server = smtplib.SMTP_SSL(mail_server, mail_port, timeout=mail_timeout)
+        else:
+            server = smtplib.SMTP(mail_server, mail_port, timeout=mail_timeout)
+            if mail_use_tls:
+                server.starttls()
+
         server.login(mail_username, mail_password)
         server.send_message(msg)
         server.quit()
