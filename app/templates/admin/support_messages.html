@@ -191,7 +191,7 @@
                 </div>
 
                 <!-- Reply History List -->
-                <div id="replyHistoryContainer" style="display: none; margin-bottom: 1rem; max-height: 200px; overflow-y: auto; border: 1px solid var(--surface-border); border-radius: 6px; padding: 0.75rem; background: rgba(0,0,0,0.2);">
+                <div id="replyHistoryContainer" style="display: none; margin-bottom: 1.25rem; max-height: 320px; overflow-y: auto; border: 1px solid var(--surface-border); border-radius: 8px; padding: 0.85rem; background: rgba(0,0,0,0.3);">
                     <div id="replyHistoryList" style="font-size: 0.85rem;">
                         No previous replies.
                     </div>
@@ -452,23 +452,55 @@
             if (res.success && res.data) {
                 countSpan.textContent = res.data.length;
                 if (res.data.length === 0) {
-                    listDiv.innerHTML = '<div style="color: var(--text-muted); font-style: italic;">No previous replies.</div>';
+                    listDiv.innerHTML = '<div style="color: var(--text-muted); font-style: italic; text-align: center; padding: 1rem;">No previous reply attempts.</div>';
                 } else {
-                    listDiv.innerHTML = res.data.map(r => `
-                        <div style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.5rem; margin-bottom: 0.5rem;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <strong>${escapeHtml(r.staff_name)}</strong>
-                                <span class="status-badge ${r.sending_status === 'Sent' ? 'badge-success' : 'badge-danger'}" style="font-size: 0.7rem;">${escapeHtml(r.sending_status)}</span>
+                    listDiv.innerHTML = res.data.map((r, index) => {
+                        const isSent = r.sending_status === 'Sent';
+                        const badgeStyle = isSent 
+                            ? 'background-color: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4);' 
+                            : 'background-color: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4);';
+                        const cardStyle = isSent
+                            ? 'background: rgba(16, 185, 129, 0.04); border: 1px solid rgba(16, 185, 129, 0.25);'
+                            : 'background: rgba(239, 68, 68, 0.04); border: 1px solid rgba(239, 68, 68, 0.25);';
+
+                        return `
+                            <div style="${cardStyle} border-radius: 8px; padding: 0.85rem; margin-bottom: 0.75rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.5rem;">
+                                    <div>
+                                        <strong style="font-size: 0.88rem; color: var(--text-color);">👤 ${escapeHtml(r.staff_name)}</strong>
+                                        <span style="font-size: 0.75rem; color: var(--text-muted); margin-left: 0.5rem;">(Attempt #${index + 1})</span>
+                                    </div>
+                                    <span class="status-badge" style="${badgeStyle} font-size: 0.72rem; padding: 0.15rem 0.5rem; text-transform: uppercase;">
+                                        ${isSent ? '✓ SENT' : '✕ FAILED'}
+                                    </span>
+                                </div>
+                                <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.4rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.4rem;">
+                                    <span><strong>To:</strong> ${escapeHtml(r.recipient_email)}</span>
+                                    <span>📅 ${escapeHtml(r.created_at || '—')}</span>
+                                </div>
+                                <div style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.4rem;">
+                                    <strong>Subject:</strong> ${escapeHtml(r.subject || '—')}
+                                </div>
+                                <div style="margin-top: 0.4rem; padding: 0.6rem; background: rgba(0,0,0,0.25); border-radius: 6px; font-size: 0.85rem; line-height: 1.5; white-space: pre-wrap; word-break: break-word; color: var(--text-color);">
+                                    ${escapeHtml(r.reply_body)}
+                                </div>
+                                ${!isSent && r.error_message ? `
+                                    <div style="margin-top: 0.5rem; padding: 0.5rem 0.75rem; background: rgba(239, 68, 68, 0.12); border-left: 3px solid var(--danger); border-radius: 4px; color: #fca5a5; font-size: 0.78rem; line-height: 1.4; word-break: break-word;">
+                                        <strong>Failure Reason:</strong> ${escapeHtml(r.error_message)}
+                                    </div>
+                                ` : ''}
                             </div>
-                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.1rem;">To: ${escapeHtml(r.recipient_email)} | ${escapeHtml(r.created_at || '')}</div>
-                            <div style="margin-top: 0.3rem; white-space: pre-wrap; color: var(--text-color); font-size: 0.82rem;">${escapeHtml(r.reply_body)}</div>
-                            ${r.error_message ? `<div style="color: var(--danger); font-size: 0.75rem; margin-top: 0.2rem;">Error: ${escapeHtml(r.error_message)}</div>` : ''}
-                        </div>
-                    `).join('');
+                        `;
+                    }).join('');
                 }
             }
         })
-        .catch(() => {});
+        .catch(err => {
+            const listDiv = document.getElementById('replyHistoryList');
+            if (listDiv) {
+                listDiv.innerHTML = `<div style="color: var(--danger); font-size: 0.82rem;">Failed to load reply history: ${escapeHtml(err.message)}</div>`;
+            }
+        });
     }
 
     function toggleReplyHistory() {
