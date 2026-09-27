@@ -43,7 +43,7 @@ def test_admin_can_access_support_messages_page(app_context):
 
     res = client.get('/admin/support-messages')
     assert res.status_code == 200
-    assert b'Support Messages' in res.data
+    assert b'Support Centre' in res.data
     assert b'View and manage customer support enquiries' in res.data
 
 
@@ -53,7 +53,7 @@ def test_manager_can_access_support_messages_page(app_context):
 
     res = client.get('/admin/support-messages')
     assert res.status_code == 200
-    assert b'Support Messages' in res.data
+    assert b'Support Centre' in res.data
 
 
 def test_employee_cannot_access_support_messages_page(app_context):
