@@ -20,6 +20,27 @@ img, svg {
     height: auto;
 }
 
+.nav-mobile-toggle-btn {
+    display: none;
+    background: var(--surface-hover);
+    border: 1px solid var(--surface-border);
+    color: var(--text-color);
+    padding: 0.4rem 0.75rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.nav-mobile-toggle-btn:hover,
+.nav-mobile-toggle-btn.active {
+    background: var(--surface-border);
+    color: var(--secondary);
+}
+
+
 /* Base helper classes for layouts */
 .cart-layout {
     display: grid;
@@ -319,10 +340,42 @@ img, svg {
    ========================================================================== */
 @media (max-width: 768px) {
     /* ── Customer Navbar ── */
+    .nav-mobile-toggle-btn {
+        display: inline-flex !important;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .nav-links#navLinksMenu {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        background: var(--surface);
+        border: 1px solid var(--surface-border);
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        margin-top: 0.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .nav-links#navLinksMenu.mobile-expanded {
+        display: flex !important;
+    }
+
+    .nav-links#navLinksMenu .nav-item {
+        width: 100%;
+    }
+
+    .nav-links#navLinksMenu .nav-item a {
+        width: 100%;
+        padding: 0.6rem 0.85rem;
+    }
+
     .nav-links {
         gap: 0.5rem;
         font-size: 0.88rem;
     }
+
 
     /* ── Admin Topbar Direct Logout Button: Hide on mobile to prevent crowding ── */
     .admin-logout-btn {
@@ -622,6 +675,36 @@ img, svg {
     }
 }
 
+@media (max-width: 992px) {
+    .home-cat-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .home-cat-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.75rem;
+    }
+
+    .home-search-form {
+        flex-direction: column !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .home-search-input,
+    .home-search-form .btn {
+        width: 100% !important;
+    }
+
+    .support-messages-layout {
+        grid-template-columns: 1fr !important;
+        gap: 1rem;
+    }
+}
+
 /* ==========================================================================
    BREAKPOINT: EXTRA NARROW MOBILE (max-width: 360px & 320px)
    ========================================================================== */
@@ -651,3 +734,4 @@ img, svg {
         padding: 0.75rem;
     }
 }
+

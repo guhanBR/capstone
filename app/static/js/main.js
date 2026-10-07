@@ -130,3 +130,28 @@ document.querySelectorAll('.nav-links a').forEach(link => {
         });
     });
 });
+
+// Mobile Navigation Toggle
+function toggleMobileNav() {
+    const navMenu = document.getElementById('navLinksMenu');
+    const toggleBtn = document.getElementById('mobileNavToggleBtn');
+    if (navMenu) {
+        navMenu.classList.toggle('mobile-expanded');
+    }
+    if (toggleBtn) {
+        toggleBtn.classList.toggle('active');
+    }
+}
+
+// Mobile Admin Sidebar Toggle
+function toggleAdminSidebar() {
+    const sidebar = document.getElementById('adminSidebar');
+    const backdrop = document.getElementById('adminSidebarBackdrop');
+    if (sidebar) {
+        sidebar.classList.toggle('mobile-open');
+    }
+    if (backdrop) {
+        backdrop.classList.toggle('show');
+    }
+}
+

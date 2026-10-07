@@ -31,8 +31,14 @@
                 <span style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-top: -3px;">Motors &amp; Pumps Spare Parts</span>
             </a>
 
+            <!-- Mobile Navigation Toggle Button -->
+            <button type="button" class="nav-mobile-toggle-btn" id="mobileNavToggleBtn" onclick="toggleMobileNav()" aria-label="Toggle Navigation">
+                ☰ Menu
+            </button>
+
             <!-- Text Navigation Links -->
-            <ul class="nav-links">
+            <ul class="nav-links" id="navLinksMenu">
+
                 <li class="nav-item {% if request.endpoint == 'index' %}active{% endif %}">
                     <a href="{{ url_for('index') }}">Home</a>
                 </li>
