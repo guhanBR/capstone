@@ -10,3 +10,5 @@ uploads/*
 !uploads/.gitkeep
 .vscode/
 .idea/
+serviceAccountKey*.json
+

@@ -6,21 +6,26 @@ load_dotenv()
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'sparepro-default-secret-key-2026')
     
-    # MySQL primary database configuration
-    MYSQL_HOST = os.environ.get('MYSQL_HOST', 'localhost')
-    MYSQL_PORT = int(os.environ.get('MYSQL_PORT', 3306))
-    MYSQL_DATABASE = os.environ.get('MYSQL_DATABASE', 'sparepro_db')
-    MYSQL_USER = os.environ.get('MYSQL_USER', 'root')
-    MYSQL_PASSWORD = os.environ.get('MYSQL_PASSWORD', 'rootpassword')
+    # Database Configuration
+    raw_db_url = os.environ.get('DATABASE_URL')
     
-    # Primary DB URI - defaults to MySQL
-    SQLALCHEMY_DATABASE_URI = os.environ.get(
-        'DATABASE_URL',
-        f'mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}'
-    )
+    if raw_db_url:
+        if raw_db_url.startswith('postgres://'):
+            raw_db_url = raw_db_url.replace('postgres://', 'postgresql://', 1)
+        SQLALCHEMY_DATABASE_URI = raw_db_url
+    elif os.environ.get('MYSQL_HOST'):
+        MYSQL_HOST = os.environ.get('MYSQL_HOST')
+        MYSQL_PORT = int(os.environ.get('MYSQL_PORT', 3306))
+        MYSQL_DATABASE = os.environ.get('MYSQL_DATABASE', 'sparepro_db')
+        MYSQL_USER = os.environ.get('MYSQL_USER', 'root')
+        MYSQL_PASSWORD = os.environ.get('MYSQL_PASSWORD', '')
+        SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}'
+    else:
+        # Fallback to SQLite (works out of the box for Render, local dev, and testing without MySQL daemon)
+        SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(os.path.abspath(os.path.dirname(__file__)), 'sparepro.db')
     
-    # Dynamic check: if MySQL connection fails or SQLite fallback requested, fallback cleanly to SQLite
     FALLBACK_SQLITE_URI = 'sqlite:///' + os.path.join(os.path.abspath(os.path.dirname(__file__)), 'sparepro.db')
+
     
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     

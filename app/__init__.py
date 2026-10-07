@@ -25,6 +25,11 @@ def create_app(config_name=None):
     login_manager.init_app(app)
     csrf.init_app(app)
 
+    # Initialize Firebase Admin SDK & Firestore client
+    from app.utils.firebase import init_firebase
+    init_firebase(app)
+
+
     # User loader for Flask-Login
     from app.models.user import User
 
