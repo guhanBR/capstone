@@ -207,6 +207,14 @@ def create_app(config_name=None):
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
     with app.app_context():
-        db.create_all()
+        try:
+            db.create_all()
+        except Exception as e:
+            app.logger.warning(f"Primary SQL DB connection failed: {e}. Falling back to SQLite...")
+            sqlite_uri = 'sqlite:///' + os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'sparepro.db')
+            app.config['SQLALCHEMY_DATABASE_URI'] = sqlite_uri
+            db.engine.dispose()
+            db.create_all()
+
 
     return app

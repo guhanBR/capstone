@@ -8,12 +8,13 @@ class Config:
     
     # Database Configuration
     raw_db_url = os.environ.get('DATABASE_URL')
+    is_cloud_platform = os.environ.get('RENDER') is not None or os.environ.get('PORT') is not None
     
-    if raw_db_url:
+    if raw_db_url and not (is_cloud_platform and ('localhost' in raw_db_url or '127.0.0.1' in raw_db_url)):
         if raw_db_url.startswith('postgres://'):
             raw_db_url = raw_db_url.replace('postgres://', 'postgresql://', 1)
         SQLALCHEMY_DATABASE_URI = raw_db_url
-    elif os.environ.get('MYSQL_HOST'):
+    elif os.environ.get('MYSQL_HOST') and not (is_cloud_platform and os.environ.get('MYSQL_HOST') in ('localhost', '127.0.0.1')):
         MYSQL_HOST = os.environ.get('MYSQL_HOST')
         MYSQL_PORT = int(os.environ.get('MYSQL_PORT', 3306))
         MYSQL_DATABASE = os.environ.get('MYSQL_DATABASE', 'sparepro_db')
@@ -25,6 +26,7 @@ class Config:
         SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(os.path.abspath(os.path.dirname(__file__)), 'sparepro.db')
     
     FALLBACK_SQLITE_URI = 'sqlite:///' + os.path.join(os.path.abspath(os.path.dirname(__file__)), 'sparepro.db')
+
 
     
     SQLALCHEMY_TRACK_MODIFICATIONS = False
