@@ -216,5 +216,13 @@ def create_app(config_name=None):
             db.engine.dispose()
             db.create_all()
 
+        # Synchronize Firebase Firestore documents into the web application
+        try:
+            from app.services.firebase_sync import sync_firestore_to_local
+            sync_firestore_to_local()
+        except Exception as fe:
+            app.logger.warning(f"Firestore startup sync notice: {fe}")
+
+
 
     return app
