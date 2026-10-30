@@ -57,7 +57,7 @@
                         {% for order in recent_orders %}
                             <tr>
                                 <td><strong>{{ order.order_number }}</strong></td>
-                                <td>{{ order.created_at.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ order.created_at|format_ist('%Y-%m-%d') }}</td>
                                 <td>{{ order.items|length }} item(s)</td>
                                 <td>₹{{ "{:,.2f}".format(order.total_amount) }}</td>
                                 <td><span class="status-badge badge-{{ order.order_status|lower }}">{{ order.order_status }}</span></td>

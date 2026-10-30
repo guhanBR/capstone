@@ -52,7 +52,7 @@
                                     <strong>{{ order.user.name }}</strong><br>
                                     <span style="font-size: 0.8rem; color: var(--text-muted);">{{ order.user.email }}</span>
                                 </td>
-                                <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>{{ order.created_at|format_ist('%Y-%m-%d %H:%M') }}</td>
                                 <td><strong>₹{{ "{:,.2f}".format(order.total_amount) }}</strong></td>
                                 <td><span class="status-badge badge-{{ order.payment_status|lower }}">{{ order.payment_status }}</span></td>
                                 <td><span class="status-badge badge-{{ order.order_status|lower }}">{{ order.order_status }}</span></td>

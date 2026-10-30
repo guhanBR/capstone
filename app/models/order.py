@@ -22,10 +22,21 @@ class Order(db.Model):
     items = db.relationship('OrderItem', backref='order', lazy=True, cascade='all, delete-orphan')
     reviews = db.relationship('Review', backref='order', lazy=True)
 
+    @property
+    def created_at_ist(self):
+        from app.utils.timezone import to_ist
+        return to_ist(self.created_at)
+
+    @property
+    def updated_at_ist(self):
+        from app.utils.timezone import to_ist
+        return to_ist(self.updated_at)
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     def to_dict(self):
+        from app.utils.timezone import format_ist
         return {
             'id': self.id,
             'user_id': self.user_id,
@@ -40,8 +51,9 @@ class Order(db.Model):
             'payment_method': self.payment_method,
             'payment_status': self.payment_status,
             'order_status': self.order_status,
-            'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S') if self.created_at else None,
-            'updated_at': self.updated_at.strftime('%Y-%m-%d %H:%M:%S') if self.updated_at else None,
+            'created_at': format_ist(self.created_at, '%Y-%m-%d %H:%M:%S') if self.created_at else None,
+            'updated_at': format_ist(self.updated_at, '%Y-%m-%d %H:%M:%S') if self.updated_at else None,
+            'created_at_utc': self.created_at.strftime('%Y-%m-%d %H:%M:%S') if self.created_at else None,
             'items_count': sum(item.quantity for item in self.items),
             'items': [item.to_dict() for item in self.items]
         }
@@ -63,10 +75,16 @@ class OrderItem(db.Model):
     # Backref to Product
     product = db.relationship('Product', lazy=True)
 
+    @property
+    def created_at_ist(self):
+        from app.utils.timezone import to_ist
+        return to_ist(self.created_at)
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     def to_dict(self):
+        from app.utils.timezone import format_ist
         return {
             'id': self.id,
             'order_id': self.order_id,
@@ -76,5 +94,5 @@ class OrderItem(db.Model):
             'quantity': self.quantity,
             'unit_price': float(self.unit_price),
             'subtotal': float(self.subtotal),
-            'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S') if self.created_at else None
+            'created_at': format_ist(self.created_at, '%Y-%m-%d %H:%M:%S') if self.created_at else None
         }

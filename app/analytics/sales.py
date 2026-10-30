@@ -26,9 +26,9 @@ class SalesAnalytics:
             'total_amount': float(o.total_amount),
             'subtotal': float(o.subtotal),
             'order_status': o.order_status,
-            'created_at': o.created_at,
-            'date': o.created_at.strftime('%Y-%m-%d'),
-            'month': o.created_at.strftime('%Y-%m')
+            'created_at': o.created_at_ist or o.created_at,
+            'date': (o.created_at_ist or o.created_at).strftime('%Y-%m-%d') if o.created_at else '',
+            'month': (o.created_at_ist or o.created_at).strftime('%Y-%m') if o.created_at else ''
         } for o in orders]
 
         df = pd.DataFrame(data)

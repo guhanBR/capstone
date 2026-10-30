@@ -22,7 +22,7 @@
         </div>
         <div class="order-confirmed-row">
             <span>Date</span>
-            <strong>{{ order.created_at.strftime('%d %b %Y, %I:%M %p') }}</strong>
+            <strong>{{ order.created_at|format_ist('%d %b %Y, %I:%M %p') }}</strong>
         </div>
         <div class="order-confirmed-row">
             <span>Status</span>
@@ -198,7 +198,7 @@
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
     <div>
         <h2>Order #{{ order.order_number }}</h2>
-        <p style="color: var(--text-muted); font-size: 0.9rem;">Placed on {{ order.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Placed on {{ order.created_at|format_ist('%B %d, %Y at %I:%M %p') }}</p>
     </div>
     <span class="status-badge badge-{{ order.order_status|lower }}" style="font-size: 1rem; padding: 0.5rem 1rem;">
         {{ order.order_status }}

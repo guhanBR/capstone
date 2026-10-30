@@ -24,7 +24,7 @@
                     {% for order in orders %}
                         <tr>
                             <td><strong>{{ order.order_number }}</strong></td>
-                            <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>{{ order.created_at|format_ist('%Y-%m-%d %H:%M') }}</td>
                             <td>{{ order.items|length }} item(s)</td>
                             <td><strong>₹{{ "{:,.2f}".format(order.total_amount) }}</strong></td>
                             <td><span class="status-badge badge-{{ order.payment_status|lower }}">{{ order.payment_status }}</span></td>

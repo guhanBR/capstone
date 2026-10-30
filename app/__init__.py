@@ -203,6 +203,11 @@ def create_app(config_name=None):
             now=datetime.now(timezone.utc).replace(tzinfo=None)
         )
 
+    # Register custom Jinja filters for timezone handling (Asia/Kolkata IST)
+    from app.utils.timezone import to_ist, format_ist
+    app.jinja_env.filters['to_ist'] = to_ist
+    app.jinja_env.filters['format_ist'] = format_ist
+
     # Ensure upload directory exists
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 

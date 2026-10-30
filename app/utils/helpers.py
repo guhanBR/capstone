@@ -3,9 +3,11 @@ import random
 from app import db
 from app.models.audit_log import AuditLog
 
+from app.utils.timezone import IST, to_ist, format_ist
+
 def generate_order_number():
-    """Generates order numbers in SP-YYYYMMDD-XXXX format"""
-    date_str = datetime.now(timezone.utc).strftime('%Y%m%d')
+    """Generates order numbers in SP-YYYYMMDD-XXXX format using local Indian date"""
+    date_str = datetime.now(IST).strftime('%Y%m%d')
     random_digits = f"{random.randint(1000, 9999)}"
     return f"SP-{date_str}-{random_digits}"
 
